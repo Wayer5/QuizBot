@@ -1,14 +1,14 @@
-import os
-import logging
 import asyncio
+import logging
+import os
+
 from dotenv import load_dotenv
 
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
 from aiogram.types import (
-    Message, InlineKeyboardMarkup,
-    InlineKeyboardButton, WebAppInfo,
-    ReplyKeyboardMarkup, KeyboardButton,
+    InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton,
+    Message, ReplyKeyboardMarkup, WebAppInfo,
 )
 
 
@@ -28,9 +28,10 @@ dp: Dispatcher = Dispatcher()
 def create_reply_keyboard() -> ReplyKeyboardMarkup:
     """Функция для создания Reply клавиатуры с кнопкой 'Start'.
 
-    Returns:
-        ReplyKeyboardMarkup: Клавиатура с кнопкой 'Start'.
-
+    Returns
+    -------
+    ReplyKeyboardMarkup
+        Клавиатура с кнопкой 'Start'.
     """
     return ReplyKeyboardMarkup(
         keyboard=[
@@ -43,12 +44,15 @@ def create_reply_keyboard() -> ReplyKeyboardMarkup:
 def create_inline_keyboard(web_app_url: str) -> InlineKeyboardMarkup:
     """Функция для создания Inline клавиатуры с WebApp кнопкой.
 
-    Args:
-        web_app_url (str): URL веб-приложения для кнопки.
+    Args
+    ----
+    web_app_url : str
+        URL веб-приложения для кнопки.
 
-    Returns:
-        InlineKeyboardMarkup: Инлайн-клавиатура с WebApp кнопкой.
-
+    Returns
+    -------
+    InlineKeyboardMarkup
+        Инлайн-клавиатура с WebApp кнопкой.
     """
     web_app_button: InlineKeyboardButton = InlineKeyboardButton(
         text="Открыть WebApp",  # Текст кнопки
