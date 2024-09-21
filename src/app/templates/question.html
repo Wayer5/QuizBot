@@ -17,20 +17,20 @@
   <div class="container">
     <h1 class="text-center mb-4">Quiz</h1>
     <form method="POST">
-      {% csrf_token %}
+      {{ csrf_token }}
       <!-- Токен добовляем благодаря https://pypi.org/project/fastapi-csrf-protect/ -->
       <input type="hidden" name="question_id" value="{{ question.id }}">
       <div class="card">
         <div class="card-body">
           <h5 class="card-title">{{ question.text }}</h5>
           <div class="d-flex flex-wrap justify-content-between">
-            {% for answer in answers %}
+
               <button class="btn btn-primary btn-lg answer-button" type="submit" name="answer" value="{{ answer.text }}">{{ answer.text }}</button> 
               <!-- Отправляет запрос пост, после получается редирект, в параментрах указываем name, его мы и получим -->
               <button class="btn btn-primary btn-lg answer-button" type="submit" name="answer" value="{{ answer.text }}">{{ answer.text }}</button> 
               <button class="btn btn-primary btn-lg answer-button" type="submit" name="answer" value="{{ answer.text }}">{{ answer.text }}</button> 
               <button class="btn btn-primary btn-lg answer-button" type="submit" name="answer" value="{{ answer.text }}">{{ answer.text }}</button> 
-            {% endfor %}
+
           </div>
         </div>
       </div>
