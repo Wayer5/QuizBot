@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz</title>
+  <!-- Подключение Bootstrap CSS -->
+  <style>
+    .answer-button {
+      flex: 1 0 45%; /* Устанавливаем максимальную ширину кнопки в 45% от родительского контейнера */
+      margin: 0.7rem; /* Добавляем интервал между кнопками */
+    }
+  </style>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+</head>
+<body>
+  <div class="container">
+    <h1 class="text-center mb-4">Quiz</h1>
+    <form method="POST">
+      {% csrf_token %}
+      <!-- Токен добовляем благодаря https://pypi.org/project/fastapi-csrf-protect/ -->
+      <input type="hidden" name="question_id" value="{{ question.id }}">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">{{ question.text }}</h5>
+          <div class="d-flex flex-wrap justify-content-between">
+            {% for answer in answers %}
+              <button class="btn btn-primary btn-lg answer-button" type="submit" name="answer" value="{{ answer.text }}">{{ answer.text }}</button> 
+              <!-- Отправляет запрос пост, после получается редирект, в параментрах указываем name, его мы и получим -->
+              <button class="btn btn-primary btn-lg answer-button" type="submit" name="answer" value="{{ answer.text }}">{{ answer.text }}</button> 
+              <button class="btn btn-primary btn-lg answer-button" type="submit" name="answer" value="{{ answer.text }}">{{ answer.text }}</button> 
+              <button class="btn btn-primary btn-lg answer-button" type="submit" name="answer" value="{{ answer.text }}">{{ answer.text }}</button> 
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</body>
+</html>
