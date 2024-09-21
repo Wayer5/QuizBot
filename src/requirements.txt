@@ -1,4 +1,2 @@
 aiogram<4.0
 pydantic-settings #Библиотека, что бы следить за оформлением
-ruff==0.6.1
-pre-commit==3.8.0
