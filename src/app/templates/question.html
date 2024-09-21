@@ -24,13 +24,13 @@
         <div class="card-body">
           <h5 class="card-title">{{ question.text }}</h5>
           <div class="d-flex flex-wrap justify-content-between">
-
+            {% for answer in answers %}
               <button class="btn btn-primary btn-lg answer-button" type="submit" name="answer" value="{{ answer.text }}">{{ answer.text }}</button> 
               <!-- Отправляет запрос пост, после получается редирект, в параментрах указываем name, его мы и получим -->
               <button class="btn btn-primary btn-lg answer-button" type="submit" name="answer" value="{{ answer.text }}">{{ answer.text }}</button> 
               <button class="btn btn-primary btn-lg answer-button" type="submit" name="answer" value="{{ answer.text }}">{{ answer.text }}</button> 
               <button class="btn btn-primary btn-lg answer-button" type="submit" name="answer" value="{{ answer.text }}">{{ answer.text }}</button> 
-
+            {% endfor %}
           </div>
         </div>
       </div>
