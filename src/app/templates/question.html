@@ -43,30 +43,27 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<body>
-  <div class="container text-center">
-    <h1 class="mb-4">Quiz</h1>
-    <form method="POST">
-      {{ csrf_token }}
-      <input type="hidden" name="question_id" value="{{ question.id }}">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title mb-4">{{ question.text }}</h5>
-          <div class="row justify-content-center">
-            {% for answer in answers %}
-            <div class="col-md-6 col-sm-12 mb-2">
-                <label class="align-items-center cursor-pointer">
-                  <input type="radio" class="form-check-input answer-button" name="answer" value="{{ answer.text }}">
-                  <span class="form-check-label mb-0 ms-2">{{ answer.text }}</span>
-                </label>
-            </div>
-            {% endfor %}
-          </div>
-          <button type="submit" class="btn btn-primary btn-lg mt-4">Далее</button>
+<div class="container text-center">
+<h1 class="mb-4">Quiz</h1>
+<form method="POST">
+    {{ csrf_token }}
+    <input type="hidden" name="question_id" value="{{ question.id }}">
+    <div class="card">
+    <div class="card-body">
+        <h5 class="card-title mb-4">{{ question.text }}</h5>
+        <div class="row justify-content-center">
+        {% for answer in answers %}
+        <div class="col-md-6 col-sm-12 mb-2">
+            <label class="align-items-center cursor-pointer">
+                <input type="radio" class="form-check-input answer-button" name="answer" value="{{ answer.text }}">
+                <span class="form-check-label mb-0 ms-2">{{ answer.text }}</span>
+            </label>
         </div>
-      </div>
-    </form>
-  </div>
-</body>
-</html>
+        {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg mt-4">Далее</button>
+    </div>
+    </div>
+</form>
+</div>
 {% endblock content %}
