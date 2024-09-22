@@ -1,1 +1,3 @@
-# Основные зависимости здесь
+aiogram<4.0
+pydantic-settings
+jinja2
