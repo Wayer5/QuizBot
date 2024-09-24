@@ -11,7 +11,7 @@ class Config(object):
         'postgresql://'
         f'{get("POSTGRES_USER")}:'
         f'{get("POSTGRES_PASSWORD")}@'
-        f'{get("DB_HOST")}:{get("DB_PORT")}/{get("POSTGRES_DB")}'
+        f'{get("DB_HOST")}:5432/{get("POSTGRES_DB")}'
     )
     SECRET_KEY: str = get('SECRET_KEY')
 
