@@ -2,26 +2,28 @@ from app import db
 
 
 class Category(db.Model):
-    """
-    Модель категории викторины.
+
+    """Модель категории викторины.
+
     Хранит информацию о различных категориях викторин.
     """
+
     __tablename__ = 'categories'
     id = db.Column(
         db.Integer,
         primary_key=True,
-        comment='Уникальный идентификатор категории.'
+        comment='Уникальный идентификатор категории.',
     )
     name = db.Column(
         db.String(50),
         nullable=False,
         unique=True,
-        comment='Название категории викторины.'
+        comment='Название категории викторины.',
     )
     is_active = db.Column(
         db.Boolean,
         default=True,
-        comment='Флаг активности категории.'
+        comment='Флаг активности категории.',
     )
 
     # Связь с таблицей quizzes
@@ -33,31 +35,33 @@ class Category(db.Model):
 
 
 class Quiz(db.Model):
-    """
-    Модель викторины.
+
+    """Модель викторины.
+
     Содержит основную информацию о викторине, такую как название и категория.
     """
+
     __tablename__ = 'quizzes'
     id = db.Column(
         db.Integer,
         primary_key=True,
-        comment='Уникальный идентификатор викторины.'
+        comment='Уникальный идентификатор викторины.',
     )
     title = db.Column(
         db.String(150),
         nullable=False,
-        comment='Название викторины.'
+        comment='Название викторины.',
     )
     category_id = db.Column(
         db.Integer,
         db.ForeignKey('categories.id'),
         nullable=False,
-        comment='Идентификатор категории, к которой относится викторина.'
+        comment='Идентификатор категории, к которой относится викторина.',
     )
     is_active = db.Column(
         db.Boolean,
         default=True,
-        comment="Флаг активности викторины."
+        comment='Флаг активности викторины.',
     )
 
     # Связь с таблицей questions
@@ -69,30 +73,32 @@ class Quiz(db.Model):
 
 
 class Question(db.Model):
+
     """
     Модель вопроса. Содержит информацию о вопросах, относящихся к викторине.
     """
+
     __tablename__ = 'questions'
     id = db.Column(
         db.Integer,
         primary_key=True,
-        comment='Уникальный идентификатор вопроса.'
+        comment='Уникальный идентификатор вопроса.',
     )
     title = db.Column(
         db.String(150),
         nullable=False,
-        comment='Текст вопроса.'
+        comment='Текст вопроса.',
     )
     quiz_id = db.Column(
         db.Integer,
         db.ForeignKey('quizzes.id'),
         nullable=False,
-        comment='Идентификатор викторины, к которой относится вопрос.'
+        comment='Идентификатор викторины, к которой относится вопрос.',
     )
     is_active = db.Column(
         db.Boolean,
         default=True,
-        comment='Флаг активности вопроса.'
+        comment='Флаг активности вопроса.',
     )
 
     # Связь с таблицей variants
@@ -104,75 +110,79 @@ class Question(db.Model):
 
 
 class Variant(db.Model):
+
     """
     Модель варианта ответа. Содержит информацию о вариантах ответа на вопрос.
     """
+
     __tablename__ = 'variants'
     id = db.Column(
         db.Integer,
         primary_key=True,
-        comment='Уникальный идентификатор варианта ответа.'
+        comment='Уникальный идентификатор варианта ответа.',
     )
     question_id = db.Column(
         db.Integer,
         db.ForeignKey('questions.id'),
         nullable=False,
-        comment='Идентификатор вопроса, к которому относится данный ответ.'
+        comment='Идентификатор вопроса, к которому относится данный ответ.',
     )
     title = db.Column(
         db.String(150),
         nullable=False,
-        comment='Текст варианта ответа.'
+        comment='Текст варианта ответа.',
     )
     description = db.Column(
         db.Text,
         nullable=True,
-        comment='Дополнительное описание или пояснение для варианта ответа.'
+        comment='Дополнительное описание или пояснение для варианта ответа.',
     )
     is_right_choice = db.Column(
         db.Boolean, default=False,
-        comment='Флаг, указывающий, является ли данный ответ правильным.'
+        comment='Флаг, указывающий, является ли данный ответ правильным.',
     )
 
 
 class QuizResult(db.Model):
-    """
-    Модель результатов викторины.
+
+    """Модель результатов викторины.
+
     Хранит информацию о прохождении пользователем викторины.
     Такие как количество правильных ответов и статус завершения.
     """
+
     __tablename__ = 'quiz_results'
     id = db.Column(
         db.Integer,
         primary_key=True,
-        comment='Уникальный идентификатор результата викторины.'
+        comment='Уникальный идентификатор результата викторины.',
     )
     # user_id = db.Column(
     #     db.Integer,
     #     db.ForeignKey('users.id'),
     #     nullable=False,
-    #     comment='Идентификатор пользователя, прошедшего викторину.'
+    #     comment='Идентификатор пользователя, прошедшего викторину.',
     # )
     quiz_id = db.Column(
         db.Integer,
         db.ForeignKey('quizzes.id'),
         nullable=False,
-        comment='Идентификатор викторины.'
+        comment='Идентификатор викторины.',
     )
     total_questions = db.Column(
         db.Integer,
         nullable=False,
-        comment='Общее количество вопросов в викторине.'
+        comment='Общее количество вопросов в викторине.',
     )
     correct_answers_count = db.Column(
         db.Integer,
         nullable=False,
-        comment='Количество правильных ответов, данных пользователем.'
+        comment='Количество правильных ответов, данных пользователем.',
     )
     is_complete = db.Column(
         db.Boolean,
         default=False,
-        comment='Флаг завершения викторины.'
+        comment='Флаг завершения викторины.',
     )
 
     # Связь с таблицей questions
@@ -180,41 +190,43 @@ class QuizResult(db.Model):
         db.Integer,
         db.ForeignKey('questions.id'),
         nullable=False,
-        comment='Идентификатор последнего отвеченного вопроса.'
+        comment='Идентификатор последнего отвеченного вопроса.',
     )
 
 
 class UserAnswer(db.Model):
-    """
-    Модель ответов пользователей на вопросы.
+
+    """Модель ответов пользователей на вопросы.
+
     Хранит информацию о каждом ответе пользователя на вопросы викторины.
     """
+
     __tablename__ = 'user_answers'
     id = db.Column(
         db.Integer,
         primary_key=True,
-        comment='Уникальный идентификатор ответа пользователя.'
+        comment='Уникальный идентификатор ответа пользователя.',
     )
     # user_id = db.Column(
     #     db.Integer,
     #     db.ForeignKey('users.id'),
     #     nullable=False,
-    #     comment="Идентификатор пользователя."
+    #     comment='Идентификатор пользователя.',
     # )
     question_id = db.Column(
         db.Integer,
         db.ForeignKey('questions.id'),
         nullable=False,
-        comment='Идентификатор вопроса, на который ответил пользователь.'
+        comment='Идентификатор вопроса, на который ответил пользователь.',
     )
     answer_id = db.Column(
         db.Integer,
         db.ForeignKey('variants.id'),
         nullable=False,
-        comment='Идентификатор выбранного варианта ответа.'
+        comment='Идентификатор выбранного варианта ответа.',
     )
     is_right = db.Column(
         db.Boolean,
         default=False,
-        comment='Флаг, указывающий, является ли ответ правильным.'
+        comment='Флаг, указывающий, является ли ответ правильным.',
     )

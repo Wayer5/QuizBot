@@ -9,4 +9,11 @@ app.config.from_object(Config)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-from app.models import *
+from app.models import (
+    Category,
+    QuizResult,
+    Question,
+    Quiz,
+    Variant,
+    UserAnswer
+)
