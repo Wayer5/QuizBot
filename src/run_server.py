@@ -13,7 +13,7 @@ async def main() -> None:
             app=WsgiToAsgi(app),
             port=settings.PORT,
             use_colors=False,
-            host="127.0.0.1",
+            host="0.0.0.0",
         )
     )
 
