@@ -1,9 +1,9 @@
 import logging
 
 from aiogram import Bot, Dispatcher
-from aiogram.filters import Command
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
+from aiogram.filters import Command
 from aiogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
@@ -14,7 +14,6 @@ from aiogram.types import (
 )
 
 from settings import settings
-
 
 # Включаем логирование
 logging.basicConfig(level=logging.INFO)

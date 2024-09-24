@@ -2,11 +2,13 @@ from os import getenv as get
 
 from dotenv import load_dotenv
 
-
 load_dotenv()
 
 
 class Config(object):
+
+    """Конфиг flask."""
+
     SQLALCHEMY_DATABASE_URI: str = (
         'postgresql://'
         f'{get("POSTGRES_USER")}:'
@@ -17,6 +19,9 @@ class Config(object):
 
 
 class Settings:
+
+    """Настройки приложения."""
+
     PORT: int = int(get('PORT', 5000))
     TELEGRAM_TOKEN: str = get('TELEGRAM_TOKEN')
     WEB_URL: str = get('WEB_URL', 'http://localhost:5000')
