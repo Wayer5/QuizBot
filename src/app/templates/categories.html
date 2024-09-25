@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Рубрики</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,27 +13,26 @@
         h1 {
             color: #333;
         }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        li {
-            background: #f9f9f9;
-            margin: 10px 0;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+        a {
+            display: block;
+            word-wrap: break-word;
+            word-break: break-all;
         }
     </style>
 </head>
-<body>
-    <div class="questions">
-        <h2>Рубрики</h2>
-        <ul>
-            <li><a href="ссылка_1">Анатомия человекаАнатомия человекаАнатомия человек</a></li>
-            <li><a href="ссылка_2">Фармакология, клиническая фармакологияФармакология</a></li>
-            <li><a href="ссылка_3">Общественное здоровье и здравоохранениеОбщественно</a></li>
+<body class="container mt-5">
+    <h1 class="text-center">Рубрики</h1>
+    <div class="table-container mt-5">
+        <ul class="list-group">
+            {% for category in categories %}
+                <li class="list-group-item">
+                    <a href="{{ url_for('quizzes', category_id=category.id) }}">{{ category.name }}</a>
+                </li>
+            {% endfor %}
         </ul>
     </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
