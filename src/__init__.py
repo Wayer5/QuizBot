@@ -2,7 +2,7 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
-from MedStat_Solutions_team3.settings import Config
+from settings import Config
 
 from MedStat_Solutions_team3.src.models import (
     Category,
@@ -13,9 +13,10 @@ from MedStat_Solutions_team3.src.models import (
     UserAnswer
 )
 
-
 app = Flask(__name__)
+
 app.config.from_object(Config)
+
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
@@ -27,3 +28,5 @@ __all__ = [
     'Variant',
     'UserAnswer',
 ]
+
+from . import bot, api_views, admin  # noqa

@@ -1,8 +1,8 @@
-import asyncio
 import logging
-import os
 
 from aiogram import Bot, Dispatcher
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
 from aiogram.filters import Command
 from aiogram.types import (
     InlineKeyboardButton,
@@ -12,16 +12,15 @@ from aiogram.types import (
     ReplyKeyboardMarkup,
     WebAppInfo,
 )
-from dotenv import load_dotenv
+
+from settings import settings
 
 # Включаем логирование
 logging.basicConfig(level=logging.INFO)
 
-# Загружаем файл .env
-load_dotenv()
-
 # Создаем объект бота. https://t.me/MedStatSolution_Bot
-bot: Bot = Bot(token=os.getenv('TELEGRAM_TOKEN'))
+bot: Bot = Bot(token=settings.TELEGRAM_TOKEN,
+               default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
 # Диспетчер
 dp: Dispatcher = Dispatcher()
@@ -97,12 +96,3 @@ async def on_start_button(message: Message) -> None:
         'Нажми кнопку ниже, чтобы открыть WebApp:',
         reply_markup=create_inline_keyboard(web_app_url),
     )
-
-
-async def main() -> None:
-    """Запуск процесса поллинга новых апдейтов."""
-    await dp.start_polling(bot)
-
-
-if __name__ == '__main__':
-    asyncio.run(main())
