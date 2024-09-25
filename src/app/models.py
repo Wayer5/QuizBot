@@ -2,12 +2,11 @@ from app import db
 
 
 class Category(db.Model):
-
     """Модель категории викторины.
 
     Хранит информацию о различных категориях викторин.
-    """
 
+    """
     __tablename__ = 'categories'
     id = db.Column(
         db.Integer,
@@ -35,12 +34,11 @@ class Category(db.Model):
 
 
 class Quiz(db.Model):
-
     """Модель викторины.
 
     Содержит основную информацию о викторине, такую как название и категория.
-    """
 
+    """
     __tablename__ = 'quizzes'
     id = db.Column(
         db.Integer,
@@ -73,11 +71,11 @@ class Quiz(db.Model):
 
 
 class Question(db.Model):
+    """Модель вопроса.
+
+    Содержит информацию о вопросах, относящихся к викторине.
 
     """
-    Модель вопроса. Содержит информацию о вопросах, относящихся к викторине.
-    """
-
     __tablename__ = 'questions'
     id = db.Column(
         db.Integer,
@@ -110,11 +108,11 @@ class Question(db.Model):
 
 
 class Variant(db.Model):
+    """Модель варианта ответа.
+
+    Содержит информацию о вариантах ответа на вопрос.
 
     """
-    Модель варианта ответа. Содержит информацию о вариантах ответа на вопрос.
-    """
-
     __tablename__ = 'variants'
     id = db.Column(
         db.Integer,
@@ -144,13 +142,12 @@ class Variant(db.Model):
 
 
 class QuizResult(db.Model):
-
     """Модель результатов викторины.
 
     Хранит информацию о прохождении пользователем викторины.
     Такие как количество правильных ответов и статус завершения.
-    """
 
+    """
     __tablename__ = 'quiz_results'
     id = db.Column(
         db.Integer,
@@ -195,12 +192,11 @@ class QuizResult(db.Model):
 
 
 class UserAnswer(db.Model):
-
     """Модель ответов пользователей на вопросы.
 
     Хранит информацию о каждом ответе пользователя на вопросы викторины.
-    """
 
+    """
     __tablename__ = 'user_answers'
     id = db.Column(
         db.Integer,
