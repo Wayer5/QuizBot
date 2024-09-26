@@ -1,59 +1,17 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Викторины</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        h1 {
-            color: #333;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-            color: #333;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-        a {
-            display: block;
-        }
-    </style>
-</head>
-<body>
-    <div class="table-container">
-        <h2>Викторины</h2>
-        <table>
-            <tbody>
-                <tr>
-                    <td><a href="ссылка">тексттексттексттексттексттексттексттексттексттексттексттексттексттекст</a></td>
-                </tr>
-                <tr>
-                    <td><a href="ссылка">тексттексттексттексттексттексттексттексттексттексттексттексттексттекст</a></td>
-                </tr>
-                <tr>
-                    <td><a href="ссылк3">тексттексттексттексттексттексттексттексттексттексттексттексттексттекст</a></td>
-                </tr>
-            </tbody>
-        </table>
+{% extends "base.html" %}
+
+{% block title %}Викторины{% endblock %}
+
+{% block content %}
+    <h1 class="text-center">Викторины</h1>
+    <div class="table-container mt-5">
+        <a href="{{ url_for('categories') }}" class="btn btn-primary mb-3">Назад</a>
+        <ul class="list-group">
+            {% for quiz in quizzes %}
+                <li class="list-group-item">
+                    <a href="#">{{ quiz.title }}</a>
+                </li>
+            {% endfor %}
+        </ul>
     </div>
-</body>
-</html>
+{% endblock %}
