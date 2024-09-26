@@ -4,14 +4,6 @@ from flask_sqlalchemy import SQLAlchemy
 
 from settings import Config
 
-from src.models import (
-    Category,
-    Question,
-    Quiz,
-    QuizResult,
-    UserAnswer,
-    Variant,
-)
 
 app = Flask(__name__)
 
@@ -20,13 +12,5 @@ app.config.from_object(Config)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-__all__ = [
-    'Category',
-    'QuizResult',
-    'Question',
-    'Quiz',
-    'Variant',
-    'UserAnswer',
-]
 
-from . import bot, api_views, admin  # noqa
+from . import bot, api_views, admin, models  # noqa

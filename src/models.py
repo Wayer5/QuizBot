@@ -1,4 +1,4 @@
-from src import db
+from . import db
 
 
 class Category(db.Model):
