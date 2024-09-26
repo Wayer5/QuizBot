@@ -14,6 +14,7 @@ click==8.1.7
 colorama==0.4.6
 Flask==3.0.3
 Flask-Admin==1.6.1
+flask-babel==4.0.0
 Flask-Migrate==4.0.7
 Flask-SQLAlchemy==3.1.1
 frozenlist==1.4.1
