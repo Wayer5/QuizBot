@@ -1,4 +1,4 @@
-from MedStat_Solutions_team3.src.models import (
+from src.models import (
     Category,
     Question,
     Quiz,

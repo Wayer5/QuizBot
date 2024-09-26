@@ -1,4 +1,4 @@
-from MedStat_Solutions_team3.src import db
+from src import db
 
 
 class Category(db.Model):
