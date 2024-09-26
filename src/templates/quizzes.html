@@ -1,39 +1,17 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Викторины</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        h1 {
-            color: #333;
-        }
-        a {
-            display: block;
-            word-wrap: break-word;
-            word-break: break-all;
-        }
-    </style>
-</head>
-<body class="container mt-5">
+{% extends "base.html" %}
+
+{% block title %}Викторины{% endblock %}
+
+{% block content %}
     <h1 class="text-center">Викторины</h1>
     <div class="table-container mt-5">
         <a href="{{ url_for('categories') }}" class="btn btn-primary mb-3">Назад</a>
-            <ul class="list-group">
-                {% for quiz in quizzes %}
-                    <li class="list-group-item">
-                        <a href="#">{{ quiz.title }}</a>
-                    </li>
-                {% endfor %}
-            </ul>
+        <ul class="list-group">
+            {% for quiz in quizzes %}
+                <li class="list-group-item">
+                    <a href="#">{{ quiz.title }}</a>
+                </li>
+            {% endfor %}
+        </ul>
     </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-</html>
+{% endblock %}
