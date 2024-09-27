@@ -6,11 +6,11 @@ from src.models import User
 
 
 class CRUDUser(CRUDBase):
-    async def get_id_by_username(self, username: str) -> Optional[User]:
-        user_id = db.session.execute(
-            db.select(User.id).where(User.username == username)
+    async def get_by_username(self, username: str) -> Optional[User]:
+        user = db.session.execute(
+            db.select(User).where(User.username == username)
         )
-        return user_id.scalars().first()
+        return user.scalars().first()
 
 
 user_crud = CRUDUser(User)

@@ -10,12 +10,11 @@ class User(db.Model):
     Хранит информацию о пользователях.
 
     """
-
     __tablename__ = 'users'
     id = db.Column(db.Integer, unique=True, primary_key=True)
     name = db.Column(db.String)
     username = db.Column(db.String, unique=True)
-    telegram_id = db.Column(db.String)
+    telegram_id = db.Column(db.BigInteger)
     created_on = db.Column(db.DateTime(), default=datetime.utcnow)
     updated_on = db.Column(
         db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow,

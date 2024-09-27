@@ -1,4 +1,5 @@
 from os import getenv as get
+from datetime import timedelta
 
 from dotenv import load_dotenv
 
@@ -15,7 +16,12 @@ class Config(object):
         f'{get("POSTGRES_PASSWORD")}@'
         f'{get("DB_HOST")}:5432/{get("POSTGRES_DB")}'
     )
-    SECRET_KEY: str = get('SECRET_KEY')
+    SECRET_KEY: str = get('SECRET_KEY', 'secret')
+    JWT_SECRET_KEY: str = get('JWT_SECRET_KEY', 'secret')
+    JWT_CSRF_IN_COOKIES = True
+    JWT_COOKIE_CSRF_PROTECT = True
+    JWT_TOKEN_LOCATION = ['cookies']
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
 
 
 class Settings:
