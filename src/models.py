@@ -4,6 +4,13 @@ from . import db
 
 
 class User(db.Model):
+
+    """Модель пользователя.
+
+    Хранит информацию о пользователях.
+
+    """
+
     __tablename__ = 'users'
     id = db.Column(db.Integer, unique=True, primary_key=True)
     name = db.Column(db.String)
@@ -11,7 +18,7 @@ class User(db.Model):
     telegram_id = db.Column(db.String)
     created_on = db.Column(db.DateTime(), default=datetime.utcnow)
     updated_on = db.Column(
-        db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow
+        db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow,
     )
     is_active = db.Column(db.Boolean(), default=True)
     is_admin = db.Column(db.Boolean(), default=False)
