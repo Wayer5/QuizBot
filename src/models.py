@@ -192,12 +192,12 @@ class QuizResult(db.Model):
         primary_key=True,
         comment='Уникальный идентификатор результата викторины.',
     )
-    # user_id = db.Column(
-    #     db.Integer,
-    #     db.ForeignKey('users.id'),
-    #     nullable=False,
-    #     comment='Идентификатор пользователя, прошедшего викторину.',
-    # )
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id'),
+        nullable=False,
+        comment='Идентификатор пользователя, прошедшего викторину.',
+    )
     quiz_id = db.Column(
         db.Integer,
         db.ForeignKey('quizzes.id'),
@@ -243,12 +243,12 @@ class UserAnswer(db.Model):
         primary_key=True,
         comment='Уникальный идентификатор ответа пользователя.',
     )
-    # user_id = db.Column(
-    #     db.Integer,
-    #     db.ForeignKey('users.id'),
-    #     nullable=False,
-    #     comment='Идентификатор пользователя.',
-    # )
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id'),
+        nullable=False,
+        comment='Идентификатор пользователя.',
+    )
     question_id = db.Column(
         db.Integer,
         db.ForeignKey('questions.id'),

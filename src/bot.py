@@ -14,6 +14,7 @@ from aiogram.types import (
 )
 
 from settings import settings
+from src.crud.user import user_crud
 
 # Включаем логирование
 logging.basicConfig(level=logging.INFO)
@@ -73,6 +74,22 @@ async def cmd_start(message: Message) -> None:
         message (Message): Входящее сообщение.
 
     """
+    tg_user = message.from_user
+    username = tg_user.username
+    user = await user_crud.get_id_by_username(username)
+    if user is None:
+        name = tg_user.full_name
+        tg_user_id = tg_user.id
+        is_admin = (user_crud.get_multi() is None)
+        user_crud.create(
+            {'name': name,
+             'username': username,
+             'telegram_id': tg_user_id,
+             'is_admin': is_admin}
+        )
+        logging.info(
+            f'Пользователь {name} ({username}) зарегистрирован в боте.'
+        )
     # Отправляем приветственное сообщение с кнопкой 'Start'
     await message.answer(
         'Привет, Я МедСтатбот! Нажми кнопку "Start", чтобы продолжить.',
