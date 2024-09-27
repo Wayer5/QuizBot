@@ -1,8 +1,8 @@
 import logging
 from logging.config import fileConfig
 
-from flask import current_app
 from alembic import context
+from flask import current_app
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -15,9 +15,7 @@ logger = logging.getLogger('alembic.env')
 
 
 def get_engine():
-
     """Return the database engine."""
-
     try:
         # this works with Flask-SQLAlchemy<3 and Alchemical
         return current_app.extensions['migrate'].db.get_engine()
@@ -27,9 +25,7 @@ def get_engine():
 
 
 def get_engine_url() -> str:
-
     """Return the database engine URL as a string."""
-
     try:
         return get_engine().url.render_as_string(hide_password=False).replace(
             '%', '%%')
@@ -51,16 +47,13 @@ target_db = current_app.extensions['migrate'].db
 
 
 def get_metadata():
-
     """Return the target metadata."""
-
     if hasattr(target_db, 'metadatas'):
         return target_db.metadatas[None]
     return target_db.metadata
 
 
 def run_migrations_offline() -> None:
-
     """Run migrations in 'offline' mode.
 
     This configures the context with just a URL
@@ -71,7 +64,6 @@ def run_migrations_offline() -> None:
     Calls to context.execute() here emit the given string to the
     script output.
     """
-
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url, target_metadata=get_metadata(), literal_binds=True,
@@ -82,7 +74,6 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-
     """Run migrations in 'online' mode.
 
     In this scenario we need to create an Engine

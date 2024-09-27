@@ -4,6 +4,7 @@ required-version = ">=0.6.1"
 target-version = "py311"
 # Enable preview features.
 preview = true
+exclude = ["migrations"]
 
 [format]
 # Enable reformatting of code snippets in docstrings.
