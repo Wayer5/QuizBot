@@ -1,4 +1,25 @@
+from datetime import datetime
+
 from . import db
+
+
+class User(db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, unique=True, primary_key=True)
+    name = db.Column(db.String)
+    username = db.Column(db.String, unique=True)
+    telegram_id = db.Column(db.String)
+    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
+    updated_on = db.Column(
+        db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow
+    )
+    is_active = db.Column(db.Boolean(), default=True)
+    is_admin = db.Column(db.Boolean(), default=False)
+    quizzes_results = db.relationship(
+        'QuizResult',
+        backref='user',
+        lazy=True,
+    )
 
 
 class Category(db.Model):
