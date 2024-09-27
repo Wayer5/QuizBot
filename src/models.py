@@ -3,6 +3,19 @@ from datetime import datetime
 from . import db
 
 
+class Test(db.Model):
+
+    """Модель пользователя.
+
+    Хранит информацию о пользователях.
+
+    """
+
+    __tablename__ = 'test'
+    id = db.Column(db.Integer, unique=True, primary_key=True)
+    name = db.Column(db.String)
+
+
 class User(db.Model):
 
     """Модель пользователя.
@@ -22,6 +35,8 @@ class User(db.Model):
     )
     is_active = db.Column(db.Boolean(), default=True)
     is_admin = db.Column(db.Boolean(), default=False)
+
+    # Связь с таблицей QuizResult
     quizzes_results = db.relationship(
         'QuizResult',
         backref='user',
@@ -192,12 +207,12 @@ class QuizResult(db.Model):
         primary_key=True,
         comment='Уникальный идентификатор результата викторины.',
     )
-    # user_id = db.Column(
-    #     db.Integer,
-    #     db.ForeignKey('users.id'),
-    #     nullable=False,
-    #     comment='Идентификатор пользователя, прошедшего викторину.',
-    # )
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id'),
+        nullable=False,
+        comment='Идентификатор пользователя, прошедшего викторину.',
+    )
     quiz_id = db.Column(
         db.Integer,
         db.ForeignKey('quizzes.id'),
