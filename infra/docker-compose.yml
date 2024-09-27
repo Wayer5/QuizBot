@@ -3,6 +3,7 @@ version: '3'
 volumes:
   pg_data:
   static:
+  migration:
 
 services:
   db:
@@ -15,6 +16,7 @@ services:
     env_file: .env
     volumes:
       - static:/backend_static
+      - migration:/app/migrations
     ports:
       - "${PORT}:${PORT}"
     depends_on:
