@@ -3,19 +3,6 @@ from datetime import datetime
 from . import db
 
 
-class Test(db.Model):
-
-    """Модель пользователя.
-
-    Хранит информацию о пользователях.
-
-    """
-
-    __tablename__ = 'test'
-    id = db.Column(db.Integer, unique=True, primary_key=True)
-    name = db.Column(db.String)
-
-
 class User(db.Model):
 
     """Модель пользователя.
