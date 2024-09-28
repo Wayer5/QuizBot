@@ -1,5 +1,5 @@
-from os import getenv as get
 from datetime import timedelta
+from os import getenv as get
 
 from dotenv import load_dotenv
 
@@ -18,9 +18,12 @@ class Config(object):
     )
     SECRET_KEY: str = get('SECRET_KEY', 'secret')
     JWT_SECRET_KEY: str = get('JWT_SECRET_KEY', 'secret')
-    JWT_CSRF_IN_COOKIES = True
+    # Отключаем csrf в одном модуле
+    # Используем его из другого
     JWT_COOKIE_CSRF_PROTECT = True
-    JWT_TOKEN_LOCATION = ['cookies']
+    JWT_CSRF_CHECK_FORM = True
+    JWT_CSRF_IN_COOKIES = True
+    JWT_TOKEN_LOCATION = ["cookies", "headers"]
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
 
 

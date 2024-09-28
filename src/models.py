@@ -10,6 +10,7 @@ class User(db.Model):
     Хранит информацию о пользователях.
 
     """
+
     __tablename__ = 'users'
     id = db.Column(db.Integer, unique=True, primary_key=True)
     name = db.Column(db.String)
@@ -17,7 +18,9 @@ class User(db.Model):
     telegram_id = db.Column(db.BigInteger)
     created_on = db.Column(db.DateTime(), default=datetime.utcnow)
     updated_on = db.Column(
-        db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow,
+        db.DateTime(),
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
     )
     is_active = db.Column(db.Boolean(), default=True)
     is_admin = db.Column(db.Boolean(), default=False)
@@ -25,7 +28,7 @@ class User(db.Model):
     # Связь с таблицей QuizResult
     quizzes_results = db.relationship(
         'QuizResult',
-        backref='user',
+        backref='user_quiz',
         lazy=True,
     )
 
@@ -56,12 +59,12 @@ class Category(db.Model):
         comment='Флаг активности категории.',
     )
 
-    # # Связь с таблицей quizzes
-    # quizzes = db.relationship(
-    #     'Quiz',
-    #     backref='category',
-    #     lazy=True,
-    # )
+    # Связь с таблицей quizzes
+    quizzes = db.relationship(
+        'Quiz',
+        backref='category_quiz',
+        lazy=True,
+    )
 
     def __str__(self) -> str:
         """Отображение названия объекта в админ зоне."""
@@ -93,19 +96,18 @@ class Quiz(db.Model):
         nullable=False,
         comment='Идентификатор категории, к которой относится викторина.',
     )
-    category = db.relationship('Category', backref='quizzes')
+    category = db.relationship('Category', backref='quiz_category')
     is_active = db.Column(
         db.Boolean,
         default=True,
         comment='Флаг активности викторины.',
     )
 
-    # # Связь с таблицей questions
-    # questions = db.relationship(
-    #     'Question',
-    #     backref='quiz',
-    #     lazy=True,
-    # )
+    questions = db.relationship(
+        'Question',
+        backref='quiz_question',
+        lazy=True,
+    )
 
     def __str__(self) -> str:
         """Отображение названия объекта в админ зоне."""
@@ -137,7 +139,7 @@ class Question(db.Model):
         nullable=False,
         comment='Идентификатор викторины, к которой относится вопрос.',
     )
-    quiz = db.relationship('Quiz', backref='questions')
+    quiz = db.relationship('Quiz', backref='questions_quiz')
     is_active = db.Column(
         db.Boolean,
         default=True,
@@ -147,7 +149,7 @@ class Question(db.Model):
     # Связь с таблицей variants
     variants = db.relationship(
         'Variant',
-        backref='question',
+        backref='question_variant',
         lazy=True,
     )
 
@@ -183,7 +185,8 @@ class Variant(db.Model):
         comment='Дополнительное описание или пояснение для варианта ответа.',
     )
     is_right_choice = db.Column(
-        db.Boolean, default=False,
+        db.Boolean,
+        default=False,
         comment='Флаг, указывающий, является ли данный ответ правильным.',
     )
 

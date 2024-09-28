@@ -1,9 +1,10 @@
 from flask import Flask
+from flask_http_middleware import MiddlewareManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-from flask_http_middleware import MiddlewareManager
 
 from settings import Config
+
 from .middleware import AdminTokenMiddleware
 
 app = Flask(__name__)
