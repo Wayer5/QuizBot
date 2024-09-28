@@ -7,6 +7,7 @@ from settings import Config
 from .middleware import AdminTokenMiddleware
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = settings.SECRET_KEY
 
 app.config.from_object(Config)
 

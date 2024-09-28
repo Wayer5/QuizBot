@@ -33,6 +33,7 @@ class Settings:
     WEB_URL: str = get('WEB_URL', 'http://localhost:5000')
     WEBHOOK_PATH: str = f'/bot/{TELEGRAM_TOKEN}'
     WEBHOOK_URL: str = f'{WEB_URL}{WEBHOOK_PATH}'
+    SECRET_KEY: str = get('SECRET_KEY')
 
 
 settings = Settings()
