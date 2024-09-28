@@ -57,12 +57,16 @@ class Category(db.Model):
         comment='Флаг активности категории.',
     )
 
-    # Связь с таблицей quizzes
-    quizzes = db.relationship(
-        'Quiz',
-        backref='category',
-        lazy=True,
-    )
+    # # Связь с таблицей quizzes
+    # quizzes = db.relationship(
+    #     'Quiz',
+    #     backref='category',
+    #     lazy=True,
+    # )
+
+    def __str__(self) -> str:
+        """Отображение названия объекта в админ зоне."""
+        return self.name
 
 
 class Quiz(db.Model):
@@ -90,18 +94,23 @@ class Quiz(db.Model):
         nullable=False,
         comment='Идентификатор категории, к которой относится викторина.',
     )
+    category = db.relationship('Category', backref='quizzes')
     is_active = db.Column(
         db.Boolean,
         default=True,
         comment='Флаг активности викторины.',
     )
 
-    # Связь с таблицей questions
-    questions = db.relationship(
-        'Question',
-        backref='quiz',
-        lazy=True,
-    )
+    # # Связь с таблицей questions
+    # questions = db.relationship(
+    #     'Question',
+    #     backref='quiz',
+    #     lazy=True,
+    # )
+
+    def __str__(self) -> str:
+        """Отображение названия объекта в админ зоне."""
+        return self.title
 
 
 class Question(db.Model):
@@ -129,6 +138,7 @@ class Question(db.Model):
         nullable=False,
         comment='Идентификатор викторины, к которой относится вопрос.',
     )
+    quiz = db.relationship('Quiz', backref='questions')
     is_active = db.Column(
         db.Boolean,
         default=True,
