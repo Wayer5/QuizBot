@@ -43,6 +43,7 @@ def logout() -> Response:
     """Удаляет токен пользователя.
 
     Keyword Arguments:
+    -----------------
     Return: строку.
 
     """
