@@ -1,4 +1,3 @@
-import logging
 from typing import Callable
 
 from flask import Request, Response
@@ -29,8 +28,7 @@ class AdminTokenMiddleware(BaseHTTPMiddleware):
         if 'admin' not in request.url:
             return call_next(request)
 
-        logging.info(request.cookies.get('csrf_access_token'))
         verify_jwt_in_request()
         if current_user.is_admin is False:
-            return Response('Access denied', status=403)
+            raise Exception('Access denied')
         return call_next(request)
