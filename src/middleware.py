@@ -21,6 +21,7 @@ class AdminTokenMiddleware(BaseHTTPMiddleware):
         """Проверка на авторизацию и наличие прав админа.
 
         Args:
+        ------------------
             request (Request): запрос, содержащий данные.
             call_next (Callable): функция, вызывает ответ на запрос.
 

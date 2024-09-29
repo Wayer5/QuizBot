@@ -13,6 +13,7 @@ class CRUDUser(CRUDBase):
         """Получение пользователя по логину.
 
         Keyword Arguments:
+        ------------------
         username (str): Логин пользователя.
 
         """
