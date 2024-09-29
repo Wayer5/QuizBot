@@ -15,7 +15,7 @@ from aiogram.types import (
 
 from settings import settings
 
-from .models import TelegramUser, db
+# from .models import TelegramUser, db
 
 # Включаем логирование
 logging.basicConfig(level=logging.INFO)
@@ -75,22 +75,22 @@ async def cmd_start(message: Message) -> None:
         message (Message): Входящее сообщение.
 
     """
-    user = message.from_user
+    # user = message.from_user
 
-    existing_user = TelegramUser.query.filer_by(telegram_id=user.id).first()
-    if not existing_user:
-        new_user = TelegramUser(
-            telegram_id=user.id,
-            first_name=user.first_name,
-            last_name=user.last_name,
-            username=user.username,
-            language_code=user.language_codem,
-            is_premium=user.is_premium,
-            added_to_attachment_menu=user.added_to_attachment_menu,
-        )
-        db.session.add(new_user)
-        db.session.commit()
-        logging.info(f"Новый пользователь добавлен: {user.id}")
+    # existing_user = TelegramUser.query.filer_by(telegram_id=user.id).first()
+    # if not existing_user:
+    #     new_user = TelegramUser(
+    #         telegram_id=user.id,
+    #         first_name=user.first_name,
+    #         last_name=user.last_name,
+    #         username=user.username,
+    #         language_code=user.language_codem,
+    #         is_premium=user.is_premium,
+    #         added_to_attachment_menu=user.added_to_attachment_menu,
+    #     )
+    #     db.session.add(new_user)
+    #     db.session.commit()
+    #     logging.info(f"Новый пользователь добавлен: {user.id}")
 
     # Отправляем приветственное сообщение с кнопкой 'Start'
     await message.answer(
