@@ -104,8 +104,6 @@ class Quiz(db.Model):
         comment='Флаг активности викторины.',
     )
 
-
-
     # Связь с таблицей questions
     questions = db.relationship(
         'Question',
