@@ -15,14 +15,17 @@ from aiogram.types import (
 
 from settings import settings
 
-# from .models import TelegramUser, db
+#from .models import TelegramUser, db
+from src.crud.user import user_crud
 
 # Включаем логирование
 logging.basicConfig(level=logging.INFO)
 
 # Создаем объект бота. https://t.me/MedStatSolution_Bot
-bot: Bot = Bot(token=settings.TELEGRAM_TOKEN,
-               default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+bot: Bot = Bot(
+    token=settings.TELEGRAM_TOKEN,
+    default=DefaultBotProperties(parse_mode=ParseMode.HTML),
+)
 
 # Диспетчер
 dp: Dispatcher = Dispatcher()
@@ -43,27 +46,6 @@ def create_reply_keyboard() -> ReplyKeyboardMarkup:
         ],
         resize_keyboard=True,
     )
-
-
-def create_inline_keyboard(web_app_url: str) -> InlineKeyboardMarkup:
-    """Функция для создания Inline клавиатуры с WebApp кнопкой.
-
-    Args:
-    ----
-    web_app_url : str
-        URL веб-приложения для кнопки.
-
-    Returns:
-    -------
-    InlineKeyboardMarkup
-        Инлайн-клавиатура с WebApp кнопкой.
-
-    """
-    web_app_button: InlineKeyboardButton = InlineKeyboardButton(
-        text='Открыть WebApp',  # Текст кнопки
-        web_app=WebAppInfo(url=web_app_url),  # URL веб-приложения
-    )
-    return InlineKeyboardMarkup(inline_keyboard=[[web_app_button]])
 
 
 @dp.message(Command('start'))
@@ -92,6 +74,25 @@ async def cmd_start(message: Message) -> None:
     #     db.session.commit()
     #     logging.info(f"Новый пользователь добавлен: {user.id}")
 
+    tg_user = message.from_user
+    username = tg_user.username
+    user = await user_crud.get_by_username(username)
+    if user is None:
+        name = tg_user.full_name
+        tg_user_id = tg_user.id
+        is_admin = user_crud.get_multi() == []
+        user_crud.create(
+            {
+                'name': name,
+                'username': username,
+                'telegram_id': tg_user_id,
+                'is_admin': is_admin,
+            },
+        )
+        logging.info(
+            f'Пользователь {name} ({username}) зарегистрирован в боте.',
+        )
+
     # Отправляем приветственное сообщение с кнопкой 'Start'
     await message.answer(
         'Привет, Я МедСтатбот! Нажми кнопку "Start", чтобы продолжить.',
@@ -108,10 +109,25 @@ async def on_start_button(message: Message) -> None:
         message (Message): Входящее сообщение.
 
     """
-    web_app_url: str = 'https://ya-workshop.kaiten.ru/space/440575'
+    web_app_url: str = settings.WEB_URL
+
+    web_app_button: InlineKeyboardButton = InlineKeyboardButton(
+        text='Квиз',
+        web_app=WebAppInfo(url=web_app_url),
+    )
+
+    admin_button: InlineKeyboardButton = InlineKeyboardButton(
+        text='Админка',
+        web_app=WebAppInfo(url=web_app_url + '/auth'),
+    )
+
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_button]])
+    user = await user_crud.get_by_username(message.from_user.username)
+    if user.is_admin:
+        keyboard.inline_keyboard[0].append(admin_button)
 
     # Отправляем инлайн-кнопку для открытия WebApp
     await message.answer(
         'Нажми кнопку ниже, чтобы открыть WebApp:',
-        reply_markup=create_inline_keyboard(web_app_url),
+        reply_markup=keyboard,
     )
