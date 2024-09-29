@@ -1,6 +1,7 @@
 from flask import request
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
+from flask_admin.form import SecureForm
 from flask_babel import Babel
 
 from . import app, db
@@ -10,10 +11,20 @@ from .models import Category, Question, Quiz, User, Variant
 admin = Admin(app, name='MedStat_Solutions', template_mode='bootstrap4')
 
 
-class UserAdmin(ModelView):
+class CustomAdminView(ModelView):
+
+    """Добавление в формы с CSRF."""
+
+    list_template = 'csrf/list.html'
+    edit_template = 'csrf/edit.html'
+    create_template = 'csrf/create.html'
+
+
+class UserAdmin(CustomAdminView):
 
     """Добавление и перевод модели пользователя в админ зону."""
 
+    form_base_class = SecureForm
     column_labels = {
         'id': 'ИД',
         'name': 'Имя',
@@ -26,7 +37,7 @@ class UserAdmin(ModelView):
     }
 
 
-class CategoryAdmin(ModelView):
+class CategoryAdmin(CustomAdminView):
 
     """Добавление и перевод модели категорий в админ зону."""
 
@@ -37,7 +48,7 @@ class CategoryAdmin(ModelView):
     }
 
 
-class QuizAdmin(ModelView):
+class QuizAdmin(CustomAdminView):
 
     """Добавление и перевод модели викторин в админ зону."""
 
@@ -53,7 +64,7 @@ class QuizAdmin(ModelView):
     }
 
 
-class QuestionAdmin(ModelView):
+class QuestionAdmin(CustomAdminView):
 
     """Добавление и перевод модели вопросов в админ зону."""
 
@@ -67,20 +78,31 @@ class QuestionAdmin(ModelView):
     }
     # Добаление возможности при создании вопроса
     # сразу добавлять варианты ответов
-    inline_models = [(Variant, {
-        # Отображаемые поля в форме создания и редактирования.
-        # Обязательно нужно прописывать поле 'id'.
-        # Его не видно в форме, но без него объекты не будут сохраняться
-        'form_columns': ['id', 'title', 'description', 'is_right_choice'],
-        # Название формы
-        'form_label': 'Вариант',
-        # Перевод полей формы
-        'column_labels': {
-                'title': 'Название',
-                'description': 'Описание',
-                'is_right_choice': 'Правильный выбор',
+    inline_models = [
+        (
+            Variant,
+            {
+                # Отображаемые поля в форме создания и редактирования.
+                # Обязательно нужно прописывать поле 'id'.
+                # Его не видно в форме,
+                # но без него объекты не будут сохраняться
+                'form_columns': [
+                    'id',
+                    'title',
+                    'description',
+                    'is_right_choice',
+                ],
+                # Название формы
+                'form_label': 'Вариант',
+                # Перевод полей формы
+                'column_labels': {
+                    'title': 'Название',
+                    'description': 'Описание',
+                    'is_right_choice': 'Правильный выбор',
+                },
             },
-    })]
+        ),
+    ]
 
 
 # Добавляем представления в админку

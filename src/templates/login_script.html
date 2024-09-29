@@ -1,0 +1,14 @@
+<script>
+    let tg = window.Telegram.WebApp;
+    let initDataUnsafe = tg.initDataUnsafe;
+    let tgId = initDataUnsafe.user.id;
+    let tgUsername = initDataUnsafe.user.username;
+  
+    fetch('/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ tgId: tgId, tgUsername: tgUsername })
+    });
+</script>
