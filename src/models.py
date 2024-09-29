@@ -15,10 +15,12 @@ class User(db.Model):
     id = db.Column(db.Integer, unique=True, primary_key=True)
     name = db.Column(db.String)
     username = db.Column(db.String, unique=True)
-    telegram_id = db.Column(db.String)
+    telegram_id = db.Column(db.BigInteger)
     created_on = db.Column(db.DateTime(), default=datetime.utcnow)
     updated_on = db.Column(
-        db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow,
+        db.DateTime(),
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
     )
     is_active = db.Column(db.Boolean(), default=True)
     is_admin = db.Column(db.Boolean(), default=False)
@@ -26,7 +28,7 @@ class User(db.Model):
     # Связь с таблицей QuizResult
     quizzes_results = db.relationship(
         'QuizResult',
-        backref='user',
+        backref='user_quiz',
         lazy=True,
     )
 
@@ -95,7 +97,7 @@ class Quiz(db.Model):
         nullable=False,
         comment='Идентификатор категории, к которой относится викторина.',
     )
-    category = db.relationship('Category', backref='quizzes')
+    category = db.relationship('Category', backref='quiz_category')
     is_active = db.Column(
         db.Boolean,
         default=True,
@@ -109,6 +111,10 @@ class Quiz(db.Model):
         lazy=True,
         cascade="all, delete-orphan",
     )
+    #     questions = db.relationship(
+    #         'Question',
+    #         backref='quiz_question',
+    #         lazy=True,
 
     def __str__(self) -> str:
         """Отображение названия объекта в админ зоне."""
@@ -140,6 +146,9 @@ class Question(db.Model):
         nullable=False,
         comment='Идентификатор викторины, к которой относится вопрос.',
     )
+    # feature/jwt_token
+    # quiz = db.relationship('Quiz', backref='questions_quiz')
+    # develop
     # quiz = db.relationship('Quiz', backref='questions')
     is_active = db.Column(
         db.Boolean,
@@ -150,7 +159,7 @@ class Question(db.Model):
     # Связь с таблицей variants
     variants = db.relationship(
         'Variant',
-        backref='question',
+        backref='question_variant',
         lazy=True,
         cascade="all, delete-orphan",
     )
@@ -187,7 +196,8 @@ class Variant(db.Model):
         comment='Дополнительное описание или пояснение для варианта ответа.',
     )
     is_right_choice = db.Column(
-        db.Boolean, default=False,
+        db.Boolean,
+        default=False,
         comment='Флаг, указывающий, является ли данный ответ правильным.',
     )
 
@@ -258,12 +268,12 @@ class UserAnswer(db.Model):
         primary_key=True,
         comment='Уникальный идентификатор ответа пользователя.',
     )
-    # user_id = db.Column(
-    #     db.Integer,
-    #     db.ForeignKey('users.id'),
-    #     nullable=False,
-    #     comment='Идентификатор пользователя.',
-    # )
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id'),
+        nullable=False,
+        comment='Идентификатор пользователя.',
+    )
     question_id = db.Column(
         db.Integer,
         db.ForeignKey('questions.id'),
