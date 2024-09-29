@@ -57,11 +57,12 @@ class Category(db.Model):
         comment='Флаг активности категории.',
     )
 
-    # # Связь с таблицей quizzes
+    # Связь с таблицей quizzes
     # quizzes = db.relationship(
     #     'Quiz',
     #     backref='category',
     #     lazy=True,
+    #     cascade="all, delete-orphan",
     # )
 
     def __str__(self) -> str:
@@ -101,12 +102,13 @@ class Quiz(db.Model):
         comment='Флаг активности викторины.',
     )
 
-    # # Связь с таблицей questions
-    # questions = db.relationship(
-    #     'Question',
-    #     backref='quiz',
-    #     lazy=True,
-    # )
+    # Связь с таблицей questions
+    questions = db.relationship(
+        'Question',
+        backref='quiz',
+        lazy=True,
+        cascade="all, delete-orphan",
+    )
 
     def __str__(self) -> str:
         """Отображение названия объекта в админ зоне."""
@@ -138,7 +140,7 @@ class Question(db.Model):
         nullable=False,
         comment='Идентификатор викторины, к которой относится вопрос.',
     )
-    quiz = db.relationship('Quiz', backref='questions')
+    # quiz = db.relationship('Quiz', backref='questions')
     is_active = db.Column(
         db.Boolean,
         default=True,
@@ -150,6 +152,7 @@ class Question(db.Model):
         'Variant',
         backref='question',
         lazy=True,
+        cascade="all, delete-orphan",
     )
 
 
