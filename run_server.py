@@ -20,6 +20,7 @@ async def main() -> None:
         ),
     )
 
+    # Закомментировать bot.bot.set_webhook, если нет ТГ токена
     await bot.bot.set_webhook(
         url=settings.WEBHOOK_URL,
         allowed_updates=bot.dp.resolve_used_update_types(),
