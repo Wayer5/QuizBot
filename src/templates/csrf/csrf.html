@@ -9,6 +9,7 @@
     // Получаем формы на странице после загрузки документа
     document.addEventListener('DOMContentLoaded', function() {
         const forms = document.querySelectorAll('form');
+        const buttons = document.querySelectorAll('input[type="submit"]');
 
         // Перебираем формы и добавляем CSRF-токен
         forms.forEach((form) => {
@@ -24,5 +25,8 @@
             // Добавляем CSRF-токен в форму
             form.appendChild(csrfInput);
         });
+        buttons.forEach((button) => {
+            button.style = 'margin-bottom: 5px;'
+        })
     });
 </script>
