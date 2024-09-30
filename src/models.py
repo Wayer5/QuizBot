@@ -130,7 +130,10 @@ class Question(db.Model):
         comment='Уникальный идентификатор вопроса.',
     )
     title = db.Column(
-        db.String(150), nullable=False, comment='Текст вопроса.', unique=True,
+        db.String(150),
+        nullable=False,
+        comment='Текст вопроса.',
+        unique=True,
     )
     quiz_id = db.Column(
         db.Integer,
@@ -150,7 +153,10 @@ class Question(db.Model):
 
     # Связь с таблицей variants
     variants = db.relationship(
-        'Variant', backref='variants', lazy=True, cascade='all,delete',
+        'Variant',
+        backref='variants',
+        lazy=True,
+        cascade='all,delete',
     )
 
 
