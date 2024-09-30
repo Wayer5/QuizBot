@@ -28,7 +28,8 @@ class User(db.Model):
     # Связь с таблицей QuizResult
     quizzes_results = db.relationship(
         'QuizResult',
-        backref='user_quiz',
+        backref='result',
+        cascade='all,delete',
         lazy=True,
     )
 
@@ -62,7 +63,8 @@ class Category(db.Model):
     # Связь с таблицей quizzes
     quizzes = db.relationship(
         'Quiz',
-        backref='category_quiz',
+        back_populates='category',
+        cascade='all,delete',
         lazy=True,
     )
 
@@ -89,6 +91,7 @@ class Quiz(db.Model):
         db.String(150),
         nullable=False,
         comment='Название викторины.',
+        unique=True,
     )
     category_id = db.Column(
         db.Integer,
@@ -96,7 +99,7 @@ class Quiz(db.Model):
         nullable=False,
         comment='Идентификатор категории, к которой относится викторина.',
     )
-    category = db.relationship('Category', backref='quiz_category')
+    category = db.relationship('Category', back_populates='quizzes')
     is_active = db.Column(
         db.Boolean,
         default=True,
@@ -104,9 +107,7 @@ class Quiz(db.Model):
     )
 
     questions = db.relationship(
-        'Question',
-        backref='quiz_question',
-        lazy=True,
+        'Question', back_populates='quiz', lazy=True, cascade='all,delete',
     )
 
     def __str__(self) -> str:
@@ -129,9 +130,7 @@ class Question(db.Model):
         comment='Уникальный идентификатор вопроса.',
     )
     title = db.Column(
-        db.String(150),
-        nullable=False,
-        comment='Текст вопроса.',
+        db.String(150), nullable=False, comment='Текст вопроса.', unique=True,
     )
     quiz_id = db.Column(
         db.Integer,
@@ -139,7 +138,10 @@ class Question(db.Model):
         nullable=False,
         comment='Идентификатор викторины, к которой относится вопрос.',
     )
-    quiz = db.relationship('Quiz', backref='questions_quiz')
+    quiz = db.relationship(
+        'Quiz',
+        back_populates='questions',
+    )
     is_active = db.Column(
         db.Boolean,
         default=True,
@@ -148,9 +150,7 @@ class Question(db.Model):
 
     # Связь с таблицей variants
     variants = db.relationship(
-        'Variant',
-        backref='question_variant',
-        lazy=True,
+        'Variant', backref='variants', lazy=True, cascade='all,delete',
     )
 
 
