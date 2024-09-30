@@ -15,7 +15,7 @@ from aiogram.types import (
 
 from settings import settings
 
-#from .models import TelegramUser, db
+# from .models import TelegramUser, db
 from src.crud.user import user_crud
 
 # Включаем логирование
@@ -59,14 +59,14 @@ async def cmd_start(message: Message) -> None:
     """
     # user = message.from_user
 
-    # existing_user = TelegramUser.query.filer_by(telegram_id=user.id).first()
+    # existing_user = TelegramUser.query.filter_by(telegram_id=user.id).first()
     # if not existing_user:
     #     new_user = TelegramUser(
     #         telegram_id=user.id,
     #         first_name=user.first_name,
     #         last_name=user.last_name,
     #         username=user.username,
-    #         language_code=user.language_codem,
+    #         language_code=user.language_code,
     #         is_premium=user.is_premium,
     #         added_to_attachment_menu=user.added_to_attachment_menu,
     #     )
