@@ -15,6 +15,8 @@ from aiogram.types import (
 
 from settings import settings
 
+from src.crud.telegram_user import telegram_user_crud
+
 # from .models import TelegramUser, db
 from src.crud.user import user_crud
 
@@ -57,23 +59,6 @@ async def cmd_start(message: Message) -> None:
         message (Message): Входящее сообщение.
 
     """
-    # user = message.from_user
-
-    # existing_user = TelegramUser.query.filter_by(telegram_id=user.id).first()
-    # if not existing_user:
-    #     new_user = TelegramUser(
-    #         telegram_id=user.id,
-    #         first_name=user.first_name,
-    #         last_name=user.last_name,
-    #         username=user.username,
-    #         language_code=user.language_code,
-    #         is_premium=user.is_premium,
-    #         added_to_attachment_menu=user.added_to_attachment_menu,
-    #     )
-    #     db.session.add(new_user)
-    #     db.session.commit()
-    #     logging.info(f"Новый пользователь добавлен: {user.id}")
-
     tg_user = message.from_user
     username = tg_user.username
     user = await user_crud.get_by_username(username)
@@ -92,6 +77,26 @@ async def cmd_start(message: Message) -> None:
         logging.info(
             f'Пользователь {name} ({username}) зарегистрирован в боте.',
         )
+
+    first_name = tg_user.first_name
+    last_name = tg_user.last_name
+    is_premium = tg_user.is_premium
+    added_to_attachment_menu = tg_user.added_to_attachment_menu
+    language_code = tg_user.language_code
+    if not telegram_user_crud.exists_by_telegram_id(tg_user.id):
+        telegram_user_crud.create(
+            {
+                'telegram_id': tg_user_id,
+                'first_name': first_name,
+                'last_name': last_name,
+                'username': username,
+                'language_code': language_code,
+                'is_premium': is_premium,
+                'added_to_attachment_menu': added_to_attachment_menu,
+            },
+        )
+        logging.info(
+            f'Пользователь {tg_user.id} зарегистрирован в TelegramUser.')
 
     # Отправляем приветственное сообщение с кнопкой 'Start'
     await message.answer(
