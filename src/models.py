@@ -28,7 +28,8 @@ class User(db.Model):
     # Связь с таблицей QuizResult
     quizzes_results = db.relationship(
         'QuizResult',
-        backref='user_quiz',
+        backref='result',
+        cascade='all,delete',
         lazy=True,
     )
 
@@ -60,12 +61,12 @@ class Category(db.Model):
     )
 
     # Связь с таблицей quizzes
-    # quizzes = db.relationship(
-    #     'Quiz',
-    #     backref='category',
-    #     lazy=True,
-    #     cascade="all, delete-orphan",
-    # )
+    quizzes = db.relationship(
+        'Quiz',
+        back_populates='category',
+        cascade='all,delete',
+        lazy=True,
+    )
 
     def __str__(self) -> str:
         """Отображение названия объекта в админ зоне."""
@@ -90,6 +91,7 @@ class Quiz(db.Model):
         db.String(150),
         nullable=False,
         comment='Название викторины.',
+        unique=True,
     )
     category_id = db.Column(
         db.Integer,
@@ -97,7 +99,7 @@ class Quiz(db.Model):
         nullable=False,
         comment='Идентификатор категории, к которой относится викторина.',
     )
-    category = db.relationship('Category', backref='quiz_category')
+    category = db.relationship('Category', back_populates='quizzes')
     is_active = db.Column(
         db.Boolean,
         default=True,
@@ -106,10 +108,7 @@ class Quiz(db.Model):
 
     # Связь с таблицей questions
     questions = db.relationship(
-        'Question',
-        backref='quiz',
-        lazy=True,
-        cascade="all, delete-orphan",
+        'Question', back_populates='quiz', lazy=True, cascade='all,delete',
     )
     #     questions = db.relationship(
     #         'Question',
@@ -139,6 +138,7 @@ class Question(db.Model):
         db.String(150),
         nullable=False,
         comment='Текст вопроса.',
+        unique=True,
     )
     quiz_id = db.Column(
         db.Integer,
@@ -146,10 +146,10 @@ class Question(db.Model):
         nullable=False,
         comment='Идентификатор викторины, к которой относится вопрос.',
     )
-    # feature/jwt_token
-    # quiz = db.relationship('Quiz', backref='questions_quiz')
-    # develop
-    # quiz = db.relationship('Quiz', backref='questions')
+    quiz = db.relationship(
+        'Quiz',
+        back_populates='questions',
+    )
     is_active = db.Column(
         db.Boolean,
         default=True,
@@ -159,9 +159,9 @@ class Question(db.Model):
     # Связь с таблицей variants
     variants = db.relationship(
         'Variant',
-        backref='question_variant',
+        backref='variants',
         lazy=True,
-        cascade="all, delete-orphan",
+        cascade='all,delete',
     )
 
 
