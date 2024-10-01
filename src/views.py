@@ -1,6 +1,11 @@
 import logging
 
-from flask import Response, jsonify, render_template, request
+from flask import (
+    Response,
+    jsonify,
+    render_template,
+    request,
+)
 from flask_jwt_extended import (
     create_access_token,
     set_access_cookies,
@@ -8,6 +13,8 @@ from flask_jwt_extended import (
 )
 
 from . import app
+from src.crud.category import category_crud
+from src.crud.quiz import quiz_crud
 from src.crud.user import user_crud
 
 
@@ -52,13 +59,25 @@ def logout() -> Response:
     return response
 
 
-@app.route('/', methods=['GET'])
-async def index() -> str:
-    """Вывод начальной страницы."""
-    return render_template('categories.html')
-
-
 @app.route('/auth', methods=['GET'])
 async def auntification() -> str:
     """Вывод страницы аунтификации."""
     return render_template('auth.html')
+
+
+@app.route('/', methods=['GET'])
+async def categories() -> str:
+    """Вывод страницы категорий."""
+    categories = category_crud.get_multi()
+    return render_template('categories.html', categories=categories)
+
+
+@app.route('/quizzes', methods=['GET'])
+async def quizzes() -> str:
+    """Вывод страницы викторин."""
+    category_id = request.args.get('category_id', type=int)
+    if category_id:
+        quizzes = quiz_crud.get_by_category_id(category_id)
+    else:
+        quizzes = quiz_crud.get_multi()
+    return render_template('quizzes.html', quizzes=quizzes)
