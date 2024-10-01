@@ -15,6 +15,9 @@ from aiogram.types import (
 
 from settings import settings
 
+from src.crud.telegram_user import telegram_user_crud
+
+# from .models import TelegramUser, db
 from src.crud.user import user_crud
 
 # Включаем логирование
@@ -74,6 +77,27 @@ async def cmd_start(message: Message) -> None:
         logging.info(
             f'Пользователь {name} ({username}) зарегистрирован в боте.',
         )
+
+    first_name = tg_user.first_name
+    last_name = tg_user.last_name
+    is_premium = tg_user.is_premium
+    added_to_attachment_menu = tg_user.added_to_attachment_menu
+    language_code = tg_user.language_code
+    if not telegram_user_crud.exists_by_telegram_id(tg_user.id):
+        telegram_user_crud.create(
+            {
+                'telegram_id': tg_user_id,
+                'first_name': first_name,
+                'last_name': last_name,
+                'username': username,
+                'language_code': language_code,
+                'is_premium': is_premium,
+                'added_to_attachment_menu': added_to_attachment_menu,
+            },
+        )
+        logging.info(
+            f'Пользователь {tg_user.id} зарегистрирован в TelegramUser.')
+
     # Отправляем приветственное сообщение с кнопкой 'Start'
     await message.answer(
         'Привет, Я МедСтатбот! Нажми кнопку "Start", чтобы продолжить.',
