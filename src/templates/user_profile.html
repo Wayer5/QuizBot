@@ -1,0 +1,46 @@
+{% extends "base.html" %} {% block title %}Профиль пользователя{% endblock title
+%} {% block content %}
+<h1 class="text-center">Профиль пользователя: {{ user.name }}</h1>
+
+<div class="mb-4">
+  <h2>Краткая информация о результатах</h2>
+  <p><strong>Общее количество вопросов:</strong> {{ total_questions }}</p>
+  <p>
+    <strong>Количество правильных ответов:</strong> {{ correct_answers_count }}
+  </p>
+</div>
+
+<div class="result-section">
+  <h2>Информация о пройденных викторинах</h2>
+
+  {% if quiz_results %}
+  <div class="list-group">
+    {% for result in quiz_results %}
+    <div class="list-group-item">
+      <strong>Название викторины:</strong> {{ result.quiz.title if result.quiz
+      else 'Нет данных' }}<br />
+      <strong>Общее количество вопросов:</strong> {{ result.total_questions
+      }}<br />
+      <strong>Количество правильных ответов:</strong> {{
+      result.correct_answers_count }}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-center">Нет информации о результатах.</p>
+  {% endif %}
+</div>
+
+<div class="text-center btn-container mt-4">
+  <a href="/" class="btn btn-primary">Вернуться на главную</a>
+
+  <form
+    action="{{ url_for('delete_profile', user_id=user.id) }}"
+    method="POST"
+    onsubmit="return confirm('Вы уверены, что хотите удалить свой профиль?');"
+  >
+    <button type="submit" class="btn btn-danger">Удалить профиль</button>
+  </form>
+</div>
+
+{% endblock content %}

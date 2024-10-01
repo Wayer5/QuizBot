@@ -2,3 +2,28 @@
     flex: 1 0 45%; /* Устанавливаем максимальную ширину кнопки в 45% от родительского контейнера */
     margin: 0.7rem; /* Добавляем интервал между кнопками */
 }
+
+.container {
+    padding: 20px;
+}
+.quiz-card {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.8);
+}
+.btn-custom {
+    margin-top: 20px;
+    width: 100%;
+}
+
+.btn-container {
+    display: flex;
+    flex-direction: column; /* Вертикальное расположение кнопок */
+    align-items: center;
+    gap: 10px; /* Отступ между кнопками */
+  }
+  .btn {
+    width: 200px;
+  }

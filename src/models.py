@@ -110,6 +110,11 @@ class Quiz(db.Model):
     questions = db.relationship(
         'Question', back_populates='quiz', lazy=True, cascade='all,delete',
     )
+    # Связь с таблицей результатов викторины
+    results = db.relationship(
+        'QuizResult',
+        back_populates='quiz',
+    )
     #     questions = db.relationship(
     #         'Question',
     #         backref='quiz_question',
@@ -252,6 +257,10 @@ class QuizResult(db.Model):
         nullable=False,
         comment='Идентификатор последнего отвеченного вопроса.',
     )
+    # Связь с моделью Quiz
+    quiz = db.relationship(
+        'Quiz',
+        backref='results')
 
 
 class UserAnswer(db.Model):
