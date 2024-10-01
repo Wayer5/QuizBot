@@ -3,6 +3,7 @@ from src.models import Category
 
 
 class CRUDCategory(CRUDBase):
+
     """Круд класс для рубрик."""
 
 

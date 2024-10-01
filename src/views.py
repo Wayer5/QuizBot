@@ -1,7 +1,7 @@
 import logging
 
 from flask import (
-    Response, jsonify, render_template, redirect, request, url_for
+    Response, jsonify, redirect, render_template, request, url_for,
 )
 from flask_jwt_extended import (
     create_access_token,

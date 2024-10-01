@@ -4,7 +4,9 @@ from src.models import Quiz
 
 
 class CRUDQuiz(CRUDBase):
+
     """Круд класс викторин."""
+
     def get_by_category_id(self, category_id: int) -> list[Quiz]:
         """Получение викторин по id категории."""
         quizzes = db.session.execute(
