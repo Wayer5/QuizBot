@@ -1,7 +1,12 @@
 import logging
 
 from flask import (
-    Response, jsonify, redirect, render_template, request, url_for,
+    Response,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    url_for,
 )
 from flask_jwt_extended import (
     create_access_token,
@@ -10,10 +15,9 @@ from flask_jwt_extended import (
 )
 
 from . import app
-
-from src.crud.user import user_crud
 from src.crud.category import category_crud
 from src.crud.quiz import quiz_crud
+from src.crud.user import user_crud
 
 
 @app.route('/login', methods=['POST'])
