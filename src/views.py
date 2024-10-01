@@ -3,10 +3,8 @@ import logging
 from flask import (
     Response,
     jsonify,
-    redirect,
     render_template,
     request,
-    url_for,
 )
 from flask_jwt_extended import (
     create_access_token,
@@ -61,19 +59,13 @@ def logout() -> Response:
     return response
 
 
-@app.route('/', methods=['GET'])
-async def index() -> str:
-    """Вывод начальной страницы."""
-    return redirect(url_for('categories'))
-
-
 @app.route('/auth', methods=['GET'])
 async def auntification() -> str:
     """Вывод страницы аунтификации."""
     return render_template('auth.html')
 
 
-@app.route('/categories', methods=['GET'])
+@app.route('/', methods=['GET'])
 async def categories() -> str:
     """Вывод страницы категорий."""
     categories = category_crud.get_multi()
