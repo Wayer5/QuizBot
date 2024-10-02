@@ -110,10 +110,6 @@ class Quiz(db.Model):
     questions = db.relationship(
         'Question', back_populates='quiz', lazy=True, cascade='all,delete',
     )
-    #     questions = db.relationship(
-    #         'Question',
-    #         backref='quiz_question',
-    #         lazy=True,
 
     def __str__(self) -> str:
         """Отображение названия объекта в админ зоне."""

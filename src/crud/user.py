@@ -9,12 +9,12 @@ class CRUDUser(CRUDBase):
 
     """Крад класс пользователя."""
 
-    async def get_by_telegram_id(self, telegram_id: str) -> Optional[User]:
+    async def get_by_telegram_id(self, telegram_id: int) -> Optional[User]:
         """Получение пользователя по логину.
 
         Keyword Arguments:
         -----------------
-        username (str): Логин пользователя.
+        telegram_id (int): тг ид пользователя
 
         """
         user = db.session.execute(
