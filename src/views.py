@@ -96,6 +96,7 @@ def delete_profile(user_id: int) -> Response:
     user_crud.remove(user)
     return render_template('categories.html')
 
+
 @app.route('/', methods=['GET'])
 async def categories() -> str:
     """Вывод страницы категорий."""
