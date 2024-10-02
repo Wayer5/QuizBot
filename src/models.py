@@ -260,7 +260,7 @@ class QuizResult(db.Model):
     # Связь с моделью Quiz
     quiz = db.relationship(
         'Quiz',
-        backref='results')
+        back_populates='results')
 
 
 class UserAnswer(db.Model):
