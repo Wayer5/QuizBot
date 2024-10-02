@@ -78,12 +78,14 @@ async def cmd_start(message: Message) -> None:
             f'Пользователь {name} ({username}) зарегистрирован в боте.',
         )
 
-    first_name = tg_user.first_name
-    last_name = tg_user.last_name
-    is_premium = tg_user.is_premium
-    added_to_attachment_menu = tg_user.added_to_attachment_menu
-    language_code = tg_user.language_code
     if not telegram_user_crud.exists_by_telegram_id(tg_user.id):
+        tg_user_id = tg_user.id
+        first_name = tg_user.first_name
+        last_name = tg_user.last_name
+        is_premium = tg_user.is_premium
+        added_to_attachment_menu = tg_user.added_to_attachment_menu
+        language_code = tg_user.language_code
+
         telegram_user_crud.create(
             {
                 'telegram_id': tg_user_id,
@@ -96,7 +98,7 @@ async def cmd_start(message: Message) -> None:
             },
         )
         logging.info(
-            f'Пользователь {tg_user.id} зарегистрирован в TelegramUser.')
+            f'Пользователь {tg_user_id} зарегистрирован в TelegramUser.')
 
     # Отправляем приветственное сообщение с кнопкой 'Start'
     await message.answer(

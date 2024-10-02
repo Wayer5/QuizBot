@@ -66,7 +66,7 @@ async def auntification() -> str:
 
 
 @app.route('/', methods=['GET'])
-async def categories() -> str:
+async def index() -> str:
     """Вывод страницы категорий."""
     categories = category_crud.get_multi()
     return render_template('categories.html', categories=categories)
