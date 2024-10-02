@@ -14,7 +14,7 @@ class CRUDUser(CRUDBase):
 
         Keyword Arguments:
         -----------------
-        telegram_id (int): Логин пользователя.
+        telegram_id (int): тг ид пользователя
 
         """
         user = db.session.execute(
