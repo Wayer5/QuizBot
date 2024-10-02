@@ -9,7 +9,7 @@ class CRUDUser(CRUDBase):
 
     """Крад класс пользователя."""
 
-    async def get_by_username(self, username: str) -> Optional[User]:
+    async def get_by_telegram_id(self, telegram_id: str) -> Optional[User]:
         """Получение пользователя по логину.
 
         Keyword Arguments:
@@ -18,7 +18,7 @@ class CRUDUser(CRUDBase):
 
         """
         user = db.session.execute(
-            db.select(User).where(User.username == username),
+            db.select(User).where(User.telegram_id == telegram_id),
         )
         return user.scalars().first()
 

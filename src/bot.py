@@ -60,10 +60,11 @@ async def cmd_start(message: Message) -> None:
 
     """
     tg_user = message.from_user
-    username = tg_user.username
-    user = await user_crud.get_by_username(username)
+    tg_user_id = tg_user.id
+    user = await user_crud.get_by_telegram_id(tg_user_id)
     if user is None:
         name = tg_user.full_name
+        username = tg_user.username
         tg_user_id = tg_user.id
         is_admin = user_crud.get_multi() == []
         user_crud.create(
@@ -79,7 +80,7 @@ async def cmd_start(message: Message) -> None:
         )
 
     if not telegram_user_crud.exists_by_telegram_id(tg_user.id):
-        tg_user_id = tg_user.id
+        username = tg_user.username
         first_name = tg_user.first_name
         last_name = tg_user.last_name
         is_premium = tg_user.is_premium
@@ -129,7 +130,7 @@ async def on_start_button(message: Message) -> None:
     )
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_button]])
-    user = await user_crud.get_by_username(message.from_user.username)
+    user = await user_crud.get_by_telegram_id(message.from_user.id)
     if user.is_admin:
         keyboard.inline_keyboard[0].append(admin_button)
 
