@@ -1,69 +1,110 @@
-
-<!--
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz</title>
-
-    <style>
-        .answer-button {
-        flex: 1 0 45%; /* Устанавливаем максимальную ширину кнопки в 45% от родительского контейнера */
-        margin: 0.7rem; /* Добавляем интервал между кнопками */
-        }
-    </style>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
-    </head>
--->
-<!--
-{% block content %}
-<body>
-  <div class="container">
-    <h1 class="text-center mb-4">Quiz</h1>
-    <form method="POST">
-      {{ csrf_token }}
-      <input type="hidden" name="question_id" value="{{ question.id }}">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">{{ question.text }}</h5>
-          <div class="d-flex flex-wrap justify-content-between">
-            {% for answer in answers %}
-              <button class="btn btn-primary btn-lg answer-button" type="submit" name="answer" value="{{ answer.text }}">{{ answer.text }}</button> 
-            {% endfor %}
-          </div>
-        </div>
-      </div>
-    </form>
-  </div>
-</body>
-</html>
-{% endblock content %}
--->
 {% extends 'base.html' %}
 
 {% block content %}
 <div class="container text-center">
-<h1 class="mb-4">Quiz</h1>
-<form method="POST">
-    {{ csrf_token }}
-    <input type="hidden" name="question_id" value="{{ question.id }}">
-    <div class="card">
-    <div class="card-body">
-        <h5 class="card-title mb-4">{{ question.text }}</h5>
-        <div class="row justify-content-center">
-        {% for answer in answers %}
-        <div class="col-md-6 col-sm-12 mb-2">
-            <label class="align-items-center cursor-pointer">
-                <input type="radio" class="form-check-input answer-button" name="answer" value="{{ answer.text }}">
-                <span class="form-check-label mb-0 ms-2">{{ answer.text }}</span>
-            </label>
+    <h1 class="mb-4">Вопрос</h1>
+    <form method="POST">
+        <!-- Скрытое поле для идентификатора вопроса -->
+        <input type="hidden" name="question_id" value="{{ question.id }}">
+        <input type="hidden" name="csrf-token">
+
+        <!-- Карточка с вопросом -->
+        <div class="card">
+            <div class="card-body">
+                <!-- Текст вопроса -->
+                <h5 class="card-title mb-4">{{ question.title }}</h5>
+
+                <!-- Контейнер с ответами -->
+                <div class="answer-container">
+                    {% for answer in answers %}
+                    <div class="answer-label">
+                        <label class="w-100 d-block answer-button-label">
+                            <input type="radio" class="form-check-input d-none answer-button" name="answer" value="{{ answer.title }}">
+                            <span class="answer-text">{{ answer.title }}</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Кнопки "Назад", "Далее" и "Вернуться в категории" -->
+                <div class="mt-4">
+                    <!-- Кнопка "Назад" -->
+                    {% if prev_question %}
+                    <a href="{{ url_for('quizzes', question_id=prev_question.id, quiz_id=question.quiz_id) }}" class="btn btn-secondary btn-lg me-3">Назад</a>
+                    {% endif %}
+
+                    <!-- Кнопка "Вперед" -->
+                    {% if next_question %}
+                    <a href="{{ url_for('quizzes', question_id=next_question.id, quiz_id=question.quiz_id) }}" class="btn btn-secondary btn-lg me-3">Вперед</a>
+                    {% endif %}
+
+                    <!-- Кнопка "Далее", скрыта до выбора ответа -->
+                    <button id="next-button" type="submit" class="btn btn-primary btn-lg me-3" style="display: none;">Далее</button>
+
+                    <!-- Кнопка "Вернуться в категории" -->
+                    <a href="{{ url_for('categories') }}" class="btn btn-outline-secondary btn-lg mt-2">Вернуться в категории</a>
+                </div>
+            </div>
         </div>
-        {% endfor %}
-        </div>
-        <button type="submit" class="btn btn-primary btn-lg mt-4">Далее</button>
-    </div>
-    </div>
-</form>
+    </form>
 </div>
+
+<!-- CSS для стилизации -->
+<style>
+    .answer-container {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch; /* Варианты будут тянуться на всю ширину контейнера */
+    }
+
+    .answer-label {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .answer-button-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px;
+        border: 2px solid #007bff; /* Цвет границы */
+        border-radius: 8px; /* Округленные углы */
+        cursor: pointer;
+        background-color: #f8f9fa; /* Фоновый цвет */
+        transition: background-color 0.3s ease;
+    }
+
+    .answer-button-label:hover {
+        background-color: #e9ecef; /* Цвет при наведении */
+    }
+
+    .answer-button:checked + .answer-text {
+        background-color: #007bff; /* Фоновый цвет выбранного ответа */
+        color: #fff; /* Цвет текста выбранного ответа */
+    }
+
+    .answer-text {
+        display: block;
+        width: 100%;
+        text-align: center; /* Текст по центру */
+        padding: 10px 0;
+        font-size: 16px;
+        word-wrap: break-word;
+        white-space: normal;
+    }
+
+    .btn-outline-secondary {
+        margin-top: 10px; /* Отступ между кнопкой и другими кнопками */
+    }
+</style>
+
+<!-- JavaScript для отображения кнопки "Далее" при выборе ответа -->
+<script>
+    document.querySelectorAll('.answer-button').forEach((radio) => {
+        radio.addEventListener('change', function() {
+            // Когда выбран ответ, показать кнопку "Далее"
+            document.getElementById('next-button').style.display = 'inline-block';
+        });
+    });
+</script>
 {% endblock content %}
