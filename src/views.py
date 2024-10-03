@@ -89,7 +89,6 @@ async def quizzes() -> str:
     return render_template('quizzes.html', quizzes=quizzes)
 
 
-
 @app.route('/me', methods=['GET'])
 @jwt_required()
 def profile() -> Response:
@@ -121,7 +120,8 @@ def delete_profile() -> Response:
 
     user_crud.remove(user)
     return render_template('categories.html')
-=======
+
+
 @app.route('/question', methods=['GET', 'POST'])
 def question() -> Response:
     """Переключаем вопросы после ответов на них."""
@@ -191,4 +191,3 @@ def question() -> Response:
 def results() -> Response:
     """Пишем о том, что тест закончен."""
     return 'Тест завершен! Спасибо за участие.'
-

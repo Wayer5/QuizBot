@@ -121,7 +121,6 @@ class Quiz(db.Model):
     #         backref='quiz_question',
     #         lazy=True,
 
-
     def __str__(self) -> str:
         """Отображение названия объекта в админ зоне."""
         return self.title
@@ -260,9 +259,9 @@ class QuizResult(db.Model):
         comment='Идентификатор последнего отвеченного вопроса.',
     )
     # Связь с моделью Quiz
-    quiz = db.relationship(
-        'Quiz',
-        back_populates='results')
+    # quiz = db.relationship(
+    #     'Quiz',
+    #     back_populates='results')
 
 
 class UserAnswer(db.Model):
