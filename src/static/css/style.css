@@ -3,27 +3,142 @@
     margin: 0.7rem; /* Добавляем интервал между кнопками */
 }
 
+/* Основные стили для контейнера */
 .container {
-    padding: 20px;
+    max-width: 1200px; /* Максимальная ширина */
+    margin: 0 auto; /* Центрирование контейнера */
+    padding: 20px; /* Внутренние отступы */
+    background: linear-gradient(to right, #f0f4f8, #d9e2ec); /* Градиент фона */
+    border-radius: 10px; /* Закругленные углы */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Тень для контейнера */
 }
-.quiz-card {
-    margin-bottom: 20px;
-    padding: 15px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: rgba(255, 255, 255, 0.8);
+body {
+    font-family: 'Poppins', sans-serif; /* Apply Poppins font to the body */
 }
-.btn-custom {
-    margin-top: 20px;
-    width: 100%;
+/* Стили заголовков */
+h1, h2, h3 {
+    color: #333; /* Цвет текста */
+    font-family: 'Poppins', sans-serif; /* Шрифт */
+}
+
+h1 {
+    font-size: 2.5rem; /* Большой размер шрифта для заголовка */
+    margin-bottom: 10px; /* Отступ снизу */
+}
+
+h2 {
+    font-size: 2rem; /* Средний размер шрифта для подзаголовков */
+    margin-top: 30px; /* Отступ сверху */
+}
+
+h3 {
+    font-size: 1.5rem; /* Меньший размер шрифта для подзаголовков */
+}
+
+/* Стили карточек */
+.card {
+    background-color: white; /* Белый фон */
+    border-radius: 8px; /* Закругленные углы */
+    overflow: hidden; /* Скрытие лишнего контента */
+    transition: transform 0.3s, box-shadow 0.3s; /* Анимация при наведении */
+}
+
+.card:hover {
+    transform: translateY(-5px); /* Поднимаем карточку при наведении */
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2); /* Увеличиваем тень */
+}
+
+/* Внутренние отступы для карточек */
+.card-body {
+    padding: 20px; /* Внутренние отступы для содержимого карточки */
+}
+
+/* Стили для списка */
+.list-group-item {
+    padding: 15px; /* Внутренние отступы */
+    background: #f8f9fa; /* Светлый фон */
+    border: 1px solid #e0e0e0; /* Светлая граница */
+    border-radius: 5px; /* Закругленные углы */
+    margin-bottom: 0px; /* Отступ между элементами списка */
+    transition: background 0.3s; /* Анимация при наведении */
+}
+
+.list-group-item:hover {
+    background: #e2e6ea; /* Темный фон при наведении */
+}
+
+/* Стили для кнопок */
+.btn {
+    padding: 10px; /* Внутренние отступы для кнопок */
+    border-radius: 5px; /* Закругленные углы для кнопок */
+    text-decoration: none; /* Исключаем подчеркивание */
+    transition: background-color 0.3s, transform 0.3s; /* Анимация */
+    text-align: center; /* Центрируем текст внутри кнопок */
+    min-width: 165px; /* Фиксированная ширина кнопок */
 }
 
 .btn-container {
-    display: flex;
-    flex-direction: column; /* Вертикальное расположение кнопок */
-    align-items: center;
-    gap: 10px; /* Отступ между кнопками */
-  }
-  .btn {
-    width: 200px;
-  }
+    display: flex; /* Используем Flexbox для расположения кнопок в ряд */
+    justify-content: center; /* Центрируем кнопки по горизонтали */
+    margin-bottom: 0px; /* Отступ снизу для предотвращения перекрытия футера */
+    gap: 10px; /* Пробел между кнопками */
+}
+
+.btn-primary {
+    background-color: #007bff; /* Цвет кнопки */
+    color: white; /* Цвет текста */
+}
+
+.btn-danger {
+    background-color: #dc3545; /* Цвет кнопки удаления */
+    color: white; /* Цвет текста */
+}
+
+.btn-danger {
+    margin-right: 5px; /* Отступ слева для правой кнопки */
+
+}
+
+.btn-primary:hover, .btn-danger:hover {
+    transform: scale(1.05); /* Увеличиваем кнопку при наведении */
+}
+
+.text-center {
+    text-align: center; /* Центрирование текста */
+}
+
+/* Утилиты для отступов */
+.mt-4 {
+    margin-top: 1.5rem; /* Отступ сверху */
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem; /* Отступ снизу */
+}
+
+/* Мобильные стили */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2rem; /* Меньший размер шрифта для мобильных устройств */
+    }
+    
+    h2 {
+        font-size: 1.5rem; /* Меньший размер шрифта для мобильных устройств */
+    }
+
+    h3 {
+        font-size: 1.25rem; /* Меньший размер шрифта для мобильных устройств */
+    }
+
+    .container {
+        padding: 10px; /* Меньше отступов на мобильных устройствах */
+    }
+}
+
+/* Стиль для очень маленьких устройств */
+@media (max-width: 576px) {
+    .btn {
+        width: 100%; /* Полная ширина кнопок на маленьких экранах */
+        margin-bottom: 10px; /* Отступ между кнопками */
+    }
+}

@@ -126,10 +126,18 @@ async def on_start_button(message: Message) -> None:
         web_app=WebAppInfo(url=web_app_url + '/auth'),
     )
 
+    profile_button: InlineKeyboardButton = InlineKeyboardButton(
+        text='Профиль',
+        web_app=WebAppInfo(url=web_app_url + '/me'),
+    )
+
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_button]])
     user = await user_crud.get_by_username(message.from_user.username)
     if user.is_admin:
         keyboard.inline_keyboard[0].append(admin_button)
+        keyboard.inline_keyboard[0].append(profile_button)
+    else:
+        keyboard.inline_keyboard[0].append(profile_button)
 
     # Отправляем инлайн-кнопку для открытия WebApp
     await message.answer(
