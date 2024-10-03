@@ -225,7 +225,7 @@ class QuizResult(db.Model):
     user_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id'),
-        nullable=False,
+        nullable=True,
         comment='Идентификатор пользователя, прошедшего викторину.',
     )
     quiz_id = db.Column(
@@ -258,9 +258,9 @@ class QuizResult(db.Model):
         comment='Идентификатор последнего отвеченного вопроса.',
     )
     # Связь с моделью Quiz
-    quiz = db.relationship(
-        'Quiz',
-        back_populates='results')
+    # quiz = db.relationship(
+    #     'Quiz',
+    #     back_populates='results')
 
 
 class UserAnswer(db.Model):
