@@ -110,6 +110,7 @@ class Quiz(db.Model):
     questions = db.relationship(
         'Question', back_populates='quiz', lazy=True, cascade='all,delete',
     )
+
     # Связь с таблицей результатов викторины
     # results = db.relationship(
     #     'QuizResult',
