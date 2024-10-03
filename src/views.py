@@ -8,18 +8,17 @@ from flask import (
 )
 from flask_jwt_extended import (
     create_access_token,
+    current_user,
+    jwt_required,
     set_access_cookies,
     unset_jwt_cookies,
-    jwt_required,
-    current_user
 )
-from src.models import QuizResult
 
 from . import app
 from src.crud.category import category_crud
 from src.crud.quiz import quiz_crud
 from src.crud.user import user_crud
-from src.models import QuizResult, User
+from src.models import QuizResult
 
 
 @app.route('/login', methods=['POST'])
