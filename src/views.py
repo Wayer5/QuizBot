@@ -111,14 +111,14 @@ def profile() -> Response:
 @jwt_required()
 def delete_profile() -> Response:
     """Удаляет профиль пользователя и сохраняет результаты викторин."""
-    user = current_user
-    quiz_results = QuizResult.query.filter_by(user_id=user.id).all()
+    # user = current_user
+    # quiz_results = QuizResult.query.filter_by(user_id=user.id).all()
     # Обновляем результаты викторин, чтобы убрать связь с пользователем
-    for result in quiz_results:
-        result.user_id = None
-        user_crud.update(result, {'user_id': None})
+    # for result in quiz_results:
+    #     result.user_id = None
+    #     user_crud.update(result, {'user_id': None})
 
-    user_crud.remove(user)
+    user_crud.remove(current_user)
     return render_template('categories.html')
 
 
