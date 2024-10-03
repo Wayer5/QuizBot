@@ -6,7 +6,7 @@
     <form method="POST">
         <!-- Скрытое поле для идентификатора вопроса -->
         <input type="hidden" name="question_id" value="{{ question.id }}">
-        <input type="hidden" name="csrf-token">
+        <input type="hidden" name="csrf_token">
 
         <!-- Карточка с вопросом -->
         <div class="card">
@@ -19,7 +19,7 @@
                     {% for answer in answers %}
                     <div class="answer-label">
                         <label class="w-100 d-block answer-button-label">
-                            <input type="radio" class="form-check-input d-none answer-button" name="answer" value="{{ answer.title }}">
+                            <input type="radio" class="form-check-input d-none answer-button" name="answer" value="{{ answer.id }}">
                             <span class="answer-text">{{ answer.title }}</span>
                         </label>
                     </div>
@@ -28,16 +28,6 @@
 
                 <!-- Кнопки "Назад", "Далее" и "Вернуться в категории" -->
                 <div class="mt-4">
-                    <!-- Кнопка "Назад" -->
-                    {% if prev_question %}
-                    <a href="{{ url_for('quizzes', question_id=prev_question.id, quiz_id=question.quiz_id) }}" class="btn btn-secondary btn-lg me-3">Назад</a>
-                    {% endif %}
-
-                    <!-- Кнопка "Вперед" -->
-                    {% if next_question %}
-                    <a href="{{ url_for('quizzes', question_id=next_question.id, quiz_id=question.quiz_id) }}" class="btn btn-secondary btn-lg me-3">Вперед</a>
-                    {% endif %}
-
                     <!-- Кнопка "Далее", скрыта до выбора ответа -->
                     <button id="next-button" type="submit" class="btn btn-primary btn-lg me-3" style="display: none;">Далее</button>
 
@@ -49,55 +39,6 @@
     </form>
 </div>
 
-<!-- CSS для стилизации -->
-<style>
-    .answer-container {
-        display: flex;
-        flex-direction: column;
-        align-items: stretch; /* Варианты будут тянуться на всю ширину контейнера */
-    }
-
-    .answer-label {
-        width: 100%;
-        margin-bottom: 10px;
-    }
-
-    .answer-button-label {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 5px;
-        border: 2px solid #007bff; /* Цвет границы */
-        border-radius: 8px; /* Округленные углы */
-        cursor: pointer;
-        background-color: #f8f9fa; /* Фоновый цвет */
-        transition: background-color 0.3s ease;
-    }
-
-    .answer-button-label:hover {
-        background-color: #e9ecef; /* Цвет при наведении */
-    }
-
-    .answer-button:checked + .answer-text {
-        background-color: #007bff; /* Фоновый цвет выбранного ответа */
-        color: #fff; /* Цвет текста выбранного ответа */
-    }
-
-    .answer-text {
-        display: block;
-        width: 100%;
-        text-align: center; /* Текст по центру */
-        padding: 10px 0;
-        font-size: 16px;
-        word-wrap: break-word;
-        white-space: normal;
-    }
-
-    .btn-outline-secondary {
-        margin-top: 10px; /* Отступ между кнопкой и другими кнопками */
-    }
-</style>
-
 <!-- JavaScript для отображения кнопки "Далее" при выборе ответа -->
 <script>
     document.querySelectorAll('.answer-button').forEach((radio) => {
@@ -108,3 +49,4 @@
     });
 </script>
 {% endblock content %}
+{% include "csrf_form.html" %}

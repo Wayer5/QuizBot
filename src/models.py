@@ -108,7 +108,10 @@ class Quiz(db.Model):
 
     # Связь с таблицей questions
     questions = db.relationship(
-        'Question', back_populates='quiz', lazy=True, cascade='all,delete',
+        'Question',
+        back_populates='quiz',
+        lazy=True,
+        cascade='all,delete',
     )
 
     def __str__(self) -> str:

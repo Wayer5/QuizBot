@@ -2,3 +2,49 @@
     flex: 1 0 45%; /* Устанавливаем максимальную ширину кнопки в 45% от родительского контейнера */
     margin: 0.7rem; /* Добавляем интервал между кнопками */
 }
+
+.answer-container {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch; /* Варианты будут тянуться на всю ширину контейнера */
+}
+
+.answer-label {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.answer-button-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    border: 2px solid #007bff; /* Цвет границы */
+    border-radius: 8px; /* Округленные углы */
+    cursor: pointer;
+    background-color: #f8f9fa; /* Фоновый цвет */
+    transition: background-color 0.3s ease;
+}
+
+.answer-button-label:hover {
+    background-color: #e9ecef; /* Цвет при наведении */
+}
+
+.answer-button:checked + .answer-text {
+    background-color: #007bff; /* Фоновый цвет выбранного ответа */
+    color: #fff; /* Цвет текста выбранного ответа */
+}
+
+.answer-text {
+    display: block;
+    width: 100%;
+    text-align: center; /* Текст по центру */
+    padding: 10px 0;
+    font-size: 16px;
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+.btn-outline-secondary {
+    margin-top: 10px; /* Отступ между кнопкой и другими кнопками */
+}

@@ -40,6 +40,12 @@ class CRUDBase:
         db.session.refresh(db_obj)
         return db_obj
 
+    def update_with_obj(self, obj_in: object) -> object:
+        """Обновить объект."""
+        db.session.commit()
+        db.session.refresh(obj_in)
+        return obj_in
+
     def remove(self, db_obj: object) -> object:
         """Удалить обект."""
         db.session.delete(db_obj)
