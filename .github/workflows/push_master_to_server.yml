@@ -1,5 +1,6 @@
 name: Push Medstat Project To Server Workflow
 on:
+  pull_request:
   push:
     branches:
       - master
