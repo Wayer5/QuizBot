@@ -69,19 +69,19 @@ jobs:
       with:
         host: ${{ secrets.PASHY_HOST }}
         username: ${{ secrets.PASHY_USER }}
-        # key: ${{ secrets.PASHY_SSH_KEY }}
-        # passphrase: ${{ secrets.PASHY_SSH_PASSPHRASE }}
-        fingerprint: ${{ secrets.PASHY_FINGERPRINT }}
+        key: ${{ secrets.PASHY_SSH_KEY }}
+        passphrase: ${{ secrets.PASHY_SSH_PASSPHRASE }}
+        # fingerprint: ${{ secrets.PASHY_FINGERPRINT }}
         source: "infra/docker-compose.production.yml"
         # target: ""
     - name: Executing remote ssh commands to deploy
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.PASHY_HOST }}
-        # username: ${{ secrets.PASHY_USER }}
-        # key: ${{ secrets.PASHY_SSH_KEY }}
+        username: ${{ secrets.PASHY_USER }}
+        key: ${{ secrets.PASHY_SSH_KEY }}
         passphrase: ${{ secrets.PASHY_SSH_PASSPHRASE }}
-        fingerprint: ${{ secrets.PASHY_FINGERPRINT }}
+        # fingerprint: ${{ secrets.PASHY_FINGERPRINT }}
         # Параметр script передаёт в action appleboy/ssh-action команды,
         # которые нужно выполнить на сервере, 
         # с которым установлено соединение
