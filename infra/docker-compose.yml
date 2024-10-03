@@ -1,0 +1,23 @@
+version: '3'
+
+volumes:
+  pg_data:
+  static:
+  migration:
+
+services:
+  db:
+    image: postgres:13.10
+    env_file: .env
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+  backend:
+    build: ../
+    env_file: .env
+    volumes:
+      - static:/backend_static
+      - migration:/app/migrations
+    ports:
+      - "${PORT}:${PORT}"
+    depends_on:
+      - db
