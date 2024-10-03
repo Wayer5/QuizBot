@@ -121,7 +121,8 @@ def delete_profile() -> Response:
 
     user_crud.remove(user)
     return render_template('categories.html')
-=======
+
+
 @app.route('/question', methods=['GET', 'POST'])
 def question() -> Response:
     """Переключаем вопросы после ответов на них."""
