@@ -88,7 +88,7 @@ jobs:
         # с которым установлено соединение
         script: |
           # Выполняет pull образов с Docker Hub
-          sudo docker compose -f docker-compose.production.yml pull
+          docker compose -f docker-compose.production.yml pull
           # Перезапускает все контейнеры в Docker Compose
-          sudo docker compose -f docker-compose.production.yml down
-          sudo docker compose -f docker-compose.production.yml up -d
+          docker compose -f docker-compose.production.yml down
+          docker compose -f docker-compose.production.yml up -d
