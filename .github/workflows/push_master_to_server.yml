@@ -69,8 +69,8 @@ jobs:
       with:
         host: ${{ secrets.PASHY_HOST }}
         username: ${{ secrets.PASHY_USER }}
-        key: ${{ secrets.PASHY_SSH_KEY }}
-        passphrase: ${{ secrets.PASHY_SSH_PASSPHRASE }}
+        # key: ${{ secrets.PASHY_SSH_KEY }}
+        # passphrase: ${{ secrets.PASHY_SSH_PASSPHRASE }}
         fingerprint: ${{ secrets.PASHY_FINGERPRINT }}
         source: "infra/docker-compose.production.yml"
         # target: ""
@@ -78,8 +78,8 @@ jobs:
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.PASHY_HOST }}
-        username: ${{ secrets.PASHY_USER }}
-        key: ${{ secrets.PASHY_SSH_KEY }}
+        # username: ${{ secrets.PASHY_USER }}
+        # key: ${{ secrets.PASHY_SSH_KEY }}
         passphrase: ${{ secrets.PASHY_SSH_PASSPHRASE }}
         fingerprint: ${{ secrets.PASHY_FINGERPRINT }}
         # Параметр script передаёт в action appleboy/ssh-action команды,
