@@ -1,5 +1,5 @@
 from flask import request
-from flask_admin import Admin
+from flask_admin import Admin, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.form import SecureForm
 from flask_babel import Babel
@@ -106,11 +106,31 @@ class QuestionAdmin(CustomAdminView):
     ]
 
 
+class UserActivityView(BaseView):
+
+    """Статистика активности пользователей."""
+
+    @expose('/')
+    def index(self):
+        # Получение данных о пользователях из базы данных
+        users = User.query.with_entities(
+            User.name, User.telegram_id, User.created_on).all()
+        user_data = [{
+            'name': user.name,
+            'telegram_id': user.telegram_id,
+            'created_on': user.created_on
+            } for user in users]
+        return self.render('admin/user_activity.html', data=user_data)
+
+
 # Добавляем представления в админку
 admin.add_view(UserAdmin(User, db.session, name='Пользователи'))
 admin.add_view(CategoryAdmin(Category, db.session, name='Категории'))
 admin.add_view(QuizAdmin(Quiz, db.session, name='Викторины'))
 admin.add_view(QuestionAdmin(Question, db.session, name='Вопросы'))
+admin.add_view(UserActivityView(
+    name='Статистика активности пользователей', endpoint='user_activity'
+))
 
 
 def get_locale() -> dict:
