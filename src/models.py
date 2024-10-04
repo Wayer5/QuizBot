@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from sqlalchemy import UniqueConstraint
+
 from . import db
 
 
@@ -251,6 +253,10 @@ class QuizResult(db.Model):
         nullable=False,
         comment='Идентификатор последнего отвеченного вопроса.',
     )
+    __table_args__ = (UniqueConstraint(
+        'user_id', 'quiz_id', name='_person_quiz_uc'
+        ),
+    )
 
 
 class UserAnswer(db.Model):
@@ -289,6 +295,10 @@ class UserAnswer(db.Model):
         db.Boolean,
         default=False,
         comment='Флаг, указывающий, является ли ответ правильным.',
+    )
+    __table_args__ = (UniqueConstraint(
+        'user_id', 'question_id', name='_person_question_uc'
+        ),
     )
 
 

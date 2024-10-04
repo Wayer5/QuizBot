@@ -83,9 +83,7 @@ async def categories() -> str:
 @app.route('/<int:category_id>/', methods=['GET'])
 async def quizzes(category_id: int) -> str:
     """Вывод страницы викторин."""
-    print(category_id)
     quizzes = quiz_crud.get_by_category_id(category_id)
-    print(quizzes)
     return render_template('quizzes.html', quizzes=quizzes)
 
 
@@ -116,7 +114,6 @@ async def next_question(category_id: int, quiz_id: int) -> str:
             Question.id > last_question_id,
             Question.is_active == true(),
         ).first()
-        print(question)
 
     if question is None:
         quiz_result.is_complete = True
@@ -144,9 +141,6 @@ async def question(category_id: int, quiz_id: int, question_id: int) -> str:
         answer_id = int(
             request.form.get('answer'),
         )  # получить идентификатор выбранного ответа
-
-        # Обработка ответа
-        print(f'Ответ на вопрос {question_id}: {answer_id}')
 
         # Получаем текущий вопрос по его ID
         current_question = Question.query.get_or_404(question_id)
