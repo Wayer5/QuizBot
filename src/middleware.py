@@ -29,6 +29,6 @@ class AdminTokenMiddleware(BaseHTTPMiddleware):
             return call_next(request)
 
         verify_jwt_in_request()
-        if current_user.is_admin is False:
+        if current_user.is_admin is False or current_user.is_active is False:
             raise Exception('Access denied')
         return call_next(request)
