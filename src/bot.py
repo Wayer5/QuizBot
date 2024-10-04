@@ -131,11 +131,16 @@ async def on_start_button(message: Message) -> None:
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_button]])
     user = await user_crud.get_by_telegram_id(message.from_user.id)
-    if user.is_admin:
+    if user.is_admin and user.is_active:
         keyboard.inline_keyboard[0].append(admin_button)
 
-    # Отправляем инлайн-кнопку для открытия WebApp
-    await message.answer(
-        'Нажми кнопку ниже, чтобы открыть WebApp:',
-        reply_markup=keyboard,
-    )
+    if user.is_active:
+        # Отправляем инлайн-кнопку для открытия WebApp
+        await message.answer(
+            'Нажми кнопку ниже, чтобы открыть WebApp:',
+            reply_markup=keyboard,
+        )
+    else:
+        await message.answer(
+            'Вы были заблокированы. Обратитесь к администратору.',
+        )

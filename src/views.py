@@ -39,7 +39,7 @@ async def login() -> Response:
     user_id = request.json.get('tgId', None)
     logging.info(f'User {username} with id {user_id} is trying to login')
     user = await user_crud.get_by_telegram_id(user_id)
-    if user and user.telegram_id == user_id:
+    if user and user.telegram_id == user_id and user.is_active:
         access_token = create_access_token(identity=user)
         logging.info(
             f'User {username} with id {user_id} logged in successfully',
