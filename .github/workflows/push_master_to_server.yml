@@ -37,14 +37,12 @@ jobs:
         with:
           username: ${{ secrets.PASHY_DOCKER_USERNAME }}
           password: ${{ secrets.PASHY_DOCKER_PASSWORD }}
-          # Хорошо ли держать логин и пароль прямо в коде workflow?
-          # Нет, это нехорошо
       - name: Push to DockerHub
         # Одновременный билд и пуш образа в Docker Hub
         uses: docker/build-push-action@v4
         with:
-          # Параметр context: ./backend/ указывает, что нужный Dockerfile 
-          # находится в ./backend/
+          # Параметр context указывает, что нужный Dockerfile 
+          # находится в корне прокта
           context: ./
           # Параметр push: true указывает, что образ нужно не только собрать,
           # но и отправить на Docker Hub
@@ -57,7 +55,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: 
-      # Дождёмся билда всех образов Taski
+      # Дождёмся билда всех образов
       - build_and_push_to_docker_hub
     steps:
     - name: Checkout repo
@@ -70,20 +68,27 @@ jobs:
         host: ${{ secrets.PASHY_HOST }}
         username: ${{ secrets.PASHY_USER }}
         key: ${{ secrets.PASHY_SSH_KEY }}
-        source: "docker-compose.production.yml"
-        target: "taski"
+        passphrase: ${{ secrets.PASHY_SSH_PASSPHRASE }}
+        source: "infra/docker-compose.production.yml"
+        target: "/home/medstat"
+        # Файл компоуса копируется на сервер вместе с папкой infra, 
+        # в которой он находится в проекте. Для того, чтобы
+        # копировался только сам файл, нужно убрать первый уровень,
+        # т.е. папку infra
+        strip_components: 1
     - name: Executing remote ssh commands to deploy
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.PASHY_HOST }}
         username: ${{ secrets.PASHY_USER }}
         key: ${{ secrets.PASHY_SSH_KEY }}
+        passphrase: ${{ secrets.PASHY_SSH_PASSPHRASE }}
         # Параметр script передаёт в action appleboy/ssh-action команды,
         # которые нужно выполнить на сервере, 
         # с которым установлено соединение
         script: |
           # Выполняет pull образов с Docker Hub
-          sudo docker compose -f docker-compose.production.yml pull
+          docker compose -f docker-compose.production.yml pull
           # Перезапускает все контейнеры в Docker Compose
-          sudo docker compose -f docker-compose.production.yml down
-          sudo docker compose -f docker-compose.production.yml up -d
+          docker compose -f docker-compose.production.yml down
+          docker compose -f docker-compose.production.yml up -d
