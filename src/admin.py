@@ -1,7 +1,6 @@
 from flask import request
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
-from flask_admin.form import SecureForm
 from flask_babel import Babel
 
 from . import app, db
@@ -24,7 +23,6 @@ class UserAdmin(CustomAdminView):
 
     """Добавление и перевод модели пользователя в админ зону."""
 
-    form_base_class = SecureForm
     column_labels = {
         'id': 'ИД',
         'name': 'Имя',
