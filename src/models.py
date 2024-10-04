@@ -117,14 +117,10 @@ class Quiz(db.Model):
     )
 
     # Связь с таблицей результатов викторины
-    # results = db.relationship(
-    #     'QuizResult',
-    #     back_populates='quiz',
-    # )
-    #     questions = db.relationship(
-    #         'Question',
-    #         backref='quiz_question',
-    #         lazy=True,
+    results = db.relationship(
+        'QuizResult',
+        backref='quiz',
+    )
 
     def __str__(self) -> str:
         """Отображение названия объекта в админ зоне."""

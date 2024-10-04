@@ -15,7 +15,7 @@ class CRUDBase:
 
     def get(self, obj_id: int) -> Optional[object]:
         """Получить объект."""
-        return self.model.query.get(obj_id)
+        return self.model.query.get_or_404(obj_id)
 
     def get_multi(self) -> list[object]:
         """Создать список объектов."""

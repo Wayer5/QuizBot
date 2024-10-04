@@ -15,11 +15,11 @@ from flask_jwt_extended import (
     set_access_cookies,
     unset_jwt_cookies,
 )
-from sqlalchemy.sql.expression import true
 
 from . import app
-from .models import Question, QuizResult, Variant
+from .models import QuizResult, Variant
 from src.crud.category import category_crud
+from src.crud.question import question_crud
 from src.crud.quiz import quiz_crud
 from src.crud.quiz_result import quiz_result_crud
 from src.crud.user import user_crud
@@ -91,29 +91,23 @@ async def quizzes(category_id: int) -> str:
 @jwt_required()
 async def next_question(category_id: int, quiz_id: int) -> str:
     """Вывод последней викторины пользователя."""
-    quiz_result = QuizResult.query.filter_by(
+    quiz_result = quiz_result_crud.get_by_user_and_quiz(
         user_id=current_user.id,
         quiz_id=quiz_id,
-    ).first()
+    )
     if quiz_result is None:
         # Получаем первый вопрос викторины
-        question = (
-            Question.query.filter(
-                Question.quiz_id == quiz_id,
-                Question.is_active == true(),
-            )
-            .order_by(Question.id)
-            .first()
+        question = question_crud.get_new(
+            quiz_id=quiz_id,
         )
     else:
         # Если результат викторины существует,
         # то получаем последний доступный вопрос
         last_question_id = quiz_result.question_id
-        question = Question.query.filter(
-            Question.quiz_id == quiz_id,
-            Question.id > last_question_id,
-            Question.is_active == true(),
-        ).first()
+        question = question_crud.get_new(
+            quiz_id=quiz_id,
+            last_question_id=last_question_id,
+        )
 
     if question is None:
         quiz_result.is_complete = True
@@ -130,6 +124,42 @@ async def next_question(category_id: int, quiz_id: int) -> str:
     )
 
 
+@app.route('/me', methods=['GET'])
+@jwt_required()
+def profile() -> Response:
+    """Отображаем профиль пользователя."""
+    user = current_user
+    quiz_results = QuizResult.query.filter_by(user_id=user.id).all()
+
+    total_questions = sum(result.total_questions for result in quiz_results)
+    correct_answers_count = sum(
+        result.correct_answers_count for result in quiz_results
+    )
+
+    return render_template(
+        'user_profile.html',
+        user=user,
+        quiz_results=quiz_results,
+        total_questions=total_questions,
+        correct_answers_count=correct_answers_count,
+    )
+
+
+@app.route('/me', methods=['POST'])
+@jwt_required()
+def delete_profile() -> Response:
+    """Удаляет профиль пользователя и сохраняет результаты викторин."""
+    # user = current_user
+    # quiz_results = QuizResult.query.filter_by(user_id=user.id).all()
+    # Обновляем результаты викторин, чтобы убрать связь с пользователем
+    # for result in quiz_results:
+    #     result.user_id = None
+    #     user_crud.update(result, {'user_id': None})
+
+    user_crud.remove(current_user)
+    return render_template('categories.html')
+
+
 @app.route(
     '/<int:category_id>/<int:quiz_id>/<int:question_id>',
     methods=['GET', 'POST'],
@@ -143,17 +173,16 @@ async def question(category_id: int, quiz_id: int, question_id: int) -> str:
         )  # получить идентификатор выбранного ответа
 
         # Получаем текущий вопрос по его ID
-        current_question = Question.query.get_or_404(question_id)
+        current_question = question_crud.get(question_id)
 
         # Получаем выбранный ответ по его ID
         chosen_answer = Variant.query.get_or_404(answer_id)
 
         # Обновить результаты викторины
-        quiz_result = QuizResult.query.filter_by(
+        quiz_result = quiz_result_crud.get_by_user_and_quiz(
             user_id=current_user.id,
             quiz_id=quiz_id,
-        ).first()
-
+        )
         if quiz_result and quiz_result.question_id == question_id:
             redirect(url_for('quizzes', category_id=category_id))
         if quiz_result is None:
@@ -162,15 +191,14 @@ async def question(category_id: int, quiz_id: int, question_id: int) -> str:
                     'user_id': current_user.id,
                     'quiz_id': quiz_id,
                     'question_id': question_id,
-                    'total_questions': len(
-                        Question.query.filter_by(quiz_id=quiz_id).all(),
-                    ),
+                    'total_questions': 0,
                     'correct_answers_count': 0,
                     'is_complete': False,
                 },
             )
         if chosen_answer.is_right_choice:
             quiz_result.correct_answers_count += 1
+        quiz_result.total_questions += 1
         quiz_result.question_id = question_id
         quiz_result_crud.update_with_obj(quiz_result)
         user_answer_crud.create(
@@ -192,18 +220,10 @@ async def question(category_id: int, quiz_id: int, question_id: int) -> str:
         )
 
     # Получаем идентификатор текущего вопроса из URL
-    current_question = Question.query.get_or_404(question_id)
+    current_question = question_crud.get(question_id)
 
     # Получаем все вопросы для текущей викторины
-    questions = (
-        Question.query.filter_by(
-            quiz_id=current_question.quiz_id,
-        )
-        .order_by(
-            Question.id,
-        )
-        .all()
-    )
+    questions = question_crud.get_all_by_quiz_id(current_question.quiz_id)
 
     # Находим индекс текущего вопроса в списке вопросов
     current_index = questions.index(current_question)
