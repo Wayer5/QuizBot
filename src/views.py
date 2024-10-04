@@ -113,10 +113,14 @@ async def next_question(category_id: int, quiz_id: int) -> str:
         last_question_id = quiz_result.question_id
         question = Question.query.filter(
             Question.quiz_id == quiz_id,
-            Question.id > last_question_id + 1,
+            Question.id > last_question_id,
             Question.is_active == true(),
         ).first()
+        print(question)
+
     if question is None:
+        quiz_result.is_complete = True
+        quiz_result_crud.update_with_obj(quiz_result)
         return redirect(url_for('results'))
 
     return redirect(
@@ -175,7 +179,6 @@ async def question(category_id: int, quiz_id: int, question_id: int) -> str:
             quiz_result.correct_answers_count += 1
         quiz_result.question_id = question_id
         quiz_result_crud.update_with_obj(quiz_result)
-
         user_answer_crud.create(
             {
                 'user_id': current_user.id,
@@ -185,29 +188,14 @@ async def question(category_id: int, quiz_id: int, question_id: int) -> str:
             },
         )
 
-        # Переход к следующему вопросу той же викторины
-        next_question = (
-            Question.query.filter(
-                Question.quiz_id == current_question.quiz_id,
-                Question.is_active == true(),
-                Question.id > current_question.id,
-            )
-            .order_by(Question.id)
-            .first()
+        return render_template(
+            'question_result.html',
+            category_id=category_id,
+            quiz_id=current_question.quiz_id,
+            answer=chosen_answer.title,
+            description=chosen_answer.description,
+            user_answer=chosen_answer.is_right_choice,
         )
-
-        if next_question:
-            return redirect(
-                url_for(
-                    'question',
-                    category_id=category_id,
-                    quiz_id=current_question.quiz_id,
-                    question_id=next_question.id,
-                ),
-            )
-        quiz_result.is_complete = True
-        quiz_result_crud.update_with_obj(quiz_result)
-        return redirect(url_for('results'))
 
     # Получаем идентификатор текущего вопроса из URL
     current_question = Question.query.get_or_404(question_id)
