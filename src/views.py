@@ -222,15 +222,6 @@ async def question(category_id: int, quiz_id: int, question_id: int) -> str:
     # Получаем идентификатор текущего вопроса из URL
     current_question = question_crud.get(question_id)
 
-    # Получаем все вопросы для текущей викторины
-    questions = question_crud.get_all_by_quiz_id(current_question.quiz_id)
-
-    # Находим индекс текущего вопроса в списке вопросов
-    current_index = questions.index(current_question)
-
-    # Находим предыдущий вопрос, если есть
-    prev_question = questions[current_index - 1] if current_index > 0 else None
-
     # Получаем варианты ответов
     answers = current_question.variants
 
@@ -238,7 +229,6 @@ async def question(category_id: int, quiz_id: int, question_id: int) -> str:
         'question.html',
         question=current_question,
         answers=answers,
-        prev_question=prev_question,
     )
 
 

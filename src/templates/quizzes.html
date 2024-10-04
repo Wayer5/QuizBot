@@ -5,7 +5,7 @@
 {% block content %}
     <h1 class="text-center">Викторины</h1>
     <div class="table-container mt-5">
-        <a href="{{ url_for('categories') }}" class="btn btn-primary mb-3" style="margin-left: 15px;">Назад</a>
+        <a href="{{ url_for('categories') }}" class="btn btn-primary mb-3">Назад</a>
         <ul class="list-group">
             {% for quiz in quizzes %}
                 <li class="list-group-item">
