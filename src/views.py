@@ -23,7 +23,6 @@ from src.crud.category import category_crud
 from src.crud.quiz import quiz_crud
 from src.crud.quiz_result import quiz_result_crud
 from src.crud.user import user_crud
-from src.models import QuizResult
 from src.crud.user_answer import user_answer_crud
 
 
@@ -42,7 +41,7 @@ async def login() -> Response:
     user_id = request.json.get('tgId', None)
     logging.info(f'User {username} with id {user_id} is trying to login')
     user = await user_crud.get_by_telegram_id(user_id)
-    if user and user.telegram_id == user_id and user.is_active:
+    if user and user.telegram_id == user_id:
         access_token = create_access_token(identity=user)
         logging.info(
             f'User {username} with id {user_id} logged in successfully',
@@ -86,72 +85,6 @@ async def quizzes(category_id: int) -> str:
     """Вывод страницы викторин."""
     quizzes = quiz_crud.get_by_category_id(category_id)
     return render_template('quizzes.html', quizzes=quizzes)
-
-
-@app.route('/me', methods=['GET'])
-@jwt_required()
-def profile() -> Response:
-    """Отображаем профиль пользователя."""
-    user = current_user
-    quiz_results = QuizResult.query.filter_by(user_id=user.id).all()
-
-    total_questions = sum(result.total_questions for result in quiz_results)
-    correct_answers_count = sum(
-        result.correct_answers_count for result in quiz_results)
-
-    return render_template('user_profile.html',
-                           user=user,
-                           quiz_results=quiz_results,
-                           total_questions=total_questions,
-                           correct_answers_count=correct_answers_count)
-
-
-@app.route('/me', methods=['POST'])
-@jwt_required()
-def delete_profile() -> Response:
-    """Удаляет профиль пользователя и сохраняет результаты викторин."""
-    # user = current_user
-    # quiz_results = QuizResult.query.filter_by(user_id=user.id).all()
-    # Обновляем результаты викторин, чтобы убрать связь с пользователем
-    # for result in quiz_results:
-    #     result.user_id = None
-    #     user_crud.update(result, {'user_id': None})
-
-    user_crud.remove(current_user)
-    return render_template('categories.html')
-
-
-@app.route('/me', methods=['GET'])
-@jwt_required()
-def profile() -> Response:
-    """Отображаем профиль пользователя."""
-    user = current_user
-    quiz_results = QuizResult.query.filter_by(user_id=user.id).all()
-
-    total_questions = sum(result.total_questions for result in quiz_results)
-    correct_answers_count = sum(
-        result.correct_answers_count for result in quiz_results)
-
-    return render_template('user_profile.html',
-                           user=user,
-                           quiz_results=quiz_results,
-                           total_questions=total_questions,
-                           correct_answers_count=correct_answers_count)
-
-
-@app.route('/me', methods=['POST'])
-@jwt_required()
-def delete_profile() -> Response:
-    """Удаляет профиль пользователя и сохраняет результаты викторин."""
-    # user = current_user
-    # quiz_results = QuizResult.query.filter_by(user_id=user.id).all()
-    # Обновляем результаты викторин, чтобы убрать связь с пользователем
-    # for result in quiz_results:
-    #     result.user_id = None
-    #     user_crud.update(result, {'user_id': None})
-
-    user_crud.remove(current_user)
-    return render_template('categories.html')
 
 
 @app.route('/<int:category_id>/<int:quiz_id>/', methods=['GET'])
