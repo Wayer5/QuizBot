@@ -1,17 +1,17 @@
-{% extends "base.html" %}
-
-{% block title %}Рубрики{% endblock %}
-
-{% block content %}
-<h1 class="text-center">Рубрики</h1>
-<div class="table-container mt-5">
-    <ul class="list-group">
-        {% for category in categories %}
-            <li class="list-group-item">
-                <a href="{{ url_for('quizzes', category_id=category.id) }}">{{ category.name }}</a>
-            </li>
-        {% endfor %}
-    </ul>
+{% extends "base.html" %} {% block title %}Рубрики{% endblock %} {% block
+content %}
+<div class="container">
+  <h1 class="text-center">Рубрики</h1>
 </div>
-{% include 'login_script.html' %}
-{% endblock %}
+<div class="table-container mt-5">
+  <ul class="list-group">
+    {% for category in categories %}
+    <li class="list-group-item">
+      <a href="{{ url_for('quizzes', category_id=category.id) }}"
+        >{{ category.name }}</a
+      >
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% include 'login_script.html' %} {% endblock %}

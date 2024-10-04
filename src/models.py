@@ -116,6 +116,16 @@ class Quiz(db.Model):
         cascade='all,delete',
     )
 
+    # Связь с таблицей результатов викторины
+    # results = db.relationship(
+    #     'QuizResult',
+    #     back_populates='quiz',
+    # )
+    #     questions = db.relationship(
+    #         'Question',
+    #         backref='quiz_question',
+    #         lazy=True,
+
     def __str__(self) -> str:
         """Отображение названия объекта в админ зоне."""
         return self.title
@@ -221,7 +231,7 @@ class QuizResult(db.Model):
     user_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id'),
-        nullable=False,
+        nullable=True,
         comment='Идентификатор пользователя, прошедшего викторину.',
     )
     quiz_id = db.Column(
