@@ -151,7 +151,7 @@ async def on_start_button(message: Message) -> None:
 
         if not user.is_admin:
             # Удаляем сообщение с кнопкой через 5 минут (300 секунд)
-            await asyncio.sleep(10)  # Задержка 5 минут
+            await asyncio.sleep(300)  # Задержка 5 минут
             await bot.delete_message(message.from_user.id, msg.message_id)
     else:
         await message.answer(
