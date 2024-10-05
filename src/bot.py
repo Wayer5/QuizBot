@@ -20,6 +20,7 @@ from settings import settings
 
 from .user_check import check_user_and_clear_messages
 from src.crud.telegram_user import telegram_user_crud
+from .constants import TIME_TO_DELETING
 
 # from .models import TelegramUser, db
 from src.crud.user import user_crud
@@ -151,7 +152,7 @@ async def on_start_button(message: Message) -> None:
 
         if not user.is_admin:
             # Удаляем сообщение с кнопкой через 5 минут (300 секунд)
-            await asyncio.sleep(300)  # Задержка 5 минут
+            await asyncio.sleep(TIME_TO_DELETING)  # Задержка 5 минут
             await bot.delete_message(message.from_user.id, msg.message_id)
     else:
         await message.answer(
