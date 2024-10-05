@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlalchemy import select, true
+from sqlalchemy import null, select, true
 
 from src import db
 from src.crud.base import CRUDBase
@@ -18,20 +18,20 @@ class CRUDQuestion(CRUDBase):
         is_active: bool = true(),
     ) -> Optional[Question]:
         """Получить новый вопрос."""
-        subquery = (
-            select(UserAnswer).where(
-                UserAnswer.user_id == user_id,
-                UserAnswer.question_id == Question.id,
-            )
-        ).exists()
-
         return (
             db.session.execute(
-                select(Question).where(
+                select(Question)
+                .where(
                     Question.quiz_id == quiz_id,
                     Question.is_active == is_active,
-                    subquery != true(),
-                ),
+                    UserAnswer.id == null(),
+                )
+                .outerjoin(
+                    UserAnswer,
+                    (Question.id == UserAnswer.question_id)
+                    & (UserAnswer.user_id == user_id),
+                )
+                .limit(1),
             )
             .scalars()
             .first()

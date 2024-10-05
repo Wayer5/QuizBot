@@ -140,6 +140,7 @@ class Question(db.Model):
         db.Integer,
         primary_key=True,
         comment='Уникальный идентификатор вопроса.',
+        index=True,
     )
     title = db.Column(
         db.String(150),
@@ -152,6 +153,7 @@ class Question(db.Model):
         db.ForeignKey('quizzes.id'),
         nullable=False,
         comment='Идентификатор викторины, к которой относится вопрос.',
+        index=True,
     )
     quiz = db.relationship(
         'Quiz',
@@ -161,6 +163,7 @@ class Question(db.Model):
         db.Boolean,
         default=True,
         comment='Флаг активности вопроса.',
+        index=True,
     )
 
     # Связь с таблицей variants
@@ -287,12 +290,14 @@ class UserAnswer(db.Model):
         db.ForeignKey('users.id'),
         nullable=False,
         comment='Идентификатор пользователя.',
+        index=True,
     )
     question_id = db.Column(
         db.Integer,
         db.ForeignKey('questions.id'),
         nullable=False,
         comment='Идентификатор вопроса, на который ответил пользователь.',
+        index=True,
     )
     answer_id = db.Column(
         db.Integer,

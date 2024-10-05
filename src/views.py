@@ -188,8 +188,9 @@ async def question(category_id: int, quiz_id: int) -> str:
             user_id=current_user.id,
             quiz_id=quiz_id,
         )
-        quiz_result.is_complete = True
-        quiz_result_crud.update_with_obj(quiz_result)
+        if quiz_result is not None and not quiz_result.is_complete:
+            quiz_result.is_complete = True
+            quiz_result_crud.update_with_obj(quiz_result)
         return redirect(url_for('results'))
 
     # Получаем варианты ответов
