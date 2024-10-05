@@ -18,9 +18,9 @@ from aiogram.types import (
 
 from settings import settings
 
+from .constants import TIME_TO_DELETING
 from .user_check import check_user_and_clear_messages
 from src.crud.telegram_user import telegram_user_crud
-from .constants import TIME_TO_DELETING
 
 # from .models import TelegramUser, db
 from src.crud.user import user_crud
