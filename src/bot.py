@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from aiogram import Bot, Dispatcher, Router
+from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import Command
@@ -33,12 +33,9 @@ bot: Bot = Bot(
     default=DefaultBotProperties(parse_mode=ParseMode.HTML),
 )
 
-router = Router()
 
 # Диспетчер
 dp: Dispatcher = Dispatcher()
-
-dp.include_router(router)
 
 
 def create_reply_keyboard() -> ReplyKeyboardMarkup:
@@ -152,9 +149,10 @@ async def on_start_button(message: Message) -> None:
             reply_markup=keyboard,
         )
 
-        # Удаляем сообщение с кнопкой через 5 минут (300 секунд)
-        await asyncio.sleep(10)  # Задержка 5 минут
-        await bot.delete_message(message.from_user.id, msg.message_id)
+        if not user.is_admin:
+            # Удаляем сообщение с кнопкой через 5 минут (300 секунд)
+            await asyncio.sleep(10)  # Задержка 5 минут
+            await bot.delete_message(message.from_user.id, msg.message_id)
     else:
         await message.answer(
             'Вы были заблокированы. Обратитесь к администратору.',
