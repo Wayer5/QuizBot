@@ -17,13 +17,14 @@ from flask_jwt_extended import (
 )
 
 from . import app
-from .models import QuizResult, Variant
+from .models import QuizResult
 from src.crud.category import category_crud
 from src.crud.question import question_crud
 from src.crud.quiz import quiz_crud
 from src.crud.quiz_result import quiz_result_crud
 from src.crud.user import user_crud
 from src.crud.user_answer import user_answer_crud
+from src.crud.variant import variant_crud
 
 
 @app.route('/login', methods=['POST'])
@@ -73,57 +74,6 @@ async def auntification() -> str:
     return render_template('auth.html')
 
 
-@app.route('/', methods=['GET'])
-async def categories() -> str:
-    """Вывод страницы категорий."""
-    categories = category_crud.get_multi()
-    return render_template('categories.html', categories=categories)
-
-
-@app.route('/<int:category_id>/', methods=['GET'])
-async def quizzes(category_id: int) -> str:
-    """Вывод страницы викторин."""
-    quizzes = quiz_crud.get_by_category_id(category_id)
-    return render_template('quizzes.html', quizzes=quizzes)
-
-
-@app.route('/<int:category_id>/<int:quiz_id>/', methods=['GET'])
-@jwt_required()
-async def next_question(category_id: int, quiz_id: int) -> str:
-    """Вывод последней викторины пользователя."""
-    quiz_result = quiz_result_crud.get_by_user_and_quiz(
-        user_id=current_user.id,
-        quiz_id=quiz_id,
-    )
-    if quiz_result is None:
-        # Получаем первый вопрос викторины
-        question = question_crud.get_new(
-            quiz_id=quiz_id,
-        )
-    else:
-        # Если результат викторины существует,
-        # то получаем последний доступный вопрос
-        last_question_id = quiz_result.question_id
-        question = question_crud.get_new(
-            quiz_id=quiz_id,
-            last_question_id=last_question_id,
-        )
-
-    if question is None:
-        quiz_result.is_complete = True
-        quiz_result_crud.update_with_obj(quiz_result)
-        return redirect(url_for('results'))
-
-    return redirect(
-        url_for(
-            'question',
-            category_id=category_id,
-            quiz_id=quiz_id,
-            question_id=question.id,
-        ),
-    )
-
-
 @app.route('/me', methods=['GET'])
 @jwt_required()
 def profile() -> Response:
@@ -160,31 +110,39 @@ def delete_profile() -> Response:
     return render_template('categories.html')
 
 
-@app.route(
-    '/<int:category_id>/<int:quiz_id>/<int:question_id>',
-    methods=['GET', 'POST'],
-)
+@app.route('/', methods=['GET'])
+async def categories() -> str:
+    """Вывод страницы категорий."""
+    categories = category_crud.get_multi()
+    return render_template('categories.html', categories=categories)
+
+
+@app.route('/<int:category_id>/', methods=['GET'])
+async def quizzes(category_id: int) -> str:
+    """Вывод страницы викторин."""
+    quizzes = quiz_crud.get_by_category_id(category_id)
+    return render_template('quizzes.html', quizzes=quizzes)
+
+
+@app.route('/<int:category_id>/<int:quiz_id>/', methods=['GET', 'POST'])
 @jwt_required()
-async def question(category_id: int, quiz_id: int, question_id: int) -> str:
+async def question(category_id: int, quiz_id: int) -> str:
     """Переключаем вопросы после ответов на них."""
     if request.method == 'POST':
-        answer_id = int(
-            request.form.get('answer'),
-        )  # получить идентификатор выбранного ответа
+        question_id = int(request.form.get('question_id'))
+        answer_id = int(request.form.get('answer'))
 
         # Получаем текущий вопрос по его ID
         current_question = question_crud.get(question_id)
 
         # Получаем выбранный ответ по его ID
-        chosen_answer = Variant.query.get_or_404(answer_id)
+        chosen_answer = variant_crud.get(answer_id)
 
         # Обновить результаты викторины
         quiz_result = quiz_result_crud.get_by_user_and_quiz(
             user_id=current_user.id,
             quiz_id=quiz_id,
         )
-        if quiz_result and quiz_result.question_id == question_id:
-            redirect(url_for('quizzes', category_id=category_id))
         if quiz_result is None:
             quiz_result = quiz_result_crud.create(
                 {
@@ -213,21 +171,33 @@ async def question(category_id: int, quiz_id: int, question_id: int) -> str:
         return render_template(
             'question_result.html',
             category_id=category_id,
-            quiz_id=current_question.quiz_id,
+            quiz_id=quiz_id,
             answer=chosen_answer.title,
             description=chosen_answer.description,
             user_answer=chosen_answer.is_right_choice,
         )
 
-    # Получаем идентификатор текущего вопроса из URL
-    current_question = question_crud.get(question_id)
+    # Вывод последней викторины пользователя.
+    question = question_crud.get_new(
+        quiz_id=quiz_id,
+        user_id=current_user.id,
+    )
+
+    if question is None:
+        quiz_result = quiz_result_crud.get_by_user_and_quiz(
+            user_id=current_user.id,
+            quiz_id=quiz_id,
+        )
+        quiz_result.is_complete = True
+        quiz_result_crud.update_with_obj(quiz_result)
+        return redirect(url_for('results'))
 
     # Получаем варианты ответов
-    answers = current_question.variants
+    answers = question.variants
 
     return render_template(
         'question.html',
-        question=current_question,
+        question=question,
         answers=answers,
     )
 

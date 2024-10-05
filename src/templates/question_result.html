@@ -15,7 +15,7 @@
                     <p class="card-text">Описание: {{ description }}</p>
                 </div>
                 <div class="d-grid gap-2" style="margin-bottom: 5px">
-                    <button class="btn btn-primary mx-auto" onclick="location.href='{{ url_for('next_question', category_id=category_id, quiz_id=quiz_id) }}'">Далее</button>
+                    <button class="btn btn-primary mx-auto" onclick="location.href='{{ url_for('question', category_id=category_id, quiz_id=quiz_id) }}'">Далее</button>
                 </div>
             </div>
         </div>

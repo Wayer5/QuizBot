@@ -9,7 +9,7 @@
         <ul class="list-group">
             {% for quiz in quizzes %}
                 <li class="list-group-item">
-                    <a href="{{ url_for('next_question', category_id=quiz.category.id, quiz_id=quiz.id)}}">{{ quiz.title }}</a>
+                    <a href="{{ url_for('question', category_id=quiz.category.id, quiz_id=quiz.id)}}">{{ quiz.title }}</a>
                 </li>
             {% endfor %}
         </ul>

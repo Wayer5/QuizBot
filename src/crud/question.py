@@ -4,7 +4,7 @@ from sqlalchemy import select, true
 
 from src import db
 from src.crud.base import CRUDBase
-from src.models import Question
+from src.models import Question, UserAnswer
 
 
 class CRUDQuestion(CRUDBase):
@@ -13,17 +13,24 @@ class CRUDQuestion(CRUDBase):
 
     def get_new(
         self,
+        user_id: int,
         quiz_id: int,
-        last_question_id: int = 0,
         is_active: bool = true(),
     ) -> Optional[Question]:
         """Получить новый вопрос."""
+        subquery = (
+            select(UserAnswer).where(
+                UserAnswer.user_id == user_id,
+                UserAnswer.question_id == Question.id,
+            )
+        ).exists()
+
         return (
             db.session.execute(
                 select(Question).where(
                     Question.quiz_id == quiz_id,
-                    Question.id > last_question_id,
                     Question.is_active == is_active,
+                    subquery != true(),
                 ),
             )
             .scalars()
