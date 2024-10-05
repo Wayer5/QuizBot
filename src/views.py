@@ -2,6 +2,7 @@ import logging
 
 from flask import (
     Response,
+    abort,
     jsonify,
     redirect,
     render_template,
@@ -72,6 +73,8 @@ async def auntification() -> str:
 async def categories() -> str:
     """Вывод страницы категорий."""
     categories = category_crud.get_multi()
+    if not categories:
+        abort(404)
     return render_template('categories.html', categories=categories)
 
 
@@ -83,6 +86,8 @@ async def quizzes() -> str:
         quizzes = quiz_crud.get_by_category_id(category_id)
     else:
         quizzes = quiz_crud.get_multi()
+    if not quizzes:
+        abort(404)
     return render_template('quizzes.html', quizzes=quizzes)
 
 
