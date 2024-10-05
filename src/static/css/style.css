@@ -1,3 +1,6 @@
+::-webkit-scrollbar {
+    display: none;
+}
 .answer-button {
     flex: 1 0 45%; /* Устанавливаем максимальную ширину кнопки в 45% от родительского контейнера */
     margin: 0.7rem; /* Добавляем интервал между кнопками */
@@ -5,15 +8,18 @@
 
 /* Основные стили для контейнера */
 .container {
-    max-width: 1200px; /* Максимальная ширина */
+    max-width: 100%; /* Максимальная ширина */
     margin: 0 auto; /* Центрирование контейнера */
-    padding: 20px; /* Внутренние отступы */
+    padding: 0; /* Внутренние отступы */
     background: linear-gradient(to right, #f0f4f8, #d9e2ec); /* Градиент фона */
     border-radius: 10px; /* Закругленные углы */
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Тень для контейнера */
+    overflow: auto;
 }
 body {
     font-family: 'Poppins', sans-serif; /* Apply Poppins font to the body */
+    overflow: auto;
+    position: relative;
 }
 /* Стили заголовков */
 h1, h2, h3 {
