@@ -1,9 +1,12 @@
+import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import Command
+
+# from aiogram import types
 from aiogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
@@ -15,6 +18,8 @@ from aiogram.types import (
 
 from settings import settings
 
+from .constants import TIME_TO_DELETING
+from .user_check import check_user_and_clear_messages
 from src.crud.telegram_user import telegram_user_crud
 
 # from .models import TelegramUser, db
@@ -28,6 +33,7 @@ bot: Bot = Bot(
     token=settings.TELEGRAM_TOKEN,
     default=DefaultBotProperties(parse_mode=ParseMode.HTML),
 )
+
 
 # Диспетчер
 dp: Dispatcher = Dispatcher()
@@ -119,6 +125,9 @@ async def on_start_button(message: Message) -> None:
     """
     web_app_url: str = settings.WEB_URL
 
+    if not await check_user_and_clear_messages(bot, message):  # Передаем bot
+        return  # Завершаем, если пользователь не активен
+
     web_app_button: InlineKeyboardButton = InlineKeyboardButton(
         text='Квиз',
         web_app=WebAppInfo(url=web_app_url),
@@ -136,10 +145,15 @@ async def on_start_button(message: Message) -> None:
 
     if user.is_active:
         # Отправляем инлайн-кнопку для открытия WebApp
-        await message.answer(
+        msg = await message.answer(  # Сохраняем сообщение
             'Нажми кнопку ниже, чтобы открыть WebApp:',
             reply_markup=keyboard,
         )
+
+        if not user.is_admin:
+            # Удаляем сообщение с кнопкой через 5 минут (300 секунд)
+            await asyncio.sleep(TIME_TO_DELETING)  # Задержка 5 минут
+            await bot.delete_message(message.from_user.id, msg.message_id)
     else:
         await message.answer(
             'Вы были заблокированы. Обратитесь к администратору.',
