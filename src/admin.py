@@ -53,7 +53,7 @@ class QuizAdmin(CustomAdminView):
     # Отображаемые поля в списке записей
     column_list = ['id', 'title', 'category', 'is_active']
     # Отображаемые поля в форме создания и редактирования
-    form_columns = ['title', 'category']
+    form_columns = ['title', 'category', 'is_active']
 
     column_labels = {
         'id': 'ID',
