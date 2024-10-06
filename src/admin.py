@@ -1,3 +1,5 @@
+from typing import Any
+
 from flask import request
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
@@ -75,25 +77,20 @@ class QuestionAdmin(CustomAdminView):
         'quiz': 'Викторина',
         'is_active': 'Активен',
     }
-    # Добаление возможности при создании вопроса
-    # сразу добавлять варианты ответов
+
+    # Добаление возможности при создании вопроса сразу добавлять
+    # варианты ответов
     inline_models = [
         (
             Variant,
             {
-                # Отображаемые поля в форме создания и редактирования.
-                # Обязательно нужно прописывать поле 'id'.
-                # Его не видно в форме,
-                # но без него объекты не будут сохраняться
                 'form_columns': [
                     'id',
                     'title',
                     'description',
                     'is_right_choice',
                 ],
-                # Название формы
                 'form_label': 'Вариант',
-                # Перевод полей формы
                 'column_labels': {
                     'title': 'Название',
                     'description': 'Описание',
@@ -102,6 +99,17 @@ class QuestionAdmin(CustomAdminView):
             },
         ),
     ]
+
+    def on_model_change(self, form: Any, model: Any, is_created: bool) -> None:
+        """Проверка, что только один вариант правильный."""
+        # Получаем все варианты для вопроса
+        variants = form.variants.entries
+        correct_answers = [v for v in variants if v.is_right_choice.data]
+
+        if len(correct_answers) > 1:
+            raise ValueError("Может быть только один правильный ответ.")
+
+        super(QuestionAdmin, self).on_model_change(form, model, is_created)
 
 
 # Добавляем представления в админку
