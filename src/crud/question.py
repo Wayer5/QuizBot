@@ -1,9 +1,10 @@
-from flask import abort
 from typing import Optional
 
+from flask import abort
 from sqlalchemy import null, select, true
 
 from src import db
+from src.constants import HTTP_NOT_FOUND
 from src.crud.base import CRUDBase
 from src.models import Question, UserAnswer
 
@@ -38,7 +39,7 @@ class CRUDQuestion(CRUDBase):
             .first()
         )
         if not question:
-            abort(404)
+            abort(HTTP_NOT_FOUND)
         return question
 
     def get_all_by_quiz_id(
@@ -62,7 +63,7 @@ class CRUDQuestion(CRUDBase):
             .all()
         )
         if not questions:
-            abort(404)
+            abort(HTTP_NOT_FOUND)
         return questions
 
 

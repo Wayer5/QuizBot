@@ -1,1 +1,4 @@
+from http import HTTPStatus
+
+HTTP_NOT_FOUND = HTTPStatus.NOT_FOUND
 TIME_TO_DELETING = 10

@@ -2,6 +2,7 @@ from flask import abort
 from sqlalchemy import select, true
 
 from src import db
+from src.constants import HTTP_NOT_FOUND
 from src.crud.base import CRUDBase
 from src.models import Category
 
@@ -20,7 +21,7 @@ class CRUDCategory(CRUDBase):
             .all()
         )
         if not categories:
-            abort(404)
+            abort(HTTP_NOT_FOUND)
         return categories
 
 
