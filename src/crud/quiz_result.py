@@ -28,5 +28,20 @@ class CRUDQuizResult(CRUDBase):
             .first()
         )
 
+    def get_results_by_user(
+        self,
+        user_id: int,
+    ) -> Optional[QuizResult]:
+        """Получить результаты квизов пользователя."""
+        return (
+            db.session.execute(
+                select(QuizResult).where(
+                    QuizResult.user_id == user_id,
+                ),
+            )
+            .scalars()
+            .all()
+        )
+
 
 quiz_result_crud = CRUDQuizResult(QuizResult)

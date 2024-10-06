@@ -17,7 +17,6 @@ from flask_jwt_extended import (
 )
 
 from . import app
-from .models import QuizResult
 from src.crud.category import category_crud
 from src.crud.question import question_crud
 from src.crud.quiz import quiz_crud
@@ -79,7 +78,7 @@ async def auntification() -> str:
 def profile() -> Response:
     """Отображаем профиль пользователя."""
     user = current_user
-    quiz_results = QuizResult.query.filter_by(user_id=user.id).all()
+    quiz_results = quiz_result_crud.get_results_by_user(user.id)
 
     total_questions = sum(result.total_questions for result in quiz_results)
     correct_answers_count = sum(
@@ -98,13 +97,19 @@ def profile() -> Response:
 @app.route('/me', methods=['POST'])
 @jwt_required()
 def delete_profile() -> Response:
-    """Удаляет профиль пользователя и сохраняет результаты викторин."""
-    # user = current_user
-    # quiz_results = QuizResult.query.filter_by(user_id=user.id).all()
+    """Удаляет профиль пользователя, сохраняя результаты викторин."""
+    user = current_user
+    quiz_results = quiz_result_crud.get_results_by_user(user.id)
     # Обновляем результаты викторин, чтобы убрать связь с пользователем
-    # for result in quiz_results:
-    #     result.user_id = None
-    #     user_crud.update(result, {'user_id': None})
+    for result in quiz_results:
+        result.user_id = None
+        user_crud.update(result, {'user_id': None})
+
+    user_answers = user_answer_crud.get_results_by_user(user.id)
+    # Обновляем ответы пользователя, убирая связь с таблицей пользователи
+    for answer in user_answers:
+        answer.user_id = None
+        user_crud.update(answer, {'user_id': None})
 
     user_crud.remove(current_user)
     return render_template('categories.html')
