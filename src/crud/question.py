@@ -1,3 +1,4 @@
+from flask import abort
 from typing import Optional
 
 from sqlalchemy import null, select, true
@@ -18,7 +19,7 @@ class CRUDQuestion(CRUDBase):
         is_active: bool = true(),
     ) -> Optional[Question]:
         """Получить новый вопрос."""
-        return (
+        question = (
             db.session.execute(
                 select(Question)
                 .where(
@@ -36,6 +37,9 @@ class CRUDQuestion(CRUDBase):
             .scalars()
             .first()
         )
+        if not question:
+            abort(404)
+        return question
 
     def get_all_by_quiz_id(
         self,
@@ -43,7 +47,7 @@ class CRUDQuestion(CRUDBase):
         is_active: bool = true(),
     ) -> list[Question]:
         """Получить все вопросы по идентификатору теста."""
-        return (
+        questions = (
             (
                 db.session.execute(
                     select(Question)
@@ -57,6 +61,9 @@ class CRUDQuestion(CRUDBase):
             .scalars()
             .all()
         )
+        if not questions:
+            abort(404)
+        return questions
 
 
 question_crud = CRUDQuestion(Question)

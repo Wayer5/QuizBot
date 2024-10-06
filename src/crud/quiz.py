@@ -1,3 +1,4 @@
+from flask import abort
 from sqlalchemy import select, true
 
 from src import db
@@ -19,8 +20,10 @@ class CRUDQuiz(CRUDBase):
             select(Quiz).where(
                 Quiz.category_id == category_id, Quiz.is_active == is_active,
             ),
-        )
-        return quizzes.scalars().all()
+        ).scalars().all()
+        if not quizzes:
+            abort(404)
+        return quizzes
 
 
 quiz_crud = CRUDQuiz(Quiz)

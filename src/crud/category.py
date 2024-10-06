@@ -1,3 +1,4 @@
+from flask import abort
 from sqlalchemy import select, true
 
 from src import db
@@ -11,13 +12,16 @@ class CRUDCategory(CRUDBase):
 
     def get_active(self, is_active: bool = true()) -> list[Category]:
         """Получить все активные рубрики."""
-        return (
+        categories = (
             db.session.execute(
                 select(Category).where(Category.is_active == is_active),
             )
             .scalars()
             .all()
         )
+        if not categories:
+            abort(404)
+        return categories
 
 
 category_crud = CRUDCategory(Category)

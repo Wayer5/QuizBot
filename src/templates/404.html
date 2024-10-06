@@ -14,6 +14,7 @@
     </p>
 
     <!-- Кнопка для возврата к категориям -->
+    {% if not is_category_page %}
     <a href="{{ url_for('categories') }}" class="btn btn-primary btn-lg" style="width: 100%; max-width: 320px;">Вернуться к категориям</a>
 </section>
 
