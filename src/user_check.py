@@ -25,13 +25,16 @@ async def check_user_and_clear_messages(bot: Bot, message: Message) -> bool:
         # Очищаем предыдущие сообщения в чате
         try:
             for message_id in range(
-                message.message_id, message.message_id - 10, -1,
+                message.message_id,
+                message.message_id - 10,
+                -1,
             ):
                 await bot.delete_message(
-                    chat_id=message.chat.id, message_id=message_id,
+                    chat_id=message.chat.id,
+                    message_id=message_id,
                 )
         except Exception as e:
-            logging.warning(f"Не удалось удалить сообщение: {e}")
+            logging.warning(f'Не удалось удалить сообщение: {e}')
 
         # Уведомляем пользователя о повторной регистрации и убираем кнопки
         await message.answer(

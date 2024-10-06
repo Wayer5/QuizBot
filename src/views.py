@@ -118,7 +118,7 @@ def delete_profile() -> Response:
 @app.route('/', methods=['GET'])
 async def categories() -> str:
     """Вывод страницы категорий."""
-    categories = category_crud.get_multi()
+    categories = category_crud.get_active()
     return render_template('categories.html', categories=categories)
 
 
