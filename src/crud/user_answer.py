@@ -10,6 +10,7 @@ from src.models import UserAnswer
 class CRUDUserAnswer(CRUDBase):
 
     """Круд класс для ответов."""
+
     def get_results_by_user(
         self,
         user_id: int,
