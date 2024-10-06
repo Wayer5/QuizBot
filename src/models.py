@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from sqlalchemy import UniqueConstraint
+
 from . import db
 
 
@@ -108,7 +110,16 @@ class Quiz(db.Model):
 
     # Связь с таблицей questions
     questions = db.relationship(
-        'Question', back_populates='quiz', lazy=True, cascade='all,delete',
+        'Question',
+        back_populates='quiz',
+        lazy=True,
+        cascade='all,delete',
+    )
+
+    # Связь с таблицей результатов викторины
+    results = db.relationship(
+        'QuizResult',
+        backref='quiz',
     )
 
     def __str__(self) -> str:
@@ -129,6 +140,7 @@ class Question(db.Model):
         db.Integer,
         primary_key=True,
         comment='Уникальный идентификатор вопроса.',
+        index=True,
     )
     title = db.Column(
         db.String(150),
@@ -141,6 +153,7 @@ class Question(db.Model):
         db.ForeignKey('quizzes.id'),
         nullable=False,
         comment='Идентификатор викторины, к которой относится вопрос.',
+        index=True,
     )
     quiz = db.relationship(
         'Quiz',
@@ -150,6 +163,7 @@ class Question(db.Model):
         db.Boolean,
         default=True,
         comment='Флаг активности вопроса.',
+        index=True,
     )
 
     # Связь с таблицей variants
@@ -216,7 +230,7 @@ class QuizResult(db.Model):
     user_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id'),
-        nullable=False,
+        nullable=True,
         comment='Идентификатор пользователя, прошедшего викторину.',
     )
     quiz_id = db.Column(
@@ -248,6 +262,13 @@ class QuizResult(db.Model):
         nullable=False,
         comment='Идентификатор последнего отвеченного вопроса.',
     )
+    __table_args__ = (
+        UniqueConstraint(
+            'user_id',
+            'quiz_id',
+            name='_person_quiz_uc',
+        ),
+    )
 
 
 class UserAnswer(db.Model):
@@ -267,14 +288,16 @@ class UserAnswer(db.Model):
     user_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id'),
-        nullable=False,
+        nullable=True,
         comment='Идентификатор пользователя.',
+        index=True,
     )
     question_id = db.Column(
         db.Integer,
         db.ForeignKey('questions.id'),
         nullable=False,
         comment='Идентификатор вопроса, на который ответил пользователь.',
+        index=True,
     )
     answer_id = db.Column(
         db.Integer,
@@ -286,6 +309,13 @@ class UserAnswer(db.Model):
         db.Boolean,
         default=False,
         comment='Флаг, указывающий, является ли ответ правильным.',
+    )
+    __table_args__ = (
+        UniqueConstraint(
+            'user_id',
+            'question_id',
+            name='_person_question_uc',
+        ),
     )
 
 

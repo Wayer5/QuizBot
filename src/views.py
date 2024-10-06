@@ -2,7 +2,6 @@ import logging
 
 from flask import (
     Response,
-    abort,
     jsonify,
     redirect,
     render_template,
@@ -11,15 +10,20 @@ from flask import (
 )
 from flask_jwt_extended import (
     create_access_token,
+    current_user,
+    jwt_required,
     set_access_cookies,
     unset_jwt_cookies,
 )
 
 from . import app
-from .models import Question
 from src.crud.category import category_crud
+from src.crud.question import question_crud
 from src.crud.quiz import quiz_crud
+from src.crud.quiz_result import quiz_result_crud
 from src.crud.user import user_crud
+from src.crud.user_answer import user_answer_crud
+from src.crud.variant import variant_crud
 
 
 @app.route('/login', methods=['POST'])
@@ -69,90 +73,138 @@ async def auntification() -> str:
     return render_template('auth.html')
 
 
+@app.route('/me', methods=['GET'])
+@jwt_required()
+def profile() -> Response:
+    """Отображаем профиль пользователя."""
+    user = current_user
+    quiz_results = quiz_result_crud.get_results_by_user(user.id)
+
+    total_questions = sum(result.total_questions for result in quiz_results)
+    correct_answers_count = sum(
+        result.correct_answers_count for result in quiz_results
+    )
+
+    return render_template(
+        'user_profile.html',
+        user=user,
+        quiz_results=quiz_results,
+        total_questions=total_questions,
+        correct_answers_count=correct_answers_count,
+    )
+
+
+@app.route('/me', methods=['POST'])
+@jwt_required()
+def delete_profile() -> Response:
+    """Удаляет профиль пользователя, сохраняя результаты викторин."""
+    user = current_user
+    quiz_results = quiz_result_crud.get_results_by_user(user.id)
+    # Обновляем результаты викторин, чтобы убрать связь с пользователем
+    for result in quiz_results:
+        result.user_id = None
+        user_crud.update(result, {'user_id': None})
+
+    user_answers = user_answer_crud.get_results_by_user(user.id)
+    # Обновляем ответы пользователя, убирая связь с таблицей пользователи
+    for answer in user_answers:
+        answer.user_id = None
+        user_crud.update(answer, {'user_id': None})
+
+    user_crud.remove(current_user)
+    return render_template('categories.html')
+
+
 @app.route('/', methods=['GET'])
 async def categories() -> str:
     """Вывод страницы категорий."""
-    categories = category_crud.get_multi()
-    if not categories:
-        abort(404)
+    categories = category_crud.get_active()
     return render_template('categories.html', categories=categories)
 
 
-@app.route('/quizzes', methods=['GET'])
-async def quizzes() -> str:
+@app.route('/<int:category_id>/', methods=['GET'])
+async def quizzes(category_id: int) -> str:
     """Вывод страницы викторин."""
-    category_id = request.args.get('category_id', type=int)
-    if category_id:
-        quizzes = quiz_crud.get_by_category_id(category_id)
-    else:
-        quizzes = quiz_crud.get_multi()
-    if not quizzes:
-        abort(404)
+    quizzes = quiz_crud.get_by_category_id(category_id)
     return render_template('quizzes.html', quizzes=quizzes)
 
 
-@app.route('/question', methods=['GET', 'POST'])
-def question() -> Response:
+@app.route('/<int:category_id>/<int:quiz_id>/', methods=['GET', 'POST'])
+@jwt_required()
+async def question(category_id: int, quiz_id: int) -> str:
     """Переключаем вопросы после ответов на них."""
     if request.method == 'POST':
         question_id = int(request.form.get('question_id'))
-        answer = request.form.get('answer')
-
-        # Обработка ответа
-        print(f'Ответ на вопрос {question_id}: {answer}')
+        answer_id = int(request.form.get('answer'))
 
         # Получаем текущий вопрос по его ID
-        current_question = Question.query.get_or_404(question_id)
+        current_question = question_crud.get(question_id)
 
-        # Переход к следующему вопросу той же викторины
-        next_question = (
-            Question.query.filter(
-                Question.quiz_id == current_question.quiz_id,
-                Question.id > current_question.id,
+        # Получаем выбранный ответ по его ID
+        chosen_answer = variant_crud.get(answer_id)
+
+        # Обновить результаты викторины
+        quiz_result = quiz_result_crud.get_by_user_and_quiz(
+            user_id=current_user.id,
+            quiz_id=quiz_id,
+        )
+        if quiz_result is None:
+            quiz_result = quiz_result_crud.create(
+                {
+                    'user_id': current_user.id,
+                    'quiz_id': quiz_id,
+                    'question_id': question_id,
+                    'total_questions': 0,
+                    'correct_answers_count': 0,
+                    'is_complete': False,
+                },
             )
-            .order_by(Question.id)
-            .first()
+        if chosen_answer.is_right_choice:
+            quiz_result.correct_answers_count += 1
+        quiz_result.total_questions += 1
+        quiz_result.question_id = question_id
+        quiz_result_crud.update_with_obj(quiz_result)
+        user_answer_crud.create(
+            {
+                'user_id': current_user.id,
+                'question_id': current_question.id,
+                'answer_id': chosen_answer.id,
+                'is_right': chosen_answer.is_right_choice,
+            },
         )
 
-        if next_question:
-            return redirect(
-                url_for(
-                    'question',
-                    question_id=next_question.id,
-                    quiz_id=current_question.quiz_id,
-                ),
-            )
-        return redirect(url_for('results'))
-
-    # Получаем идентификатор текущего вопроса из URL
-    question_id = int(request.args.get('question_id', 1))
-    current_question = Question.query.get_or_404(question_id)
-
-    # Получаем все вопросы для текущей викторины
-    questions = (
-        Question.query.filter_by(
-            quiz_id=current_question.quiz_id,
+        return render_template(
+            'question_result.html',
+            category_id=category_id,
+            quiz_id=quiz_id,
+            answer=chosen_answer.title,
+            description=chosen_answer.description,
+            user_answer=chosen_answer.is_right_choice,
         )
-        .order_by(
-            Question.id,
-        )
-        .all()
+
+    # Вывод последней викторины пользователя.
+    question = question_crud.get_new(
+        quiz_id=quiz_id,
+        user_id=current_user.id,
     )
 
-    # Находим индекс текущего вопроса в списке вопросов
-    current_index = questions.index(current_question)
-
-    # Находим предыдущий вопрос, если есть
-    prev_question = questions[current_index - 1] if current_index > 0 else None
+    if question is None:
+        quiz_result = quiz_result_crud.get_by_user_and_quiz(
+            user_id=current_user.id,
+            quiz_id=quiz_id,
+        )
+        if quiz_result is not None and not quiz_result.is_complete:
+            quiz_result.is_complete = True
+            quiz_result_crud.update_with_obj(quiz_result)
+        return redirect(url_for('results'))
 
     # Получаем варианты ответов
-    answers = current_question.variants
+    answers = question.variants
 
     return render_template(
         'question.html',
-        question=current_question,
+        question=question,
         answers=answers,
-        prev_question=prev_question,
     )
 
 

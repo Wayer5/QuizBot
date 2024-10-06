@@ -11,10 +11,15 @@ class CRUDTelegramUser(CRUDBase):
 
     def get_by_telegram_id(self, telegram_id: int) -> Optional[TelegramUser]:
         """Получение пользователя по telegram_id."""
-        return db.session.execute(
-            db.select(TelegramUser).where(
-                TelegramUser.telegram_id == telegram_id),
-        ).scalars().first()
+        return (
+            db.session.execute(
+                db.select(TelegramUser).where(
+                    TelegramUser.telegram_id == telegram_id,
+                ),
+            )
+            .scalars()
+            .first()
+        )
 
     def exists_by_telegram_id(self, telegram_id: int) -> bool:
         """Проверка существования пользователя по telegram_id."""
