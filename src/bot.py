@@ -105,7 +105,8 @@ async def cmd_start(message: Message) -> None:
             },
         )
         logging.info(
-            f'Пользователь {tg_user_id} зарегистрирован в TelegramUser.')
+            f'Пользователь {tg_user_id} зарегистрирован в TelegramUser.',
+        )
 
     # Отправляем приветственное сообщение с кнопкой 'Start'
     await message.answer(

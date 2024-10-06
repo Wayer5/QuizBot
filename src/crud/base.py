@@ -15,7 +15,7 @@ class CRUDBase:
 
     def get(self, obj_id: int) -> Optional[object]:
         """Получить объект."""
-        return self.model.query.get(obj_id)
+        return self.model.query.get_or_404(obj_id)
 
     def get_multi(self) -> list[object]:
         """Создать список объектов."""
@@ -39,6 +39,12 @@ class CRUDBase:
         db.session.commit()
         db.session.refresh(db_obj)
         return db_obj
+
+    def update_with_obj(self, obj_in: object) -> object:
+        """Обновить объект."""
+        db.session.commit()
+        db.session.refresh(obj_in)
+        return obj_in
 
     def remove(self, db_obj: object) -> object:
         """Удалить обект."""

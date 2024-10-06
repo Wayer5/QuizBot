@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Результат ответа{% endblock %}
+
+{% block content %}
+
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-{{ 'success' if user_answer else 'danger' }}">
+                <div class="card-body">
+                    <h2 class="card-title">Результат:</h2>
+                    <p class="card-text">Ваш ответ: <span class="fw-bold {{ 'text-success' if user_answer else 'text-danger' }}">{{ answer }}</span></p>
+                    <p class="card-text">Описание: {{ description }}</p>
+                </div>
+                <div class="d-grid gap-2" style="margin-bottom: 5px">
+                    <button class="btn btn-primary mx-auto" onclick="location.href='{{ url_for('question', category_id=category_id, quiz_id=quiz_id) }}'">Далее</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
