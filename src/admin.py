@@ -84,13 +84,19 @@ class QuestionAdmin(CustomAdminView):
         (
             Variant,
             {
+                # Отображаемые поля в форме создания и редактирования.
+                # Обязательно нужно прописывать поле 'id'.
+                # Его не видно в форме,
+                # но без него объекты не будут сохраняться
                 'form_columns': [
                     'id',
                     'title',
                     'description',
                     'is_right_choice',
                 ],
+                # Название формы
                 'form_label': 'Вариант',
+                # Перевод полей формы
                 'column_labels': {
                     'title': 'Название',
                     'description': 'Описание',
