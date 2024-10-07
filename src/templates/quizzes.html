@@ -3,13 +3,15 @@
 {% block title %}Викторины{% endblock %}
 
 {% block content %}
-    <h1 class="text-center">Викторины</h1>
-    <div class="table-container mt-5" style="padding-left:10px; padding-right:10px;">
-        <a href="{{ url_for('categories') }}" class="btn btn-primary mb-3" style="margin-left: 15px;">Назад</a>
+    <div class="container">
+        <h1 class="text-center">Викторины</h1>
+    </div>
+    <div class="table-container mt-5">
+        <a href="{{ url_for('categories') }}" class="btn btn-primary mb-3">Назад</a>
         <ul class="list-group">
             {% for quiz in quizzes %}
                 <li class="list-group-item">
-                    <a href="#">{{ quiz.title }}</a>
+                    <a href="{{ url_for('question', category_id=quiz.category.id, quiz_id=quiz.id)}}">{{ quiz.title }}</a>
                 </li>
             {% endfor %}
         </ul>

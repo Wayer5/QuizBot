@@ -18,7 +18,7 @@ click==8.1.7
 colorama==0.4.6
 cryptography==38.0.4
 flake8==4.0.1
-Flask==2.3.3
+Flask==3.0.3
 Flask-Admin==1.6.1
 flask-babel==4.0.0
 flask-http-middleware==0.4.2
