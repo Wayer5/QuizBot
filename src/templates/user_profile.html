@@ -1,6 +1,10 @@
-{% extends "base.html" %} {% block title %} Профиль пользователя {% endblock
-title %} {% block stylesheets %}
+{% extends "base.html" %} {% block title %}Профиль пользователя{% endblock title
+%} {% block stylesheets %}
 <!-- Здесь можно добавить дополнительные стили, если необходимо -->
+<link
+  rel="stylesheet"
+  href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+/>
 {% endblock stylesheets %} {% block content %}
 <div class="container">
   <h3 class="text-center">Профиль пользователя:<br />{{ user.name }}</h3>
@@ -36,6 +40,31 @@ title %} {% block stylesheets %}
           <strong>Количество правильных ответов:</strong> {{
           result.correct_answers_count }}
         </p>
+
+        <!-- Кнопка для отображения полной информации -->
+        <button
+          class="btn btn-secondary shadow"
+          data-toggle="collapse"
+          data-target="#details-{{ result.id }}"
+        >
+          Полная информация
+        </button>
+
+        <!-- Выдвигающийся блок с полной информацией -->
+        <div id="details-{{ result.id }}" class="collapse mt-2">
+          <p><strong>Детали по вопросам:</strong></p>
+          {% for question in result.questions %}
+          <div>
+            <strong>{{ question.title }}</strong><br />
+            <em>Ваш ответ: {{ question.user_answer }}</em><br />
+            <em>Правильный ответ: {{ question.correct_answer }}</em><br />
+            {% if question.explanation %}
+            <em>{{ question.explanation }}</em><br />
+            {% endif %}
+          </div>
+          <hr />
+          {% endfor %}
+        </div>
       </div>
       {% endfor %}
     </div>
@@ -60,6 +89,10 @@ title %} {% block stylesheets %}
     </form>
   </div>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
   // Обработка отправки формы для удаления профиля
@@ -91,12 +124,6 @@ title %} {% block stylesheets %}
           alert("Произошла ошибка при удалении профиля");
         });
     });
-
-  function closeWebApp() {
-    // Код для закрытия веб-приложения
-    // Например, можно использовать window.close() для закрытия текущего окна
-    window.close();
-  }
 
   // Функция для закрытия веб-приложения
   function closeWebApp() {
