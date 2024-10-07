@@ -44,15 +44,13 @@ class CRUDQuestion(CRUDBase):
     ) -> list[Question]:
         """Получить все вопросы по идентификатору теста."""
         return (
-            (
-                db.session.execute(
-                    select(Question)
-                    .where(
-                        Question.quiz_id == quiz_id,
-                        Question.is_active == is_active,
-                    )
-                    .order_by(Question.id),
+            db.session.execute(
+                select(Question)
+                .where(
+                    Question.quiz_id == quiz_id,
+                    Question.is_active == is_active,
                 )
+                .order_by(Question.id),
             )
             .scalars()
             .all()
