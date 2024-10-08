@@ -6,6 +6,11 @@ from flask_admin.contrib.sqla import ModelView
 from flask_babel import Babel
 
 from . import app, db
+from .constants import (
+    CAN_ONLY_BE_ONE_CORRECT_ANSWER,
+    ONE_ANSWER_VARIANT,
+    ONE_CORRECT_ANSWER,
+)
 from .models import Category, Question, Quiz, User, Variant
 
 # Создания экземпляра админ панели
@@ -113,18 +118,18 @@ class QuestionAdmin(CustomAdminView):
 
         # Проверка на наличие хотя бы одного варианта ответа
         if not variants:
-            raise ValueError("Должен быть хотя бы один вариант ответа.")
+            raise ValueError(ONE_ANSWER_VARIANT)
 
         # Получаем список правильных вариантов
         correct_answers = [v for v in variants if v.is_right_choice.data]
 
         # Проверка, что правильный вариант только один
         if len(correct_answers) > 1:
-            raise ValueError("Может быть только один правильный ответ.")
+            raise ValueError(CAN_ONLY_BE_ONE_CORRECT_ANSWER)
 
         # Проверка, что есть хотя бы один правильный вариант
         if len(correct_answers) == 0:
-            raise ValueError("Должен быть хотя бы один правильный ответ.")
+            raise ValueError(ONE_CORRECT_ANSWER)
 
         # Вызов родительского метода для сохранения изменений
         super(QuestionAdmin, self).on_model_change(form, model, is_created)
