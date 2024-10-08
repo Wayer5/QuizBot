@@ -1,6 +1,7 @@
 from typing import Optional
 
 from sqlalchemy import select
+from sqlalchemy.orm import joinedload
 
 from src import db
 from src.crud.base import CRUDBase
@@ -35,7 +36,10 @@ class CRUDQuizResult(CRUDBase):
         """Получить результаты квизов пользователя."""
         return (
             db.session.execute(
-                select(QuizResult).where(
+                select(QuizResult)
+                # загрузка связанных Quiz
+                .options(joinedload(QuizResult.quiz))
+                .where(
                     QuizResult.user_id == user_id,
                 ),
             )

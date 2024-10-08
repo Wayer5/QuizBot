@@ -28,7 +28,7 @@
             <tbody>
                 {% for result in quiz_results %}
                 <tr>
-                    <td>{{ result.quiz_id }}</td>
+                    <td>{{ result.quiz.title }}</td>
                     <td>
                         {% if result.is_complete %}
                             Да

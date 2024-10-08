@@ -1,18 +1,20 @@
-from flask import request, render_template
+from http import HTTPStatus
+
+from flask import Response, render_template, request
 from flask_admin import Admin, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_babel import Babel
-from sqlalchemy import func
 
-from . import app, db
+from . import app, constants, db
+from .crud.quiz_result import quiz_result_crud
+from .crud.user_answer import user_answer_crud
 from .models import (
     Category,
     Question,
     Quiz,
     QuizResult,
     User,
-    UserAnswer,
-    Variant
+    Variant,
 )
 
 # Создания экземпляра админ панели
@@ -116,6 +118,7 @@ class QuestionAdmin(CustomAdminView):
 class QuizResultAdmin(CustomAdminView):
 
     """Добавление и перевод модели результатов викторин в админ зону."""
+
     form_columns = [
         'id',
         'user_id',
@@ -139,11 +142,11 @@ class QuizResultAdmin(CustomAdminView):
 
 class UserActivityView(BaseView):
 
-    """Статистика активности пользователей."""
+    """Добавление и перевод модели викторин в админ зону."""
 
     @expose('/')
-    def index(self):
-        # Получение текущей страницы из запроса
+    def index(self) -> Response:
+        """Получение текущей страницы из запроса."""
         page = request.args.get('page', 1, type=int)
         per_page = 5
 
@@ -151,46 +154,45 @@ class UserActivityView(BaseView):
         users = User.query.paginate(
             page=page,
             per_page=per_page,
-            error_out=False
+            error_out=False,
         )
 
         user_data = [{
             'id': user.id,
             'name': user.name,
             'telegram_id': user.telegram_id,
-            'created_on': user.created_on
+            'created_on': user.created_on,
             } for user in users.items]
 
         return self.render(
-            'admin/user_activity.html', data=user_data, pagination=users
+            'admin/user_activity.html', data=user_data, pagination=users,
             )
 
 
 @app.route('/user_statistics')
-def user_statistics():
+def user_statistics() -> Response:
+    """Статистика пользователя."""
     user_id = request.args.get('user_id')
     user = User.query.get(user_id)
-
     if not user:
-        return "Пользователь не найден", 404
-
-    # Получение всех результатов викторин пользователя
-    quiz_results = QuizResult.query.filter_by(user_id=user.id).all()
-    # Вычисление общего количества отвеченных вопросов
-    total_questions_answered = db.session.query(func.count(UserAnswer.id)).filter_by(user_id=user.id).scalar()
-    # Вычисление общего количества правильных ответов
-    total_correct_answers = db.session.query(func.count(UserAnswer.id)).filter_by(user_id=user.id, is_right=True).scalar()
-
-    # Вычисление процентного соотношения правильных ответов
-    correct_percentage = (total_correct_answers / total_questions_answered * 100) if total_questions_answered > 0 else 0
+        return constants.USER_NOT_FOUND_MESSAGE, HTTPStatus.NOT_FOUND
+    quiz_results = quiz_result_crud.get_results_by_user(user_id=user.id)
+    user_answers = user_answer_crud.get_results_by_user(user_id=user.id)
+    total_questions_answered = len(user_answers)
+    total_correct_answers = sum(
+        1 for answer in user_answers if answer.is_right
+    )
+    correct_percentage = (
+        total_correct_answers / total_questions_answered * 100
+    ) if total_questions_answered > 0 else 0
 
     return render_template(
         'admin/user_statistics.html',
         user=user,
         total_questions_answered=total_questions_answered,
         total_correct_answers=total_correct_answers,
-        correct_percentage=round(correct_percentage, 2),
-        quiz_results=quiz_results
+        correct_percentage=round(correct_percentage),
+        quiz_results=quiz_results,
     )
 
 
@@ -200,10 +202,10 @@ admin.add_view(CategoryAdmin(Category, db.session, name='Категории'))
 admin.add_view(QuizAdmin(Quiz, db.session, name='Викторины'))
 admin.add_view(QuestionAdmin(Question, db.session, name='Вопросы'))
 admin.add_view(UserActivityView(
-    name='Статистика активности пользователей', endpoint='user_activity'
+    name='Статистика активности пользователей', endpoint='user_activity',
 ))
 admin.add_view(QuizResultAdmin(
-    QuizResult, db.session, name='Результаты викторин'
+    QuizResult, db.session, name='Результаты викторин',
 ))
 
 
