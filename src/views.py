@@ -112,8 +112,7 @@ def profile() -> Response:
                 # Пояснение
                 'explanation': question.explanation if hasattr(
                     question,
-                    'explanation') else None
-            })
+                    'explanation') else None})
 
     return render_template(
         'user_profile.html',
@@ -271,8 +270,7 @@ def results() -> Response:
             user_answer_text = next(
                 (v.title for v in question.variants if v.id ==
                  (user_answer.answer_id if user_answer else None)),
-                'Не отвечено'
-            )
+                'Не отвечено')
 
             result.questions.append({
                 'title': question.title,  # Текст вопроса
@@ -281,8 +279,7 @@ def results() -> Response:
                 # Пояснение
                 'explanation': question.explanation if hasattr(
                     question,
-                    'explanation') else None
-            })
+                    'explanation') else None})
 
     return render_template(
         'full_results.html',

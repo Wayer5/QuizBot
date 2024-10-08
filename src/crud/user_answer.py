@@ -12,6 +12,7 @@ class CRUDUserAnswer(CRUDBase):
 
     def get_results_by_user(self, user_id: int) -> List[UserAnswer]:
         """Получить результаты квизов пользователя."""
+
         return (
             db.session.execute(
                 select(UserAnswer).where(UserAnswer.user_id == user_id)
@@ -25,12 +26,13 @@ class CRUDUserAnswer(CRUDBase):
             user_id: int,
             quiz_id: int) -> Optional[UserAnswer]:
         """Получить результаты ответов пользователя по конкретной викторине."""
+
         return (
             db.session.execute(
                 select(UserAnswer).where(
                     UserAnswer.user_id == user_id,
                     UserAnswer.question_id.in_(
-                        select(Question.id).where(Question.quiz_id == quiz_id)
+                        select(Question.id).where(Question.quiz_id == quiz_id),
                     )
                 )
             )
@@ -44,9 +46,10 @@ class CRUDQuestion(CRUDBase):
 
     def get_all_by_quiz_id(self, quiz_id: int) -> List[Question]:
         """Получить все вопросы по идентификатору викторины."""
+
         return (
             db.session.execute(
-                select(Question).where(Question.quiz_id == quiz_id)
+                select(Question).where(Question.quiz_id == quiz_id),
             )
             .scalars()
             .all()
