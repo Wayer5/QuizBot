@@ -1,4 +1,5 @@
 import logging
+from redis.exceptions import RedisError
 
 from flask import (
     Response,
@@ -7,6 +8,7 @@ from flask import (
     render_template,
     request,
     url_for,
+    session
 )
 from flask_jwt_extended import (
     create_access_token,
@@ -14,6 +16,7 @@ from flask_jwt_extended import (
     jwt_required,
     set_access_cookies,
     unset_jwt_cookies,
+
 )
 
 from . import app
@@ -129,10 +132,19 @@ async def quizzes(category_id: int) -> str:
     return render_template('quizzes.html', quizzes=quizzes)
 
 
-@app.route('/<int:category_id>/<int:quiz_id>/', methods=['GET', 'POST'])
-@jwt_required()
-async def question(category_id: int, quiz_id: int) -> str:
+@app.route(
+    '/<int:category_id>/<int:quiz_id>/',
+    methods=['GET', 'POST'],
+    defaults={'test': None}
+)
+@app.route('/<int:category_id>/<int:quiz_id>/<test>', methods=['GET', 'POST'])
+@jwt_required(optional=True)
+def question(category_id: int, quiz_id: int, test: str) -> str:
     """Переключаем вопросы после ответов на них."""
+
+    if test and session.get('test_answers') is None:
+        session['test_answers'] = []
+
     if request.method == 'POST':
         question_id = int(request.form.get('question_id'))
         answer_id = int(request.form.get('answer'))
@@ -143,36 +155,45 @@ async def question(category_id: int, quiz_id: int) -> str:
         # Получаем выбранный ответ по его ID
         chosen_answer = variant_crud.get(answer_id)
 
-        # Обновить результаты викторины
-        quiz_result = quiz_result_crud.get_by_user_and_quiz(
-            user_id=current_user.id,
-            quiz_id=quiz_id,
-        )
-        if quiz_result is None:
-            quiz_result = quiz_result_crud.create(
+        if test:
+            # Сохраняем ответы в сессии пользователя
+            temp = session['test_answers']
+            temp.append({
+                'question_id': question_id,
+                'answer_id': answer_id,
+                'is_right': chosen_answer.is_right_choice,
+            })
+            session['test_answers'] = temp
+        else:
+            # Обновить результаты викторины
+            quiz_result = quiz_result_crud.get_by_user_and_quiz(
+                user_id=current_user.id,
+                quiz_id=quiz_id,
+            )
+            if quiz_result is None:
+                quiz_result = quiz_result_crud.create(
+                    {
+                        'user_id': current_user.id,
+                        'quiz_id': quiz_id,
+                        'question_id': question_id,
+                        'total_questions': 0,
+                        'correct_answers_count': 0,
+                        'is_complete': False,
+                    },
+                )
+            if chosen_answer.is_right_choice:
+                quiz_result.correct_answers_count += 1
+            quiz_result.total_questions += 1
+            quiz_result.question_id = question_id
+            quiz_result_crud.update_with_obj(quiz_result)
+            user_answer_crud.create(
                 {
                     'user_id': current_user.id,
-                    'quiz_id': quiz_id,
-                    'question_id': question_id,
-                    'total_questions': 0,
-                    'correct_answers_count': 0,
-                    'is_complete': False,
+                    'question_id': current_question.id,
+                    'answer_id': chosen_answer.id,
+                    'is_right': chosen_answer.is_right_choice,
                 },
             )
-        if chosen_answer.is_right_choice:
-            quiz_result.correct_answers_count += 1
-        quiz_result.total_questions += 1
-        quiz_result.question_id = question_id
-        quiz_result_crud.update_with_obj(quiz_result)
-        user_answer_crud.create(
-            {
-                'user_id': current_user.id,
-                'question_id': current_question.id,
-                'answer_id': chosen_answer.id,
-                'is_right': chosen_answer.is_right_choice,
-            },
-        )
-
         return render_template(
             'question_result.html',
             category_id=category_id,
@@ -180,23 +201,38 @@ async def question(category_id: int, quiz_id: int) -> str:
             answer=chosen_answer.title,
             description=chosen_answer.description,
             user_answer=chosen_answer.is_right_choice,
+            test=test,
         )
-
+    if not test:
     # Вывод последней викторины пользователя.
-    question = question_crud.get_new(
-        quiz_id=quiz_id,
-        user_id=current_user.id,
-    )
+        question = question_crud.get_new(
+            quiz_id=quiz_id,
+            user_id=current_user.id,
+        )
+    else:
+        completed: list[int] = [
+            qst.get('question_id') for qst in session.get('test_answers')
+        ]
+        question = question_crud.get_all_by_quiz_id(quiz_id)
+        question = [qst for qst in question if qst.id not in completed]
+        question = question[0] if question else None
 
     if question is None:
-        quiz_result = quiz_result_crud.get_by_user_and_quiz(
-            user_id=current_user.id,
-            quiz_id=quiz_id,
-        )
-        if quiz_result is not None and not quiz_result.is_complete:
-            quiz_result.is_complete = True
-            quiz_result_crud.update_with_obj(quiz_result)
-        return redirect(url_for('results'))
+        if test:
+            # Вычисляем результаты на основе ответов, сохраненных в сессии пользователя
+            correct_answers = sum(1 for answer in session['test_answers'] if answer['is_right'])
+            total_questions = len(session['test_answers'])
+            session['test_answers'] = []
+            return redirect(url_for('results'))
+        else:
+            quiz_result = quiz_result_crud.get_by_user_and_quiz(
+                user_id=current_user.id,
+                quiz_id=quiz_id,
+            )
+            if quiz_result is not None and not quiz_result.is_complete:
+                quiz_result.is_complete = True
+                quiz_result_crud.update_with_obj(quiz_result)
+            return redirect(url_for('results'))
 
     # Получаем варианты ответов
     answers = question.variants

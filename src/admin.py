@@ -1,9 +1,11 @@
-from flask import request
-from flask_admin import Admin
+from flask import request, redirect, url_for
+from flask_admin import Admin, expose
+from flask_admin.model.template import LinkRowAction
 from flask_admin.contrib.sqla import ModelView
 from flask_babel import Babel
 
 from . import app, db
+from src.crud.quiz import quiz_crud
 from .models import Category, Question, Quiz, User, Variant
 
 # Создания экземпляра админ панели
@@ -61,6 +63,26 @@ class QuizAdmin(CustomAdminView):
         'category': 'Категория',
         'is_active': 'Активен',
     }
+
+    column_extra_row_actions = [
+        LinkRowAction(
+            'fa fa-play',
+            url='test_question/{row_id}/',
+            title='Пробное прохождение',
+        )
+    ]
+
+    @expose('/test_question/<int:quiz_id>/')
+    def test_quiz_view(self, quiz_id):
+        # Simulate a test completion here\
+        quiz = quiz_crud.get(quiz_id)
+        return redirect(url_for(
+            'question',
+            category_id=quiz.category_id,
+            quiz_id=quiz_id,
+            test=True
+            )
+        )
 
 
 class QuestionAdmin(CustomAdminView):

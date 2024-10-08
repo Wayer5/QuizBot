@@ -2,6 +2,7 @@ from datetime import timedelta
 from os import getenv as get
 
 from dotenv import load_dotenv
+from redis.client import Redis
 
 load_dotenv()
 
@@ -25,6 +26,29 @@ class Config(object):
     JWT_CSRF_IN_COOKIES = True
     JWT_TOKEN_LOCATION = ["cookies", "headers"]
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
+    SESSION_TYPE = 'redis'
+    SESSION_REDIS = Redis(
+        host='redis_container',
+        port=6379,
+        db=0,
+        username='my_user',
+        password='my_user_password'
+    )
+    SESSION_PERMANENT=False
+    PERMANENT_SESSION_LIFETIME=timedelta(minutes=3)
+    SESSION_COOKIE_SAMESITE = 'None'
+    SESSION_COOKIE_SECURE = True
+    try:
+        info = SESSION_REDIS.info()
+        print(info['redis_version'])
+        response = SESSION_REDIS.ping()
+        if response:
+            print("Подключение успешно!")
+            print(response)
+        else:
+            print("Не удалось подключиться к Redis.")
+    except Exception as e:
+        print(f"Ошибка: {e}")
 
 
 class Settings:
