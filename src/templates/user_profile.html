@@ -40,31 +40,6 @@
           <strong>Количество правильных ответов:</strong> {{
           result.correct_answers_count }}
         </p>
-
-        <!-- Кнопка для отображения полной информации -->
-        <button
-          class="btn btn-secondary shadow"
-          data-toggle="collapse"
-          data-target="#details-{{ result.id }}"
-        >
-          Полная информация
-        </button>
-
-        <!-- Выдвигающийся блок с полной информацией -->
-        <div id="details-{{ result.id }}" class="collapse mt-2">
-          <p><strong>Детали по вопросам:</strong></p>
-          {% for question in result.questions %}
-          <div>
-            <strong>{{ question.title }}</strong><br />
-            <em>Ваш ответ: {{ question.user_answer }}</em><br />
-            <em>Правильный ответ: {{ question.correct_answer }}</em><br />
-            {% if question.explanation %}
-            <em>{{ question.explanation }}</em><br />
-            {% endif %}
-          </div>
-          <hr />
-          {% endfor %}
-        </div>
       </div>
       {% endfor %}
     </div>

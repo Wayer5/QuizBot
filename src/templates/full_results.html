@@ -1,0 +1,66 @@
+{% extends "base.html" %} {% block title %} Профиль пользователя {% endblock
+title %} {% block stylesheets %}
+<link
+  rel="stylesheet"
+  href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+/>
+{% endblock stylesheets %} {% block content %}
+<div class="container mt-4">
+  <h1 class="text-center">Результаты викторины</h1>
+  <div class="mb-4">
+    <p class="small"><strong>Всего вопросов:</strong> {{ total_questions }}</p>
+    <p class="small">
+      <strong>Правильных ответов:</strong> {{ correct_answers_count }}
+    </p>
+  </div>
+
+  <div class="accordion" id="quizResultsAccordion">
+    {% for result in quiz_results %}
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading{{ loop.index }}">
+        <button
+          class="accordion-button"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#collapse{{ loop.index }}"
+          aria-expanded="true"
+          aria-controls="collapse{{ loop.index }}"
+        >
+          {{ result.quiz.title }}
+        </button>
+      </h2>
+      <div
+        id="collapse{{ loop.index }}"
+        class="accordion-collapse collapse"
+        aria-labelledby="heading{{ loop.index }}"
+        data-bs-parent="#quizResultsAccordion"
+      >
+        <div class="accordion-body">
+          <ul>
+            {% for question in result.questions %}
+            <li>
+              <strong>{{ question.title }}</strong><br />
+              <span
+                class="{{ 'text-success' if question.user_answer == question.correct_answer else 'text-danger' }}"
+              >
+                Ваш ответ: {{ question.user_answer }} </span
+              ><br />
+              <em>Правильный ответ: {{ question.correct_answer }}</em><br />
+              {% if question.explanation %}
+              <p><small>Пояснение: {{ question.explanation }}</small></p>
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+{% endblock content %}

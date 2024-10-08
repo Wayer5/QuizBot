@@ -1,5 +1,6 @@
 import logging
 
+from src import db
 from flask import (
     Response,
     jsonify,
@@ -15,6 +16,7 @@ from flask_jwt_extended import (
     set_access_cookies,
     unset_jwt_cookies,
 )
+from src.models import QuizResult
 
 from . import app
 from src.crud.category import category_crud
@@ -237,6 +239,48 @@ async def question(category_id: int, quiz_id: int) -> str:
 
 
 @app.route('/results')
+@jwt_required()
 def results() -> Response:
-    """Пишем о том, что тест закончен."""
-    return 'Тест завершен! Спасибо за участие.'
+    """Пишем о том, что тест закончен и отображаем подробные результаты."""
+    user = current_user
+    quiz_results = quiz_result_crud.get_results_by_user(user.id)
+
+    total_questions = sum(result.total_questions for result in quiz_results)
+    correct_answers_count = sum(
+        result.correct_answers_count for result in quiz_results)
+
+    # Добавляем вопросы к каждому результату
+    for result in quiz_results:
+        result.questions = []
+        user_answers = user_answer_crud.get_results_by_user(user.id)
+
+        # Получаем все вопросы по викторине
+        questions = question_crud.get_all_by_quiz_id(result.quiz_id)
+
+        for question in questions:
+            user_answer = next(
+                (ua for ua in user_answers if ua.question_id == question.id), None)
+            correct_answer_text = next(
+                (v.title for v in question.variants if v.is_right_choice), None)
+            # Получаем текст ответа пользователя
+            user_answer_text = next(
+                (v.title for v in question.variants if v.id ==
+                 (user_answer.answer_id if user_answer else None)),
+                'Не отвечено'
+            )
+
+            result.questions.append({
+                'title': question.title,  # Текст вопроса
+                'user_answer': user_answer_text,  # Текст ответа пользователя
+                'correct_answer': correct_answer_text,  # Правильный ответ
+                # Пояснение
+                'explanation': question.explanation if hasattr(question, 'explanation') else None
+            })
+
+    return render_template(
+        'full_results.html',
+        user=user,
+        quiz_results=quiz_results,
+        total_questions=total_questions,
+        correct_answers_count=correct_answers_count,
+    )
