@@ -1,6 +1,5 @@
 import logging
 
-from src import db
 from flask import (
     Response,
     jsonify,
@@ -16,8 +15,6 @@ from flask_jwt_extended import (
     set_access_cookies,
     unset_jwt_cookies,
 )
-from src.models import QuizResult
-
 from . import app
 from src.crud.category import category_crud
 from src.crud.question import question_crud
@@ -96,20 +93,26 @@ def profile() -> Response:
 
         for question in questions:
             user_answer = next(
-                (ua for ua in user_answers if ua.question_id == question.id), None)
+                (ua for ua in user_answers if ua.question_id == question.id),
+                None)
             correct_answer_text = next(
-                (v.title for v in question.variants if v.is_right_choice), None)
+                (v.title for v in question.variants if v.is_right_choice),
+                None)
 
             # Получаем текст ответа пользователя
-            user_answer_text = next((v.title for v in question.variants if v.id == (
-                user_answer.answer_id if user_answer else None)), 'Не отвечено')
+            user_answer_text = next(
+                (v.title for v in question.variants if v.id == (
+                    user_answer.answer_id if user_answer else None)),
+                'Не отвечено')
 
             result.questions.append({
                 'title': question.title,  # Текст вопроса
                 'user_answer': user_answer_text,  # Текст ответа пользователя
                 'correct_answer': correct_answer_text,  # Правильный ответ
                 # Пояснение
-                'explanation': question.explanation if hasattr(question, 'explanation') else None
+                'explanation': question.explanation if hasattr(
+                    question,
+                    'explanation') else None
             })
 
     return render_template(
@@ -259,9 +262,11 @@ def results() -> Response:
 
         for question in questions:
             user_answer = next(
-                (ua for ua in user_answers if ua.question_id == question.id), None)
+                (ua for ua in user_answers if ua.question_id == question.id),
+                None)
             correct_answer_text = next(
-                (v.title for v in question.variants if v.is_right_choice), None)
+                (v.title for v in question.variants if v.is_right_choice),
+                None)
             # Получаем текст ответа пользователя
             user_answer_text = next(
                 (v.title for v in question.variants if v.id ==
@@ -274,7 +279,9 @@ def results() -> Response:
                 'user_answer': user_answer_text,  # Текст ответа пользователя
                 'correct_answer': correct_answer_text,  # Правильный ответ
                 # Пояснение
-                'explanation': question.explanation if hasattr(question, 'explanation') else None
+                'explanation': question.explanation if hasattr(
+                    question,
+                    'explanation') else None
             })
 
     return render_template(

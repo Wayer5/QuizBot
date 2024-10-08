@@ -1,5 +1,7 @@
 from typing import List, Optional
+
 from sqlalchemy import select
+
 from src import db
 from src.crud.base import CRUDBase
 from src.models import Question, UserAnswer
@@ -18,7 +20,10 @@ class CRUDUserAnswer(CRUDBase):
             .all()
         )
 
-    def get_results_by_user_and_quiz(self, user_id: int, quiz_id: int) -> Optional[UserAnswer]:
+    def get_results_by_user_and_quiz(
+            self,
+            user_id: int,
+            quiz_id: int) -> Optional[UserAnswer]:
         """Получить результаты ответов пользователя по конкретной викторине."""
         return (
             db.session.execute(
@@ -31,7 +36,6 @@ class CRUDUserAnswer(CRUDBase):
             )
             .scalars()
             .all()
-
         )
 
 
