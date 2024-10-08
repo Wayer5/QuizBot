@@ -2,6 +2,7 @@ import logging
 
 from flask import (
     Response,
+    abort,
     jsonify,
     redirect,
     render_template,
@@ -15,7 +16,7 @@ from flask_jwt_extended import (
     set_access_cookies,
     unset_jwt_cookies,
 )
-from flask import abort
+
 from . import app
 from src.crud.category import category_crud
 from src.crud.question import question_crud
@@ -244,7 +245,7 @@ async def question(category_id: int, quiz_id: int) -> str:
 @app.route('/results/<int:quiz_id>')
 @jwt_required()
 def results(quiz_id: int) -> Response:
-    """Пишем о том, что тест закончен и отображаем подробные результаты для одной викторины."""
+    """Результаты для одной викторины."""
     user = current_user
     quiz_results = quiz_result_crud.get_results_by_user(user.id)
 
