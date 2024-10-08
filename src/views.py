@@ -15,6 +15,7 @@ from flask_jwt_extended import (
     set_access_cookies,
     unset_jwt_cookies,
 )
+
 from . import app
 from src.crud.category import category_crud
 from src.crud.question import question_crud
