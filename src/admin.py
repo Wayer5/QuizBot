@@ -107,14 +107,26 @@ class QuestionAdmin(CustomAdminView):
     ]
 
     def on_model_change(self, form: Any, model: Any, is_created: bool) -> None:
-        """Проверка, что только один вариант правильный."""
+        """Проверка на количество правильных вариантов."""
         # Получаем все варианты для вопроса
         variants = form.variants.entries
+
+        # Проверка на наличие хотя бы одного варианта ответа
+        if not variants:
+            raise ValueError("Должен быть хотя бы один вариант ответа.")
+
+        # Получаем список правильных вариантов
         correct_answers = [v for v in variants if v.is_right_choice.data]
 
+        # Проверка, что правильный вариант только один
         if len(correct_answers) > 1:
             raise ValueError("Может быть только один правильный ответ.")
 
+        # Проверка, что есть хотя бы один правильный вариант
+        if len(correct_answers) == 0:
+            raise ValueError("Должен быть хотя бы один правильный ответ.")
+
+        # Вызов родительского метода для сохранения изменений
         super(QuestionAdmin, self).on_model_change(form, model, is_created)
 
 
