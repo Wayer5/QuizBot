@@ -32,7 +32,7 @@ class Config(object):
         port=6379,
         db=0,
         username='my_user',
-        password='my_user_password'
+        password='my_user_password',
     )
     SESSION_PERMANENT=False
     PERMANENT_SESSION_LIFETIME=timedelta(minutes=3)

@@ -17,7 +17,8 @@ class CRUDQuiz(CRUDBase):
         """Получение викторин по id категории."""
         quizzes = db.session.execute(
             select(Quiz).where(
-                Quiz.category_id == category_id, Quiz.is_active == is_active,
+                Quiz.category_id == category_id,
+                Quiz.is_active == is_active,
             ),
         )
         return quizzes.scalars().all()

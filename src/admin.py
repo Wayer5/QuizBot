@@ -1,12 +1,13 @@
-from flask import request, redirect, url_for
+from flask import Response, redirect, request, url_for
 from flask_admin import Admin, expose
-from flask_admin.model.template import LinkRowAction
 from flask_admin.contrib.sqla import ModelView
+from flask_admin.model.template import LinkRowAction
 from flask_babel import Babel
+from flask_jwt_extended import current_user, verify_jwt_in_request
 
 from . import app, db
-from src.crud.quiz import quiz_crud
 from .models import Category, Question, Quiz, User, Variant
+from src.crud.quiz import quiz_crud
 
 # Создания экземпляра админ панели
 admin = Admin(app, name='MedStat_Solutions', template_mode='bootstrap4')
@@ -19,6 +20,11 @@ class CustomAdminView(ModelView):
     list_template = 'csrf/list.html'
     edit_template = 'csrf/edit.html'
     create_template = 'csrf/create.html'
+
+    def is_accessible(self) -> bool:
+        """Проверка доступа."""
+        verify_jwt_in_request()
+        return current_user.is_admin
 
 
 class UserAdmin(CustomAdminView):
@@ -69,19 +75,20 @@ class QuizAdmin(CustomAdminView):
             'fa fa-play',
             url='test_question/{row_id}/',
             title='Пробное прохождение',
-        )
+        ),
     ]
 
     @expose('/test_question/<int:quiz_id>/')
-    def test_quiz_view(self, quiz_id):
-        # Simulate a test completion here\
+    def test_quiz_view(self, quiz_id: int) -> Response:
+        """Перенаправление на страницу тестирования."""
         quiz = quiz_crud.get(quiz_id)
-        return redirect(url_for(
-            'question',
-            category_id=quiz.category_id,
-            quiz_id=quiz_id,
-            test=True
-            )
+        return redirect(
+            url_for(
+                'question',
+                category_id=quiz.category_id,
+                quiz_id=quiz_id,
+                test=True,
+            ),
         )
 
 

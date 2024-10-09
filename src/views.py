@@ -1,5 +1,4 @@
 import logging
-from redis.exceptions import RedisError
 
 from flask import (
     Response,
@@ -7,8 +6,8 @@ from flask import (
     redirect,
     render_template,
     request,
+    session,
     url_for,
-    session
 )
 from flask_jwt_extended import (
     create_access_token,
@@ -16,7 +15,6 @@ from flask_jwt_extended import (
     jwt_required,
     set_access_cookies,
     unset_jwt_cookies,
-
 )
 
 from . import app
@@ -135,13 +133,12 @@ async def quizzes(category_id: int) -> str:
 @app.route(
     '/<int:category_id>/<int:quiz_id>/',
     methods=['GET', 'POST'],
-    defaults={'test': None}
+    defaults={'test': None},
 )
 @app.route('/<int:category_id>/<int:quiz_id>/<test>', methods=['GET', 'POST'])
 @jwt_required(optional=True)
 def question(category_id: int, quiz_id: int, test: str) -> str:
     """Переключаем вопросы после ответов на них."""
-
     if test and session.get('test_answers') is None:
         session['test_answers'] = []
 
@@ -158,11 +155,13 @@ def question(category_id: int, quiz_id: int, test: str) -> str:
         if test:
             # Сохраняем ответы в сессии пользователя
             temp = session['test_answers']
-            temp.append({
-                'question_id': question_id,
-                'answer_id': answer_id,
-                'is_right': chosen_answer.is_right_choice,
-            })
+            temp.append(
+                {
+                    'question_id': question_id,
+                    'answer_id': answer_id,
+                    'is_right': chosen_answer.is_right_choice,
+                },
+            )
             session['test_answers'] = temp
         else:
             # Обновить результаты викторины
@@ -204,7 +203,7 @@ def question(category_id: int, quiz_id: int, test: str) -> str:
             test=test,
         )
     if not test:
-    # Вывод последней викторины пользователя.
+        # Вывод последней викторины пользователя.
         question = question_crud.get_new(
             quiz_id=quiz_id,
             user_id=current_user.id,
@@ -219,20 +218,22 @@ def question(category_id: int, quiz_id: int, test: str) -> str:
 
     if question is None:
         if test:
-            # Вычисляем результаты на основе ответов, сохраненных в сессии пользователя
-            correct_answers = sum(1 for answer in session['test_answers'] if answer['is_right'])
-            total_questions = len(session['test_answers'])
+            # Вычисляем результаты на основе ответов, сохраненных
+            # в сессии пользователя
+            # correct_answers = sum(
+            #     1 for answer in session['test_answers'] if answer['is_right']
+            # )
+            # total_questions = len(session['test_answers'])
             session['test_answers'] = []
             return redirect(url_for('results'))
-        else:
-            quiz_result = quiz_result_crud.get_by_user_and_quiz(
-                user_id=current_user.id,
-                quiz_id=quiz_id,
-            )
-            if quiz_result is not None and not quiz_result.is_complete:
-                quiz_result.is_complete = True
-                quiz_result_crud.update_with_obj(quiz_result)
-            return redirect(url_for('results'))
+        quiz_result = quiz_result_crud.get_by_user_and_quiz(
+            user_id=current_user.id,
+            quiz_id=quiz_id,
+        )
+        if quiz_result is not None and not quiz_result.is_complete:
+            quiz_result.is_complete = True
+            quiz_result_crud.update_with_obj(quiz_result)
+        return redirect(url_for('results'))
 
     # Получаем варианты ответов
     answers = question.variants
