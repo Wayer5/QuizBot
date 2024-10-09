@@ -1,0 +1,41 @@
+{% extends 'admin/master.html' %}
+
+{% block head_css %}
+    {{ super() }}
+    <!-- Подключаем стили Bootstrap 4 -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+{% endblock %}
+
+{% block page_title %}Панель администратора{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <!-- Используем Bootstrap 4 для стилизации -->
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Админ Панель</h1>
+                <p class="lead">Добро пожаловать в админ панель. Выберите раздел:</p>
+
+                <!-- Выводим список позиций из header -->
+                <ul class="list-group">
+                    {% for menu_item in admin_menu %}
+                        <li class="list-group-item">
+                            <a href="{{ menu_item.url }}" class="nav-link">
+                                {{ menu_item.name }}
+                            </a>
+                        </li>
+                        {{ menu_link }}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block tail_js %}
+    {{ super() }}
+    <!-- Подключаем скрипты Bootstrap 4 -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{% endblock %}
