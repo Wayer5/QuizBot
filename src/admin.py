@@ -1,15 +1,13 @@
 from typing import Any
 
-from flask import request
-from flask_admin import Admin
 from flask import Response, redirect, request, url_for
 from flask_admin import Admin, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.model.template import LinkRowAction
 from flask_babel import Babel
+from flask_jwt_extended import current_user, verify_jwt_in_request
 from sqlalchemy.exc import IntegrityError
 from wtforms import ValidationError
-from flask_jwt_extended import current_user, verify_jwt_in_request
 
 from . import app, db
 from .constants import (
