@@ -214,7 +214,7 @@ class Variant(db.Model):
         UniqueConstraint(
             'question_id',
             'title',
-            name='_question__uc',
+            name='_question_variant_uc',
         ),
     )
 

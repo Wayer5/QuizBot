@@ -1,7 +1,10 @@
+from typing import Callable
+
 from flask import Response, render_template, request, url_for
 
 from . import app
-from src.constants import HTTP_NOT_FOUND
+from .jwt import jwt
+from src.constants import HTTP_NOT_FOUND, UNAUTHORIZED
 
 
 @app.errorhandler(404)
@@ -19,6 +22,12 @@ def page_not_found(error: Exception) -> Response:
     """
     is_category_page = request.path == url_for('categories')
     return render_template(
-        "404.html",
+        '404.html',
         is_category_page=is_category_page,
         ), HTTP_NOT_FOUND
+
+
+@jwt.unauthorized_loader
+def unauthorized_callback(callback: Callable) -> Response:
+    """Обработка ошибки 401 при отсутствии jwt токена."""
+    return render_template('401.html'), UNAUTHORIZED
