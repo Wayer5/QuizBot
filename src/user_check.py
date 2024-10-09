@@ -1,6 +1,4 @@
-# user_check.py
-
-import logging
+# import logging
 
 from aiogram import Bot
 from aiogram.types import Message
@@ -23,18 +21,18 @@ async def check_user_and_clear_messages(bot: Bot, message: Message) -> bool:
     if user is None or not user.is_active:
         """Проверка на удаление юзера."""
         # Очищаем предыдущие сообщения в чате
-        try:
-            for message_id in range(
-                message.message_id,
-                message.message_id - 10,
-                -1,
-            ):
-                await bot.delete_message(
-                    chat_id=message.chat.id,
-                    message_id=message_id,
-                )
-        except Exception as e:
-            logging.warning(f'Не удалось удалить сообщение: {e}')
+        # try:
+        #     for message_id in range(
+        #         message.message_id,
+        #         message.message_id - 10,
+        #         -1,
+        #     ):
+        #         await bot.delete_message(
+        #             chat_id=message.chat.id,
+        #             message_id=message_id,
+        #         )
+        # except Exception as e:
+        #     logging.warning(f'Не удалось удалить сообщение: {e}')
 
         # Уведомляем пользователя о повторной регистрации и убираем кнопки
         await message.answer(

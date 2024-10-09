@@ -1,18 +1,24 @@
 from http import HTTPStatus
+from typing import Any
 
 from flask import Response, render_template, request
 from flask_admin import Admin, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_babel import Babel
 
-from . import app, constants, db
+from . import app, db
+from .constants import (
+    CAN_ONLY_BE_ONE_CORRECT_ANSWER,
+    ONE_ANSWER_VARIANT,
+    ONE_CORRECT_ANSWER,
+    USER_NOT_FOUND_MESSAGE,
+)
 from .crud.quiz_result import quiz_result_crud
 from .crud.user_answer import user_answer_crud
 from .models import (
     Category,
     Question,
     Quiz,
-    QuizResult,
     User,
     Variant,
 )
@@ -86,8 +92,9 @@ class QuestionAdmin(CustomAdminView):
         'quiz': 'Викторина',
         'is_active': 'Активен',
     }
-    # Добаление возможности при создании вопроса
-    # сразу добавлять варианты ответов
+
+    # Добаление возможности при создании вопроса сразу добавлять
+    # варианты ответов
     inline_models = [
         (
             Variant,
@@ -114,30 +121,28 @@ class QuestionAdmin(CustomAdminView):
         ),
     ]
 
+    def on_model_change(self, form: Any, model: Any, is_created: bool) -> None:
+        """Проверка на количество правильных вариантов."""
+        # Получаем все варианты для вопроса
+        variants = form.variants.entries
 
-class QuizResultAdmin(CustomAdminView):
+        # Проверка на наличие хотя бы одного варианта ответа
+        if not variants:
+            raise ValueError(ONE_ANSWER_VARIANT)
 
-    """Добавление и перевод модели результатов викторин в админ зону."""
+        # Получаем список правильных вариантов
+        correct_answers = [v for v in variants if v.is_right_choice.data]
 
-    form_columns = [
-        'id',
-        'user_id',
-        'quiz_id',
-        'correct_answers_count',
-        'total_questions',
-        'is_complete',
-        'question_id',
-    ]
+        # Проверка, что правильный вариант только один
+        if len(correct_answers) > 1:
+            raise ValueError(CAN_ONLY_BE_ONE_CORRECT_ANSWER)
 
-    fields = [
-        'id',
-        'user_id',
-        'quiz_id',
-        'correct_answers_count',
-        'total_questions',
-        'is_complete',
-        'question_id',
-    ]
+        # Проверка, что есть хотя бы один правильный вариант
+        if len(correct_answers) == 0:
+            raise ValueError(ONE_CORRECT_ANSWER)
+
+        # Вызов родительского метода для сохранения изменений
+        super(QuestionAdmin, self).on_model_change(form, model, is_created)
 
 
 class UserActivityView(BaseView):
@@ -175,7 +180,7 @@ def user_statistics() -> Response:
     user_id = request.args.get('user_id')
     user = User.query.get(user_id)
     if not user:
-        return constants.USER_NOT_FOUND_MESSAGE, HTTPStatus.NOT_FOUND
+        return USER_NOT_FOUND_MESSAGE, HTTPStatus.NOT_FOUND
     quiz_results = quiz_result_crud.get_results_by_user(user_id=user.id)
     user_answers = user_answer_crud.get_results_by_user(user_id=user.id)
     total_questions_answered = len(user_answers)
@@ -203,9 +208,6 @@ admin.add_view(QuizAdmin(Quiz, db.session, name='Викторины'))
 admin.add_view(QuestionAdmin(Question, db.session, name='Вопросы'))
 admin.add_view(UserActivityView(
     name='Статистика активности пользователей', endpoint='user_activity',
-))
-admin.add_view(QuizResultAdmin(
-    QuizResult, db.session, name='Результаты викторин',
 ))
 
 

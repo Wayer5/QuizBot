@@ -18,4 +18,4 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 
-from . import bot, constants, api_views, jwt, admin, models, views  # noqa
+from . import bot, constants, api_views, jwt, admin, models, views, error_handlers  # noqa
