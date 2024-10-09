@@ -12,7 +12,7 @@ babel==2.16.0
 black==22.1.0
 blinker==1.8.2
 blue==0.9.1
-cachelib==0.13.0
+cachelib==0.9.0
 certifi==2024.8.30
 cffi==1.17.1
 charset-normalizer==3.3.2
@@ -23,6 +23,7 @@ flake8==4.0.1
 Flask==3.0.3
 Flask-Admin==1.6.1
 flask-babel==4.0.0
+Flask-Caching==2.3.0
 flask-http-middleware==0.4.2
 Flask-HTTPAuth==4.8.0
 Flask-Injector==0.15.0

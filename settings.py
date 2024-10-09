@@ -28,16 +28,22 @@ class Config(object):
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
     SESSION_TYPE = 'redis'
     SESSION_REDIS = Redis(
-        host='redis_container',
+        host=get('REDIS_HOST'),
         port=6379,
         db=0,
-        username='my_user',
-        password='my_user_password',
+        username=get('REDIS_USER'),
+        password=get('REDIS_USER_PASSWORD'),
     )
-    SESSION_PERMANENT=False
-    PERMANENT_SESSION_LIFETIME=timedelta(minutes=3)
+    SESSION_PERMANENT = False
+    PERMANENT_SESSION_LIFETIME = timedelta(minutes=3)
     SESSION_COOKIE_SAMESITE = 'None'
     SESSION_COOKIE_SECURE = True
+    CACHE_TYPE = 'RedisCache'
+    CACHE_REDIS_URL = (
+        f'redis://'
+        f'{get("REDIS_USER")}:'
+        f'{get("REDIS_USER_PASSWORD")}@'
+        f'{get("REDIS_HOST")}:6379/2')
     try:
         info = SESSION_REDIS.info()
         print(info['redis_version'])

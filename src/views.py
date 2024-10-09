@@ -17,7 +17,7 @@ from flask_jwt_extended import (
     unset_jwt_cookies,
 )
 
-from . import app
+from . import app, cache
 from src.crud.category import category_crud
 from src.crud.question import question_crud
 from src.crud.quiz import quiz_crud
@@ -69,12 +69,14 @@ def logout() -> Response:
 
 
 @app.route('/auth', methods=['GET'])
+@cache.cached(timeout=50)
 async def auntification() -> str:
     """Вывод страницы аунтификации."""
     return render_template('auth.html')
 
 
 @app.route('/me', methods=['GET'])
+@cache.cached(timeout=50)
 @jwt_required()
 def profile() -> Response:
     """Отображаем профиль пользователя."""
@@ -117,6 +119,7 @@ def delete_profile() -> Response:
 
 
 @app.route('/', methods=['GET'])
+@cache.cached(timeout=50)
 async def categories() -> str:
     """Вывод страницы категорий."""
     categories = category_crud.get_active()
@@ -124,6 +127,7 @@ async def categories() -> str:
 
 
 @app.route('/<int:category_id>/', methods=['GET'])
+@cache.cached(timeout=50)
 async def quizzes(category_id: int) -> str:
     """Вывод страницы викторин."""
     quizzes = quiz_crud.get_by_category_id(category_id)
