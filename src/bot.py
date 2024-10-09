@@ -1,4 +1,4 @@
-import asyncio
+# import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
@@ -18,7 +18,7 @@ from aiogram.types import (
 
 from settings import settings
 
-from .constants import TIME_TO_DELETING
+# from .constants import TIME_TO_DELETING
 from .user_check import check_user_and_clear_messages
 from src.crud.telegram_user import telegram_user_crud
 
@@ -146,15 +146,11 @@ async def on_start_button(message: Message) -> None:
 
     if user.is_active:
         # Отправляем инлайн-кнопку для открытия WebApp
-        msg = await message.answer(  # Сохраняем сообщение
+        await message.answer(  # Сохраняем сообщение
             'Нажми кнопку ниже, чтобы открыть WebApp:',
             reply_markup=keyboard,
         )
 
-        if not user.is_admin:
-            # Удаляем сообщение с кнопкой через 5 минут (300 секунд)
-            await asyncio.sleep(TIME_TO_DELETING)  # Задержка 5 минут
-            await bot.delete_message(message.from_user.id, msg.message_id)
     else:
         await message.answer(
             'Вы были заблокированы. Обратитесь к администратору.',
