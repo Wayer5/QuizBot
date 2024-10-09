@@ -2,7 +2,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 
-from flask import Response
+from flask import Response, abort
 from flask_jwt_extended import (
     JWTManager,
     create_access_token,
@@ -41,7 +41,13 @@ def user_lookup_callback(_jwt_header: Any, jwt_data: Any) -> Optional[User]:
 
     """
     identity = jwt_data['sub']
-    return User.query.filter_by(id=identity).one_or_none()
+    user = User.query.filter_by(id=identity).one_or_none()
+
+    # Проверка на активность пользователя
+    if user and not user.is_active:
+        abort(401)
+
+    return user
 
 
 @app.after_request

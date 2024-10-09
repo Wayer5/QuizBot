@@ -31,3 +31,19 @@ def page_not_found(error: Exception) -> Response:
 def unauthorized_callback(callback: Callable) -> Response:
     """Обработка ошибки 401 при отсутствии jwt токена."""
     return render_template('401.html'), UNAUTHORIZED
+
+
+@app.errorhandler(401)
+def unauthorize(error: Exception) -> Response:
+    """Обработчик ошибки 401 для всех запросов.
+
+    Args:
+    ----
+    error (Exception): Ошибка, вызвавшая обработку.
+
+    Returns:
+    -------
+    Response: HTML-страница для отображения ошибки 404.
+
+    """
+    return render_template('401.html'), UNAUTHORIZED
