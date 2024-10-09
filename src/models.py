@@ -210,6 +210,13 @@ class Variant(db.Model):
         default=False,
         comment='Флаг, указывающий, является ли данный ответ правильным.',
     )
+    __table_args__ = (
+        UniqueConstraint(
+            'question_id',
+            'title',
+            name='_question_variant_uc',
+        ),
+    )
 
 
 class QuizResult(db.Model):
