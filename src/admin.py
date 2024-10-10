@@ -3,8 +3,8 @@ from typing import Any
 from flask import Response, request
 from flask_admin import Admin, AdminIndexView, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
-from flask_jwt_extended import jwt_required
 from flask_babel import Babel
+from flask_jwt_extended import jwt_required
 from sqlalchemy.exc import IntegrityError
 from wtforms import ValidationError
 
@@ -17,6 +17,7 @@ from .constants import (
     ONE_ANSWER_VARIANT,
     ONE_CORRECT_ANSWER,
     USER_NOT_FOUND_MESSAGE,
+    UNIQUE_VARIANT,
 )
 from .crud.quiz_result import quiz_result_crud
 from .crud.user_answer import user_answer_crud
@@ -26,7 +27,6 @@ from .models import (
     Quiz,
     User,
     Variant,
-    UNIQUE_VARIANT,
 )
 
 # # Создания экземпляра админ панели

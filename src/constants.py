@@ -9,4 +9,3 @@ USER_NOT_FOUND_MESSAGE = "Пользователь не найден"
 DEFAULT_PAGE_NUMBER = 1
 ITEMS_PER_PAGE = 5
 UNIQUE_VARIANT = 'Варианты в вопросе должны быть уникальными.'
-
