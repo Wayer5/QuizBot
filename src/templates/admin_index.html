@@ -4,11 +4,18 @@
     {{ super() }}
     <!-- Cтили Bootstrap 4 -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .list-group-item {
+            padding: 0px 0px; /* Уменьшаем внутренние отступы */
+            margin-bottom: 0px; /* Уменьшаем внешний отступ между элементами */
+        }
+    </style>
 {% endblock %}
 
 {% block page_title %}Панель администратора{% endblock %}
 
 {% block body %}
+
     <div class="container mt-4">
         <div class="row">
             <div class="col-md-12">
@@ -16,24 +23,18 @@
                 <p class="lead">Добро пожаловать в админ панель. Выберите раздел:</p>
 
                 <!-- Вывод списока позиций из header -->
-                <ul class="list-group">
+                <ul class="list-group list-group-flush justify-content-center">
                     {% for menu_item in admin_menu %}
-                        <li class="list-group-item">
-                            <a href="{{ menu_item.get_url() }}" class="nav-link">
-                                {{ menu_item.name }}
-                            </a>
-                        </li>
+                        {% if menu_item.name != 'Главная' %}
+                            <li class="list-group-item list-group-item-action text-center">
+                                <a href="{{ menu_item.get_url() }}" class="nav-link">
+                                    {{ menu_item.name }}
+                                </a>
+                            </li>
+                        {% endif %}
                     {% endfor %}
                 </ul>
             </div>
         </div>
     </div>
-{% endblock %}
-
-{% block tail_js %}
-    {{ super() }}
-    <!-- Скрипты Bootstrap 4 -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 {% endblock %}
