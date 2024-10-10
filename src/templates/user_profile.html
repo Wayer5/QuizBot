@@ -1,6 +1,5 @@
 {% extends "base.html" %} {% block title %}Профиль пользователя{% endblock title
 %} {% block stylesheets %}
-<!-- Здесь можно добавить дополнительные стили, если необходимо -->
 <link
   rel="stylesheet"
   href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
@@ -10,46 +9,57 @@
   <h3 class="text-center">Профиль пользователя:<br />{{ user.name }}</h3>
 </div>
 
-<div class="container mt-4">
-  <div class="mb-4">
-    <h4>Краткая информация о результатах</h4>
-    <div class="card shadow-sm mb-3">
+<div class="container mt-2">
+  <div class="mb-3">
+    <div class="card shadow-sm">
       <div class="card-body">
-        <p class="small">
-          <strong>Общее количество вопросов:</strong> {{ total_questions }}
-        </p>
-        <p class="small">
-          <strong>Количество правильных ответов:</strong> {{
-          correct_answers_count }}
+        <p class="small text-left">
+          <strong>Общее количество вопросов:</strong>
+          {{ total_questions }}
+          <br />
+          <strong>Количество правильных ответов:</strong>
+          {{correct_answers_count}}
+          <br />
         </p>
       </div>
     </div>
   </div>
 
-  <div class="result-section mb-4">
-    <h4>Информация о пройденных викторинах</h4>
+  <div class="result-section mb-2">
+    <h3 class="text-center">Пройденные викторины</h3>
 
     {% if quiz_results %}
     <div class="list-group">
       {% for result in quiz_results %}
-      <div class="list-group-item">
-        <h5>{{ result.quiz.title if result.quiz else 'Нет данных' }}</h5>
-        <p>
-          <strong>Общее количество вопросов:</strong> {{ result.total_questions
-          }}<br />
-          <strong>Количество правильных ответов:</strong> {{
-          result.correct_answers_count }}
+      <a
+        href="{{ url_for('results', quiz_id=result.quiz.id) }}"
+        class="list-group-item mb-1 list-group-item-action"
+      >
+        <h5 class="text-left">
+          {{ result.quiz.title if result.quiz else 'Нет данных' }}
+        </h5>
+        <p class="small text-left">
+          <strong>Общее количество вопросов:</strong>
+          {{ result.total_questions }}<br />
+          <strong>Количество правильных ответов:</strong>
+          {{result.correct_answers_count }}<br />
         </p>
-      </div>
+      </a>
       {% endfor %}
     </div>
     {% else %}
     <p class="text-center">Нет информации о результатах.</p>
     {% endif %}
   </div>
-
-  <div class="text-center btn-container mt-4 mb-4">
-    <a href="/" class="btn btn-primary">На главную</a>
+</div>
+<div class="container mt-4" style="background-color: transparent">
+  <div class="text-center btn-container mb-3 d-flex justify-content-center">
+    <a
+      href="/"
+      class="btn btn-primary me-2"
+      style="max-width: 200px; width: 100%"
+      >На главную</a
+    >
     <form
       id="delete-profile-form"
       action="{{ url_for('delete_profile') }}"
@@ -58,7 +68,11 @@
       style="display: inline"
     >
       <input type="hidden" name="csrf_token" />
-      <button id="delete-profile-form" type="submit" class="btn btn-danger">
+      <button
+        type="submit"
+        class="btn btn-danger"
+        style="max-width: 200px; width: 100%"
+      >
         Удалить профиль
       </button>
     </form>
@@ -84,7 +98,7 @@
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: new URLSearchParams(new FormData(form)).toString(), // Преобразуем данные формы в URL-кодированную строку
+        body: new URLSearchParams(new FormData(form)).toString(),
       })
         .then((response) => {
           if (response.ok) {
