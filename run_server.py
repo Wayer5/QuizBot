@@ -16,7 +16,7 @@ async def main() -> None:
             app=WsgiToAsgi(app),
             port=settings.PORT,
             use_colors=False,
-            host="0.0.0.0",
+            host='0.0.0.0',
         ),
     )
 
@@ -31,7 +31,7 @@ async def main() -> None:
     await bot.bot.session.close()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     try:
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):

@@ -1,33 +1,18 @@
-from typing import Any
+from typing import Any, Optional, List
 
-from flask import Response, request
+from flask import Response, redirect, request, url_for
 from flask_admin import Admin, AdminIndexView, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
+from flask_admin.model.template import LinkRowAction
 from flask_babel import Babel
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import current_user, jwt_required, verify_jwt_in_request
 from sqlalchemy.exc import IntegrityError
 from wtforms import ValidationError
 
-from . import app, db
-from .constants import (
-    CAN_ONLY_BE_ONE_CORRECT_ANSWER,
-    DEFAULT_PAGE_NUMBER,
-    HTTP_NOT_FOUND,
-    ITEMS_PER_PAGE,
-    ONE_ANSWER_VARIANT,
-    ONE_CORRECT_ANSWER,
-    USER_NOT_FOUND_MESSAGE,
-    UNIQUE_VARIANT,
-)
 from .crud.quiz_result import quiz_result_crud
 from .crud.user_answer import user_answer_crud
-from .models import (
-    Category,
-    Question,
-    Quiz,
-    User,
-    Variant,
-)
+from .crud.quiz import quiz_crud
+from .models import Category, Question, Quiz, User, Variant
 
 # # Создания экземпляра админ панели
 # admin = Admin(app, name='MedStat_Solutions', template_mode='bootstrap4')
@@ -46,7 +31,9 @@ class MyAdminIndexView(AdminIndexView):
 
 # Создания экземпляра админ панели
 admin = Admin(
-    app, name='MedStat_Solutions', template_mode='bootstrap4',
+    app,
+    name='MedStat_Solutions',
+    template_mode='bootstrap4',
     index_view=MyAdminIndexView(),
 )
 
@@ -58,6 +45,11 @@ class CustomAdminView(ModelView):
     list_template = 'csrf/list.html'
     edit_template = 'csrf/edit.html'
     create_template = 'csrf/create.html'
+
+    def is_accessible(self) -> bool:
+        """Проверка доступа."""
+        verify_jwt_in_request()
+        return current_user.is_admin
 
 
 class UserAdmin(CustomAdminView):
@@ -102,6 +94,27 @@ class QuizAdmin(CustomAdminView):
         'category': 'Категория',
         'is_active': 'Активен',
     }
+
+    column_extra_row_actions = [
+        LinkRowAction(
+            'fa fa-play',
+            url='test_question/{row_id}/',
+            title='Пробное прохождение',
+        ),
+    ]
+
+    @expose('/test_question/<int:quiz_id>/')
+    def test_quiz_view(self, quiz_id: int) -> Response:
+        """Перенаправление на страницу тестирования."""
+        quiz = quiz_crud.get(quiz_id)
+        return redirect(
+            url_for(
+                'question',
+                category_id=quiz.category_id,
+                quiz_id=quiz_id,
+                test=True,
+            ),
+        )
 
 
 class QuestionAdmin(CustomAdminView):
@@ -157,8 +170,10 @@ class QuestionAdmin(CustomAdminView):
 
         except IntegrityError as e:
             # Проверяем ошибку уникальности
-            error_message = ('duplicate key value violates unique '
-                             'constraint "_question_variant_uc"')
+            error_message = (
+                'duplicate key value violates unique '
+                'constraint "_question_variant_uc"'
+            )
             if error_message in str(e.orig):
                 raise ValidationError(UNIQUE_VARIANT)
             # Если другая ошибка — выбрасываем её заново
@@ -200,7 +215,8 @@ class QuestionAdmin(CustomAdminView):
         """
         # Получаем все записи с таким же question_id и title
         existing_variant = Variant.query.filter_by(
-            question_id=variant.question_id, title=variant.title,
+            question_id=variant.question_id,
+            title=variant.title,
         ).first()
         # Проверяем, существует ли такая запись, и это не текущий объект
         if existing_variant and existing_variant.id != variant.id:
@@ -277,8 +293,14 @@ class UserStatisticsView(BaseView):
 
 # Добавляем представления в админку
 admin.add_view(UserAdmin(User, db.session, name='Пользователи'))
-admin.add_view(CategoryAdmin(Category, db.session, name='Категории'))
-admin.add_view(QuizAdmin(Quiz, db.session, name='Викторины'))
+admin.add_view(
+    CategoryAdmin(
+        Category, db.session, name='Категории', endpoint='category_admin',
+    ),
+)
+admin.add_view(
+    QuizAdmin(Quiz, db.session, name='Викторины', endpoint='quiz_admin'),
+)
 admin.add_view(QuestionAdmin(Question, db.session, name='Вопросы'))
 admin.add_view(UserActivityView(
     name='Статистика активности пользователей',

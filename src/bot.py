@@ -1,12 +1,9 @@
-# import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import Command
-
-# from aiogram import types
 from aiogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
@@ -18,11 +15,8 @@ from aiogram.types import (
 
 from settings import settings
 
-# from .constants import TIME_TO_DELETING
-from .user_check import check_user_and_clear_messages
+from .constants import BAN_WARN_MESSAGE
 from src.crud.telegram_user import telegram_user_crud
-
-# from .models import TelegramUser, db
 from src.crud.user import user_crud
 
 # Включаем логирование
@@ -124,10 +118,15 @@ async def on_start_button(message: Message) -> None:
         message (Message): Входящее сообщение.
 
     """
+    user = await user_crud.get_by_telegram_id(message.from_user.id)
+    if user is None or not user.is_active:
+        # Уведомляем пользователя о бане или повторной регистрации
+        await message.answer(
+            BAN_WARN_MESSAGE,
+            reply_markup=None,  # Убираем кнопки
+        )
+        return
     web_app_url: str = settings.WEB_URL
-
-    if not await check_user_and_clear_messages(bot, message):  # Передаем bot
-        return  # Завершаем, если пользователь не активен
 
     web_app_button: InlineKeyboardButton = InlineKeyboardButton(
         text='Квиз',
@@ -140,18 +139,11 @@ async def on_start_button(message: Message) -> None:
     )
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[web_app_button]])
-    user = await user_crud.get_by_telegram_id(message.from_user.id)
-    if user.is_admin and user.is_active:
+    if user.is_admin:
         keyboard.inline_keyboard[0].append(admin_button)
 
-    if user.is_active:
-        # Отправляем инлайн-кнопку для открытия WebApp
-        await message.answer(  # Сохраняем сообщение
-            'Нажми кнопку ниже, чтобы открыть WebApp:',
-            reply_markup=keyboard,
-        )
-
-    else:
-        await message.answer(
-            'Вы были заблокированы. Обратитесь к администратору.',
-        )
+    # Отправляем инлайн-кнопку для открытия WebApp
+    await message.answer(
+        'Нажми кнопку ниже, чтобы открыть WebApp:',
+        reply_markup=keyboard,
+    )

@@ -32,7 +32,7 @@
                     <button id="next-button" type="submit" class="btn btn-primary btn-lg" style="display: none;">Далее</button>
 
                     <!-- Кнопка "Вернуться в категории" -->
-                    <a href="{{ url_for('categories') }}" class="btn btn-outline-secondary btn-lg mt-2">Вернуться в категории</a>
+                    <a href="{{ url_for('category_admin.index_view' if test == 'True' else 'categories') }}" class="btn btn-outline-secondary btn-lg mt-2">Вернуться в категории</a>
                 </div>
             </div>
         </div>
