@@ -1,7 +1,7 @@
 from typing import Any
 
-from flask import Response, redirect, request, url_for
-from flask_admin import Admin, expose
+from flask import Response, redirect, Response, request, url_for
+from flask_admin import Admin, expose, AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.model.template import LinkRowAction
 from flask_babel import Babel
@@ -18,9 +18,26 @@ from .constants import (
 )
 from .models import Category, Question, Quiz, User, Variant
 from src.crud.quiz import quiz_crud
+# # Создания экземпляра админ панели
+# admin = Admin(app, name='MedStat_Solutions', template_mode='bootstrap4')
+
+
+class MyAdminIndexView(AdminIndexView):
+
+    """Класс для переопределения главной страницы администратора."""
+
+    @expose('/')
+    def index(self) -> Response:
+        """Переопределение главной страницы администратора."""
+        admin_menu = self.admin.menu()
+        return self.render('admin_index.html', admin_menu=admin_menu)
+
 
 # Создания экземпляра админ панели
-admin = Admin(app, name='MedStat_Solutions', template_mode='bootstrap4')
+admin = Admin(
+    app, name='MedStat_Solutions', template_mode='bootstrap4',
+    index_view=MyAdminIndexView(),
+)
 
 
 class CustomAdminView(ModelView):
