@@ -22,9 +22,10 @@ class CRUDUserAnswer(CRUDBase):
         )
 
     def get_results_by_user_and_quiz(
-            self,
-            user_id: int,
-            quiz_id: int) -> Optional[UserAnswer]:
+        self,
+        user_id: int,
+        quiz_id: int,
+    ) -> Optional[UserAnswer]:
         """Получить результаты ответов пользователя по конкретной викторине."""
         return (
             db.session.execute(
