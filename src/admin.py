@@ -231,8 +231,14 @@ class QuestionAdmin(CustomAdminView):
 
 # Добавляем представления в админку
 admin.add_view(UserAdmin(User, db.session, name='Пользователи'))
-admin.add_view(CategoryAdmin(Category, db.session, name='Категории'))
-admin.add_view(QuizAdmin(Quiz, db.session, name='Викторины'))
+admin.add_view(
+    CategoryAdmin(
+        Category, db.session, name='Категории', endpoint='category_admin',
+    ),
+)
+admin.add_view(
+    QuizAdmin(Quiz, db.session, name='Викторины', endpoint='quiz_admin'),
+)
 admin.add_view(QuestionAdmin(Question, db.session, name='Вопросы'))
 
 

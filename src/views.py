@@ -287,6 +287,7 @@ def question(category_id: int, quiz_id: int, test: str) -> str:
         'question.html',
         question=question,
         answers=answers,
+        test=test,
     )
 
 
@@ -390,4 +391,5 @@ def results(quiz_id: int, test: str) -> str:
         total_questions=total_questions,
         correct_answers_count=correct_answers_count,
         quiz_title=quiz_title,
+        test=test,
     )

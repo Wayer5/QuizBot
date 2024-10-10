@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 from os import getenv as get
 
@@ -47,15 +48,15 @@ class Config(object):
     )
     try:
         info = SESSION_REDIS.info()
-        print(info['redis_version'])
+        logging.info(info['redis_version'])
         response = SESSION_REDIS.ping()
         if response:
-            print('Подключение успешно!')
-            print(response)
+            logging.info('Подключение успешно!')
+            logging.inf0(response)
         else:
-            print('Не удалось подключиться к Redis.')
+            logging.info('Не удалось подключиться к Redis.')
     except Exception as e:
-        print(f'Ошибка: {e}')
+        logging.info(f'Ошибка: {e}')
 
 
 class Settings:
