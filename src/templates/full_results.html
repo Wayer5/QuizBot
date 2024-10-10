@@ -1,0 +1,95 @@
+{% extends "base.html" %} {% block title %}Результаты викторины{% endblock title
+%} {% block content %}
+<div class="container">
+  <h3 class="text-center">Результаты викторины:</h3>
+  <h3 class="text-center">{{ quiz_title }}</h3>
+</div>
+
+<div class="container mt-4">
+  <div class="mb-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <p class="small text-left">
+          <strong>Общее количество вопросов:</strong>
+          {{ total_questions }}
+          <br />
+          <strong>Количество правильных ответов:</strong>
+          {{correct_answers_count}}
+          <br />
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="accordion" id="accordionExample">
+    <div class="card">
+      <div class="card-header" id="headingOne" style="background-color: transparent;">
+        <h2 class="text-dark">  <!-- Добавлен класс text-dark -->
+          <button class="btn btn-link btn-sm text-dark" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+            Ответы
+          </button>
+        </h2>
+      </div>
+      <div
+        id="collapseOne"
+        class="collapse"
+        aria-labelledby="headingOne"
+        data-parent="#accordionExample"
+      >
+        <div class="list-group">
+          <!-- Добавлено для разделения вопросов -->
+          {% for question in quiz_results[0].questions %}
+          <div
+            class="list-group-item mb-1"
+          >
+            <h4 class="card-title text-first">{{ question.title }}</h4>
+            <ul style="list-style-type: none; padding: 0">
+              {% for answer in question.possible_answers %}
+              <li class="mb-2">
+                {% if answer == question.correct_answer %} {% if answer ==
+                question.user_answer %}
+                <span class="text-success">
+                  <i class="fas fa-check-circle"></i> {{ answer }}
+                </span>
+                <p class="text-success small">
+                  <strong>{{ question.description }}</strong>
+                </p>
+                {% else %}
+                <span class="d-flex align-items-center">
+                  <span class="circle"></span> {{ answer }}
+                </span>
+                {% endif %} {% elif answer == question.user_answer %}
+                <span class="text-danger">
+                  <i class="fas fa-times-circle"></i> {{ answer }}
+                  <p class="text-danger small">
+                    <strong
+                      >{{ question.description }}</strong
+                    >
+                  </p>
+                </span>
+                {% else %}
+                <span class="d-flex align-items-center">
+                  <span class="circle"></span> {{ answer }}
+                </span>
+                {% endif %}
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  <div class="text-center btn-container mt-4 mb-4">
+    <a href="{{ url_for('categories') }}" class="btn btn-primary mb-3"
+      >Вернуться к викторинам</a
+    >
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</div>
+{% endblock content %}
