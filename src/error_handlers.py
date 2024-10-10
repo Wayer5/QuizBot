@@ -21,10 +21,13 @@ def page_not_found(error: Exception) -> Response:
 
     """
     is_category_page = request.path == url_for('categories')
-    return render_template(
-        '404.html',
-        is_category_page=is_category_page,
-        ), HTTP_NOT_FOUND
+    return (
+        render_template(
+            '404.html',
+            is_category_page=is_category_page,
+        ),
+        HTTP_NOT_FOUND,
+    )
 
 
 @jwt.unauthorized_loader
