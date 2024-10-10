@@ -1,17 +1,21 @@
-from typing import Any, Optional, List
+from typing import Any
 
 from flask import Response, redirect, request, url_for
 from flask_admin import Admin, AdminIndexView, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.model.template import LinkRowAction
 from flask_babel import Babel
-from flask_jwt_extended import current_user, jwt_required, verify_jwt_in_request
+from flask_jwt_extended import (
+    current_user,
+    jwt_required,
+    verify_jwt_in_request,
+)
 from sqlalchemy.exc import IntegrityError
 from wtforms import ValidationError
 
+from .crud.quiz import quiz_crud
 from .crud.quiz_result import quiz_result_crud
 from .crud.user_answer import user_answer_crud
-from .crud.quiz import quiz_crud
 from .models import Category, Question, Quiz, User, Variant
 
 # # Создания экземпляра админ панели
