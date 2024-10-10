@@ -82,8 +82,38 @@ def profile() -> Response:
 
     total_questions = sum(result.total_questions for result in quiz_results)
     correct_answers_count = sum(
-        result.correct_answers_count for result in quiz_results
-    )
+        result.correct_answers_count for result in quiz_results)
+
+    # Добавляем вопросы к каждому результату
+    for result in quiz_results:
+        result.questions = []
+        user_answers = user_answer_crud.get_results_by_user(user.id)
+
+        # Получаем все вопросы по викторине
+        questions = question_crud.get_all_by_quiz_id(result.quiz_id)
+
+        for question in questions:
+            user_answer = next(
+                (ua for ua in user_answers if ua.question_id == question.id),
+                None)
+            correct_answer_text = next(
+                (v.title for v in question.variants if v.is_right_choice),
+                None)
+
+            # Получаем текст ответа пользователя
+            user_answer_text = next(
+                (v.title for v in question.variants if v.id == (
+                    user_answer.answer_id if user_answer else None)),
+                'Не отвечено')
+
+            result.questions.append({
+                'title': question.title,  # Текст вопроса
+                'user_answer': user_answer_text,  # Текст ответа пользователя
+                'correct_answer': correct_answer_text,  # Правильный ответ
+                # Пояснение
+                'explanation': question.explanation if hasattr(
+                    question,
+                    'explanation') else None})
 
     return render_template(
         'user_profile.html',
@@ -100,18 +130,21 @@ def delete_profile() -> Response:
     """Удаляет профиль пользователя, сохраняя результаты викторин."""
     user = current_user
     quiz_results = quiz_result_crud.get_results_by_user(user.id)
+
     # Обновляем результаты викторин, чтобы убрать связь с пользователем
     for result in quiz_results:
         result.user_id = None
         user_crud.update(result, {'user_id': None})
 
     user_answers = user_answer_crud.get_results_by_user(user.id)
+
     # Обновляем ответы пользователя, убирая связь с таблицей пользователи
     for answer in user_answers:
         answer.user_id = None
         user_crud.update(answer, {'user_id': None})
 
     user_crud.remove(current_user)
+
     return render_template('categories.html')
 
 
@@ -196,7 +229,7 @@ async def question(category_id: int, quiz_id: int) -> str:
         if quiz_result is not None and not quiz_result.is_complete:
             quiz_result.is_complete = True
             quiz_result_crud.update_with_obj(quiz_result)
-        return redirect(url_for('results'))
+        return redirect(url_for('results', quiz_id=quiz_id))
 
     # Получаем варианты ответов
     answers = question.variants
@@ -208,7 +241,68 @@ async def question(category_id: int, quiz_id: int) -> str:
     )
 
 
-@app.route('/results')
-def results() -> Response:
-    """Пишем о том, что тест закончен."""
-    return 'Тест завершен! Спасибо за участие.'
+@app.route('/results/<int:quiz_id>')
+@jwt_required()
+def results(quiz_id: int) -> str:
+    """Результаты викторины."""
+    user = current_user
+
+    # Получаем результат викторины для конкретного пользователя и викторины
+    quiz_result = quiz_result_crud.get_by_user_and_quiz(user.id, quiz_id)
+
+    if not quiz_result:
+        return "Результаты викторины не найдены", 404
+
+    # Получаем название викторины
+    quiz = quiz_crud.get_by_id(quiz_result.quiz_id)
+    quiz_title = quiz.title if quiz else "Неизвестная викторина"
+
+    # Считаем общее количество вопросов и количество правильных ответов
+    total_questions = quiz_result.total_questions
+    correct_answers_count = quiz_result.correct_answers_count
+
+    # Добавляем вопросы к результату
+    quiz_result.questions = []
+    user_answers = user_answer_crud.get_results_by_user(user.id)
+
+    # Получаем все вопросы по викторине
+    questions = question_crud.get_all_by_quiz_id(quiz_result.quiz_id)
+
+    for question in questions:
+        user_answer = next(
+            (ua for ua in user_answers if ua.question_id == question.id), None)
+        correct_answer_text = next(
+            (v.title for v in question.variants if v.is_right_choice), None)
+
+        # Получаем текст ответа пользователя
+        user_answer_text = next((
+            v.title for v in question.variants if v.id == (
+                user_answer.answer_id if user_answer else None)),
+            'Не отвечено')
+
+        # Собираем все возможные ответы
+        possible_answers = [v.title for v in question.variants]
+
+        # Получаем выбранный ответ
+        chosen_answer = variant_crud.get(
+            user_answer.answer_id) if user_answer else None
+
+        # Собираем информацию о вопросе
+        quiz_result.questions.append({
+            'title': question.title,
+            'user_answer': user_answer_text,
+            'correct_answer': correct_answer_text,
+            'possible_answers': possible_answers,
+            # Описание
+            'description': chosen_answer.description if chosen_answer
+            else None,
+        })
+
+    return render_template(
+        'full_results.html',
+        user=user,
+        quiz_results=[quiz_result],
+        total_questions=total_questions,
+        correct_answers_count=correct_answers_count,
+        quiz_title=quiz_title,
+    )
