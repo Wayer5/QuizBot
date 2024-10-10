@@ -16,6 +16,8 @@ from flask_jwt_extended import (
     unset_jwt_cookies,
 )
 
+from constants import DEFAULT_PAGE_NUMBER, HTTP_NOT_FOUND, PER_PAGE
+
 from . import app
 from src.crud.category import category_crud
 from src.crud.question import question_crud
@@ -151,15 +153,41 @@ def delete_profile() -> Response:
 @app.route('/', methods=['GET'])
 async def categories() -> str:
     """Вывод страницы категорий."""
-    categories = category_crud.get_active()
-    return render_template('categories.html', categories=categories)
+    page = request.args.get('page', DEFAULT_PAGE_NUMBER, type=int)
+    per_page = PER_PAGE
+    categories_paginated = category_crud.get_active().paginate(
+        page=page,
+        per_page=per_page,
+        error_out=False,
+    )
+    if not categories_paginated.items:
+        return render_template('404.html'), HTTP_NOT_FOUND
+    return render_template(
+        'categories.html',
+        categories=categories_paginated.items,
+        pagination=categories_paginated,
+    )
 
 
 @app.route('/<int:category_id>/', methods=['GET'])
 async def quizzes(category_id: int) -> str:
     """Вывод страницы викторин."""
-    quizzes = quiz_crud.get_by_category_id(category_id)
-    return render_template('quizzes.html', quizzes=quizzes)
+    page = request.args.get('page', DEFAULT_PAGE_NUMBER, type=int)
+    per_page = PER_PAGE
+    quizzes_paginated = quiz_crud.get_by_category_id(category_id).paginate(
+        page=page,
+        per_page=per_page,
+        error_out=False,
+    )
+    if not quizzes_paginated.items:
+        return render_template('404.html'), HTTP_NOT_FOUND
+
+    return render_template(
+        'quizzes.html',
+        quizzes=quizzes_paginated.items,
+        pagination=quizzes_paginated,
+        category_id=category_id,
+    )
 
 
 @app.route('/<int:category_id>/<int:quiz_id>/', methods=['GET', 'POST'])
