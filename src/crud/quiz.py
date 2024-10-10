@@ -1,8 +1,8 @@
-from typing import Optional
-
+from flask import abort
 from sqlalchemy import select, true
 
 from src import db
+from src.constants import HTTP_NOT_FOUND
 from src.crud.base import CRUDBase
 from src.models import Quiz
 
@@ -21,8 +21,10 @@ class CRUDQuiz(CRUDBase):
             select(Quiz).where(
                 Quiz.category_id == category_id, Quiz.is_active == is_active,
             ),
-        )
-        return quizzes.scalars().all()
+        ).scalars().all()
+        if not quizzes:
+            abort(HTTP_NOT_FOUND)
+        return quizzes
 
     def get_by_id(self, quiz_id: int) -> Optional[Quiz]:
         """Получить викторину по ID."""

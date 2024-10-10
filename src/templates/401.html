@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Ошибки авторизации{% endblock %}
+
+{% block content %}
+<section class="container my-5 px-4 text-center" style="max-width: 400px; margin: 0 auto;">
+    <!-- Место для подгружаемой картинки -->
+    <img src="{{ url_for('static', filename='images/401.jpg') }}" alt="401 Unauthorized" class="img-fluid mb-4" style="max-width: 100%; height: auto;">
+
+    <h1 class="mb-3" style="font-size: 24px;">Вы не авторизованы!</h1>
+    <p class="mb-4" style="font-size: 16px;">
+        Попробуйте закрыть окно и в телеграмм боте нажать /start
+    </p>
+
+    <!-- Кнопка для возврата к категориям -->
+    <a href="{{ url_for('categories') }}" class="btn btn-primary btn-lg" style="width: 100%; max-width: 320px;">Вернуться к категориям</a>
+</section>
+{% endblock %}
