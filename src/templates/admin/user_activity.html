@@ -1,86 +1,75 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Статистика активности пользователей</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container">
-        <h1>Статистика активности пользователей</h1>
-        <a href="{{ url_for('admin.index') }}" class="btn btn-primary mb-3">Вернуться к меню</a>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Имя пользователя</th>
-                    <th>Telegram ID</th>
-                    <th>Дата создания</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in data %}
-                <tr>
-                    <td>
-                        <a href="{{ url_for('user_statistics', user_id=user.id) }}">
-                            {{ user.name }}
-                        </a>
-                    </td>
-                    <td>
-                        <a href="{{ url_for('user_statistics', user_id=user.id) }}">
-                            {{ user.telegram_id }}
-                        </a>
-                    </td>
-                    <td>{{ user.created_on.strftime('%d.%m.%Y') }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <nav aria-label="Навигация по страницам">
-            <ul class="pagination">
-                {% if pagination.has_prev %}
-                <li class="page-item">
-                    <a class="page-link" href="{{ url_for(request.endpoint, page=pagination.prev_num) }}" aria-label="Предыдущая">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
-                </li>
-                {% else %}
-                <li class="page-item disabled">
-                    <a class="page-link" href="#" aria-label="Предыдущая">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
-                </li>
-                {% endif %}
+{% extends 'admin/master.html' %}
 
-                {% for page_num in pagination.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
-                    {% if page_num %}
-                        {% if page_num == pagination.page %}
-                            <li class="page-item active"><a class="page-link" href="#">{{ page_num }}</a></li>
-                        {% else %}
-                            <li class="page-item"><a class="page-link" href="{{ url_for(request.endpoint, page=page_num) }}">{{ page_num }}</a></li>
-                        {% endif %}
+{% block title %}Статистика активности пользователей{% endblock %}
+
+{% block body %}
+    <h1>Статистика активности пользователей</h1>
+    
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Имя пользователя</th>
+                <th>Telegram ID</th>
+                <th>Дата создания</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in data %}
+            <tr>
+                <td>
+                    <a href="{{ url_for('user_statistics.index', user_id=user.id) }}">
+                        {{ user.name }}
+                    </a>
+                </td>
+                <td>{{ user.telegram_id }}</td>
+                <td>{{ user.created_on.strftime('%d.%m.%Y') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Пагинация -->
+    <nav aria-label="Навигация по страницам">
+        <ul class="pagination">
+            {% if pagination.has_prev %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for(request.endpoint, page=pagination.prev_num) }}" aria-label="Предыдущая">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <a class="page-link" href="#" aria-label="Предыдущая">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for page_num in pagination.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
+                {% if page_num %}
+                    {% if page_num == pagination.page %}
+                        <li class="page-item active"><a class="page-link" href="#">{{ page_num }}</a></li>
                     {% else %}
-                        <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+                        <li class="page-item"><a class="page-link" href="{{ url_for(request.endpoint, page=page_num) }}">{{ page_num }}</a></li>
                     {% endif %}
-                {% endfor %}
-
-                {% if pagination.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="{{ url_for(request.endpoint, page=pagination.next_num) }}" aria-label="Следующая">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
-                </li>
                 {% else %}
-                <li class="page-item disabled">
-                    <a class="page-link" href="#" aria-label="Следующая">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
-                </li>
+                    <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
                 {% endif %}
-            </ul>
-        </nav>
-    </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-</html>
+            {% endfor %}
+
+            {% if pagination.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for(request.endpoint, page=pagination.next_num) }}" aria-label="Следующая">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <a class="page-link" href="#" aria-label="Следующая">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endblock %}

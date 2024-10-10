@@ -1,14 +1,17 @@
-from http import HTTPStatus
 from typing import Any
 
-from flask import Response, render_template, request
+from flask import Response, request
 from flask_admin import Admin, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_babel import Babel
+from flask_jwt_extended import jwt_required
 
 from . import app, db
 from .constants import (
     CAN_ONLY_BE_ONE_CORRECT_ANSWER,
+    DEFAULT_PAGE_NUMBER,
+    HTTP_NOT_FOUND,
+    ITEMS_PER_PAGE,
     ONE_ANSWER_VARIANT,
     ONE_CORRECT_ANSWER,
     USER_NOT_FOUND_MESSAGE,
@@ -152,8 +155,8 @@ class UserActivityView(BaseView):
     @expose('/')
     def index(self) -> Response:
         """Получение текущей страницы из запроса."""
-        page = request.args.get('page', 1, type=int)
-        per_page = 5
+        page = request.args.get('page', DEFAULT_PAGE_NUMBER, type=int)
+        per_page = ITEMS_PER_PAGE
 
         # Получение данных о пользователях из базы данных с пагинацией
         users = User.query.paginate(
@@ -171,34 +174,45 @@ class UserActivityView(BaseView):
 
         return self.render(
             'admin/user_activity.html', data=user_data, pagination=users,
-            )
+        )
 
 
-@app.route('/user_statistics')
-def user_statistics() -> Response:
-    """Статистика пользователя."""
-    user_id = request.args.get('user_id')
-    user = User.query.get(user_id)
-    if not user:
-        return USER_NOT_FOUND_MESSAGE, HTTPStatus.NOT_FOUND
-    quiz_results = quiz_result_crud.get_results_by_user(user_id=user.id)
-    user_answers = user_answer_crud.get_results_by_user(user_id=user.id)
-    total_questions_answered = len(user_answers)
-    total_correct_answers = sum(
-        1 for answer in user_answers if answer.is_right
-    )
-    correct_percentage = (
-        total_correct_answers / total_questions_answered * 100
-    ) if total_questions_answered > 0 else 0
+class UserStatisticsView(BaseView):
 
-    return render_template(
-        'admin/user_statistics.html',
-        user=user,
-        total_questions_answered=total_questions_answered,
-        total_correct_answers=total_correct_answers,
-        correct_percentage=round(correct_percentage),
-        quiz_results=quiz_results,
-    )
+    """Представление для статистики конкретного пользователя."""
+
+    @expose('/')
+    @jwt_required()
+    def index(self) -> Response:
+        """Cтатистика конкретного пользователя."""
+        user_id = request.args.get('user_id')
+        if not user_id:
+            return USER_NOT_FOUND_MESSAGE, HTTP_NOT_FOUND
+        user = User.query.get(user_id)
+        if not user:
+            return USER_NOT_FOUND_MESSAGE, HTTP_NOT_FOUND
+        quiz_results = quiz_result_crud.get_results_by_user(user_id=user.id)
+        user_answers = user_answer_crud.get_results_by_user(user_id=user.id)
+        total_questions_answered = len(user_answers)
+        total_correct_answers = sum(
+            1 for answer in user_answers if answer.is_right
+        )
+        correct_percentage = (
+            total_correct_answers / total_questions_answered * 100
+        ) if total_questions_answered > 0 else 0
+
+        return self.render(
+            'admin/user_statistics.html',
+            user=user,
+            total_questions_answered=total_questions_answered,
+            total_correct_answers=total_correct_answers,
+            correct_percentage=round(correct_percentage),
+            quiz_results=quiz_results,
+        )
+
+    def is_visible(self) -> bool:
+        """Скрывает представление из основного меню Flask-Admin."""
+        return False
 
 
 # Добавляем представления в админку
@@ -207,7 +221,12 @@ admin.add_view(CategoryAdmin(Category, db.session, name='Категории'))
 admin.add_view(QuizAdmin(Quiz, db.session, name='Викторины'))
 admin.add_view(QuestionAdmin(Question, db.session, name='Вопросы'))
 admin.add_view(UserActivityView(
-    name='Статистика активности пользователей', endpoint='user_activity',
+    name='Статистика активности пользователей',
+    endpoint='user_activity',
+))
+admin.add_view(UserStatisticsView(
+    name='Статистика пользователя',
+    endpoint='user_statistics',
 ))
 
 
