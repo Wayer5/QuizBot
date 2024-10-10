@@ -24,7 +24,7 @@ class Config(object):
     JWT_COOKIE_CSRF_PROTECT = True
     JWT_CSRF_CHECK_FORM = True
     JWT_CSRF_IN_COOKIES = True
-    JWT_TOKEN_LOCATION = ["cookies", "headers"]
+    JWT_TOKEN_LOCATION = ['cookies', 'headers']
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
     SESSION_TYPE = 'redis'
     SESSION_REDIS = Redis(
@@ -43,18 +43,19 @@ class Config(object):
         f'redis://'
         f'{get("REDIS_USER")}:'
         f'{get("REDIS_USER_PASSWORD")}@'
-        f'{get("REDIS_HOST")}:6379/2')
+        f'{get("REDIS_HOST")}:6379/2'
+    )
     try:
         info = SESSION_REDIS.info()
         print(info['redis_version'])
         response = SESSION_REDIS.ping()
         if response:
-            print("Подключение успешно!")
+            print('Подключение успешно!')
             print(response)
         else:
-            print("Не удалось подключиться к Redis.")
+            print('Не удалось подключиться к Redis.')
     except Exception as e:
-        print(f"Ошибка: {e}")
+        print(f'Ошибка: {e}')
 
 
 class Settings:

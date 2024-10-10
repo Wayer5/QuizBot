@@ -19,12 +19,16 @@ class CRUDQuiz(CRUDBase):
         is_active: bool = true(),
     ) -> list[Quiz]:
         """Получение викторин по id категории."""
-        quizzes = db.session.execute(
-            select(Quiz).where(
-                Quiz.category_id == category_id,
-                Quiz.is_active == is_active,
-            ),
-        ).scalars().all()
+        quizzes = (
+            db.session.execute(
+                select(Quiz).where(
+                    Quiz.category_id == category_id,
+                    Quiz.is_active == is_active,
+                ),
+            )
+            .scalars()
+            .all()
+        )
         if not quizzes:
             abort(HTTP_NOT_FOUND)
         return quizzes

@@ -27,8 +27,11 @@ def get_engine():
 def get_engine_url() -> str:
     """Return the database engine URL as a string."""
     try:
-        return get_engine().url.render_as_string(hide_password=False).replace(
-            '%', '%%')
+        return (
+            get_engine()
+            .url.render_as_string(hide_password=False)
+            .replace('%', '%%')
+        )
     except AttributeError:
         return str(get_engine().url).replace('%', '%%')
 
@@ -64,9 +67,11 @@ def run_migrations_offline() -> None:
     Calls to context.execute() here emit the given string to the
     script output.
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url = config.get_main_option('sqlalchemy.url')
     context.configure(
-        url=url, target_metadata=get_metadata(), literal_binds=True,
+        url=url,
+        target_metadata=get_metadata(),
+        literal_binds=True,
     )
 
     with context.begin_transaction():
@@ -91,8 +96,8 @@ def run_migrations_online() -> None:
                 logger.info('No changes in schema detected.')
 
     conf_args = current_app.extensions['migrate'].configure_args
-    if conf_args.get("process_revision_directives") is None:
-        conf_args["process_revision_directives"] = process_revision_directives
+    if conf_args.get('process_revision_directives') is None:
+        conf_args['process_revision_directives'] = process_revision_directives
 
     connectable = get_engine()
 
