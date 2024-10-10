@@ -1,3 +1,5 @@
+from typing import Optional
+
 from flask import abort
 from sqlalchemy import select, true
 
@@ -25,6 +27,16 @@ class CRUDQuiz(CRUDBase):
         if not quizzes:
             abort(HTTP_NOT_FOUND)
         return quizzes
+
+    def get_by_id(self, quiz_id: int) -> Optional[Quiz]:
+        """Получить викторину по ID."""
+        return (
+            db.session.execute(
+                select(Quiz).where(Quiz.id == quiz_id),
+            )
+            .scalars()
+            .first()
+        )
 
 
 quiz_crud = CRUDQuiz(Quiz)
