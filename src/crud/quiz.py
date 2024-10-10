@@ -1,3 +1,5 @@
+from typing import Optional
+
 from flask import abort
 from sqlalchemy import select, true
 
