@@ -1,7 +1,7 @@
 from typing import Any
 
-from flask import request
-from flask_admin import Admin
+from flask import Response, request
+from flask_admin import Admin, AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_babel import Babel
 from sqlalchemy.exc import IntegrityError
@@ -16,8 +16,26 @@ from .constants import (
 )
 from .models import Category, Question, Quiz, User, Variant
 
+# # Создания экземпляра админ панели
+# admin = Admin(app, name='MedStat_Solutions', template_mode='bootstrap4')
+
+
+class MyAdminIndexView(AdminIndexView):
+
+    """Класс для переопределения главной страницы администратора."""
+
+    @expose('/')
+    def index(self) -> Response:
+        """Переопределение главной страницы администратора."""
+        admin_menu = self.admin.menu()
+        return self.render('admin_index.html', admin_menu=admin_menu)
+
+
 # Создания экземпляра админ панели
-admin = Admin(app, name='MedStat_Solutions', template_mode='bootstrap4')
+admin = Admin(
+    app, name='MedStat_Solutions', template_mode='bootstrap4',
+    index_view=MyAdminIndexView(),
+)
 
 
 class CustomAdminView(ModelView):
