@@ -125,6 +125,7 @@ async def on_start_button(message: Message) -> None:
             BAN_WARN_MESSAGE,
             reply_markup=None,  # Убираем кнопки
         )
+        return
     web_app_url: str = settings.WEB_URL
 
     web_app_button: InlineKeyboardButton = InlineKeyboardButton(
