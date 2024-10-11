@@ -16,4 +16,4 @@ RedisSession(app)
 cache = Cache(app)
 
 
-from . import bot, api_views, jwt, admin, models, views, error_handlers  # noqa
+from . import bot, constants, api_views, jwt, admin, models, views, error_handlers  # noqa
