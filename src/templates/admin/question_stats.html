@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Статистика по вопросу: {{ question_text }}</h1>
+
+    <!-- Диаграмма -->
+    <div style="width: 50%; margin: 20px auto;">
+        <canvas id="statsChart"></canvas>
+    </div>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Всего ответов</th>
+                <th>Правильных ответов</th>
+                <th>Процент правильных ответов</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ total_answers }}</td>
+                <td>{{ correct_answers }}</td>
+                <td>{{ correct_percentage }}%</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Кнопка возврата -->
+    <div style="margin: 20px;">
+        <button onclick="history.back()">Назад к списку</button>
+    </div>
+
+    <!-- Сценарий для рендеринга диаграммы -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('statsChart').getContext('2d');
+        const statsChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Правильные ответы', 'Неправильные ответы'],
+                datasets: [{
+                    label: 'Ответы',
+                    data: [{{ correct_answers }}, {{ total_answers - correct_answers }}],
+                    backgroundColor: ['#4CAF50', '#F44336'],
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.raw + ' ответов';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+{% endblock %}

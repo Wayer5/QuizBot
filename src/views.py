@@ -15,8 +15,9 @@ from flask_jwt_extended import (
     set_access_cookies,
     unset_jwt_cookies,
 )
+from sqlalchemy.sql import text
 
-from . import app
+from . import app, db
 from src.crud.category import category_crud
 from src.crud.question import question_crud
 from src.crud.quiz import quiz_crud
@@ -212,3 +213,36 @@ async def question(category_id: int, quiz_id: int) -> str:
 def results() -> Response:
     """Пишем о том, что тест закончен."""
     return 'Тест завершен! Спасибо за участие.'
+
+
+# Статистика по конкретному вопросу
+@app.route('/question/<int:question_id>/stats')
+def question_stats(question_id):
+    # Выполняем запрос статистики для конкретного вопроса
+    stats_query = text("""
+        SELECT
+            qu.title AS question_text,
+            COUNT(ua.id) AS total_answers,
+            SUM(CASE WHEN ua.is_right = TRUE THEN 1 ELSE 0 END) AS correct_answers,
+            ROUND(SUM(CASE WHEN ua.is_right = TRUE THEN 1 ELSE 0 END) * 100.0 / COUNT(ua.id), 2) AS correct_percentage
+        FROM questions qu
+        LEFT JOIN user_answers ua ON ua.question_id = qu.id
+        WHERE qu.id = :question_id
+        GROUP BY qu.title
+    """)
+
+    result = db.session.execute(stats_query, {'question_id': question_id}).fetchone()
+
+    if result:
+        question_text = result[0]  # Доступ к вопросу по индексу
+        total_answers = result[1]
+        correct_answers = result[2]
+        correct_percentage = result[3]
+    else:
+        question_text = "Нет данных"
+        total_answers = correct_answers = correct_percentage = 0
+
+    return render_template('admin/question_stats.html', question_text=question_text,
+                           total_answers=total_answers, correct_answers=correct_answers,
+                           correct_percentage=correct_percentage)
+

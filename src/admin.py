@@ -1,11 +1,13 @@
 from typing import Any
 
-from flask import request
-from flask_admin import Admin
+from flask import request, redirect, url_for
+from flask_admin import Admin, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_babel import Babel
 from sqlalchemy.exc import IntegrityError
 from wtforms import ValidationError
+from sqlalchemy.sql import text
+
 
 from . import app, db
 from .constants import (
@@ -15,6 +17,7 @@ from .constants import (
     UNIQUE_VARIANT,
 )
 from .models import Category, Question, Quiz, User, Variant
+from .stats_queries import CATEGORY_STATS_QUERY, QUIZ_STATS_QUERY, QUESTION_STATS_QUERY
 
 # Создания экземпляра админ панели
 admin = Admin(app, name='MedStat_Solutions', template_mode='bootstrap4')
@@ -177,11 +180,45 @@ class QuestionAdmin(CustomAdminView):
         return False
 
 
+# class CategoryStatsView(BaseView):
+#     @expose('/')
+#     def index(self):
+#         category_stats = db.session.execute(CATEGORY_STATS_QUERY).fetchall()
+#         return self.render('admin/category_stats.html', category_stats=category_stats)
+
+# class QuizStatsView(BaseView):
+#     @expose('/')
+#     def index(self):
+#         quiz_stats = db.session.execute(QUIZ_STATS_QUERY).fetchall()
+#         return self.render('admin/quiz_stats.html', quiz_stats=quiz_stats)
+
+# class QuestionStatsView(BaseView):
+#     @expose('/')
+#     def index(self):
+#         question_stats = db.session.execute(QUESTION_STATS_QUERY).fetchall()
+#         return self.render('admin/question_stats.html', question_stats=question_stats)
+
+
+class QuestionListView(BaseView):
+    @expose('/')
+    def index(self):
+        # Запрос для получения списка вопросов
+        query = text('SELECT id, title FROM questions')  # Используем text() для выполнения SQL-запроса
+        questions = db.session.execute(query).fetchall()
+        
+        return self.render('admin/question_list.html', questions=questions)
+
+
 # Добавляем представления в админку
 admin.add_view(UserAdmin(User, db.session, name='Пользователи'))
 admin.add_view(CategoryAdmin(Category, db.session, name='Категории'))
 admin.add_view(QuizAdmin(Quiz, db.session, name='Викторины'))
 admin.add_view(QuestionAdmin(Question, db.session, name='Вопросы'))
+# admin.add_view(CategoryStatsView(name='Статистика по категориям'))
+# admin.add_view(QuizStatsView(name='Статистика по викторинам'))
+# admin.add_view(QuestionStatsView(name='Статистика по вопросам'))
+admin.add_view(QuestionListView(name='Список вопросов'))
+
 
 
 def get_locale() -> dict:

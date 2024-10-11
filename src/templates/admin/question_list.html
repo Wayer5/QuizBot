@@ -1,0 +1,23 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<h1>Список вопросов</h1>
+<table border="1">
+    <thead>
+        <tr>
+            <th>Вопрос</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for question in questions %}
+        <tr>
+            <td>{{ question.title }}</td>
+            <td>
+                <a href="{{ url_for('question_stats', question_id=question.id) }}">Посмотреть статистику</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
