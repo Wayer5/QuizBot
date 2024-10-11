@@ -13,6 +13,17 @@ from flask_jwt_extended import (
 from sqlalchemy.exc import IntegrityError
 from wtforms import ValidationError
 
+from . import app, db
+from .constants import (
+    CAN_ONLY_BE_ONE_CORRECT_ANSWER,
+    DEFAULT_PAGE_NUMBER,
+    HTTP_NOT_FOUND,
+    ITEMS_PER_PAGE,
+    ONE_ANSWER_VARIANT,
+    ONE_CORRECT_ANSWER,
+    UNIQUE_VARIANT,
+    USER_NOT_FOUND_MESSAGE,
+)
 from .crud.quiz import quiz_crud
 from .crud.quiz_result import quiz_result_crud
 from .crud.user_answer import user_answer_crud
@@ -62,7 +73,7 @@ class UserAdmin(CustomAdminView):
 
     column_list = [
         'username', 'is_active', 'is_admin', 'name',
-        'telegram_id', 'created_on', 'updated_on'
+        'telegram_id', 'created_on', 'updated_on',
     ]
 
     column_labels = {
