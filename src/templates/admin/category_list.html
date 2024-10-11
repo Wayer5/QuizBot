@@ -1,7 +1,7 @@
 {% extends 'admin/master.html' %}
 
 {% block body %}
-<h1>Статистика по вопросам</h1>
+<h1>Статистика по категориям</h1>
 
 <!-- Стили для таблицы -->
 <style>
@@ -38,7 +38,7 @@
         display: flex;
         justify-content: center;
         margin-top: 20px;
-        align-items: center; /* Центрируем по вертикали */
+        align-items: center;
     }
     .pagination a {
         color: #3498db;
@@ -49,7 +49,7 @@
         border-radius: 5px;
         background-color: #f4f4f4;
         font-weight: bold;
-        font-size: 14px; /* Уменьшил размер текста кнопок */
+        font-size: 14px;
     }
     .pagination a:hover {
         background-color: #ddd;
@@ -61,36 +61,35 @@
 
     /* Стиль для стрелочек */
     .arrow {
-        font-size: 28px;  /* Увеличил размер стрелок */
-        font-weight: bold;  /* Сделал стрелки более жирными */
-        vertical-align: middle;  /* Центрирование стрелок по вертикали */
+        font-size: 28px;
+        font-weight: bold;
+        vertical-align: middle;
     }
 
     /* Новый стиль для надписи страницы */
     .pagination span {
-        font-size: 14px; /* Уменьшаем шрифт */
-        margin: 0 10px;  /* Отступы для улучшения компоновки */
+        font-size: 14px;
+        margin: 0 10px;
         align-self: center;
     }
 
-    /* Специальный стиль для текста страницы, выравнивание по левому краю */
     .pagination span.page-text {
-        text-align: left; /* Выровнять по левому краю */
-        flex-grow: 1; /* Оставить свободное место для текста */
+        text-align: left;
+        flex-grow: 1;
     }
 </style>
 
 <table>
     <thead>
         <tr>
-            <th>Вопрос</th>
+            <th>Категория</th>
         </tr>
     </thead>
     <tbody>
-        {% for question in questions %}
+        {% for category in categories %}
         <tr>
             <td>
-                <a href="{{ url_for('question_stats', question_id=question.id) }}">{{ question.title }}</a>
+                <a href="{{ url_for('category_stats', category_id=category.id) }}">{{ category.name }}</a>
             </td>
         </tr>
         {% endfor %}
@@ -107,7 +106,6 @@
         <span class="disabled"><span class="arrow">←</span> Предыдущая</span>
     {% endif %}
     
-    <!-- Добавляем div для текста страницы, чтобы выровнять его по левому краю -->
     <span class="page-text"> {{ page }} из {{ total_pages }}</span>
     
     {% if page < total_pages %}

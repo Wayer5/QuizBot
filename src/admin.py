@@ -1,13 +1,12 @@
 from typing import Any
 
-from flask import request, redirect, url_for
+from flask import Response, request
 from flask_admin import Admin, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_babel import Babel
 from sqlalchemy.exc import IntegrityError
-from wtforms import ValidationError
 from sqlalchemy.sql import text
-
+from wtforms import ValidationError
 
 from . import app, db
 from .constants import (
@@ -17,7 +16,6 @@ from .constants import (
     UNIQUE_VARIANT,
 )
 from .models import Category, Question, Quiz, User, Variant
-from .stats_queries import CATEGORY_STATS_QUERY, QUIZ_STATS_QUERY, QUESTION_STATS_QUERY
 
 # Создания экземпляра админ панели
 admin = Admin(app, name='MedStat_Solutions', template_mode='bootstrap4')
@@ -180,33 +178,103 @@ class QuestionAdmin(CustomAdminView):
         return False
 
 
-# class CategoryStatsView(BaseView):
-#     @expose('/')
-#     def index(self):
-#         category_stats = db.session.execute(CATEGORY_STATS_QUERY).fetchall()
-#         return self.render('admin/category_stats.html', category_stats=category_stats)
-
-# class QuizStatsView(BaseView):
-#     @expose('/')
-#     def index(self):
-#         quiz_stats = db.session.execute(QUIZ_STATS_QUERY).fetchall()
-#         return self.render('admin/quiz_stats.html', quiz_stats=quiz_stats)
-
-# class QuestionStatsView(BaseView):
-#     @expose('/')
-#     def index(self):
-#         question_stats = db.session.execute(QUESTION_STATS_QUERY).fetchall()
-#         return self.render('admin/question_stats.html', question_stats=question_stats)
-
-
 class QuestionListView(BaseView):
+
+    """Создание списка для статистики."""
+
     @expose('/')
-    def index(self):
-        # Запрос для получения списка вопросов
-        query = text('SELECT id, title FROM questions')  # Используем text() для выполнения SQL-запроса
-        questions = db.session.execute(query).fetchall()
-        
-        return self.render('admin/question_list.html', questions=questions)
+    def index(self) -> Response:
+        """Создание списка для статистики."""
+        page = request.args.get('page', 1, type=int)
+        per_page = 5  # Количество вопросов на странице
+        offset = (page - 1) * per_page
+
+        # Запрос для получения списка вопросов с учетом пагинации
+        query = text(
+            'SELECT id, title FROM questions LIMIT :limit OFFSET :offset',
+        )
+        questions = db.session.execute(
+            query, {'limit': per_page, 'offset': offset},
+        ).fetchall()
+
+        # Запрос для получения общего количества вопросов
+        count_query = text('SELECT COUNT(id) FROM questions')
+        total_questions = db.session.execute(count_query).scalar()
+
+        # Общее количество страниц
+        total_pages = (total_questions + per_page - 1) // per_page
+
+        # Передаем данные в шаблон
+        return self.render('admin/question_list.html',
+                           questions=questions,
+                           page=page,
+                           total_pages=total_pages)
+
+
+class QuizListView(BaseView):
+
+    """Создание списка для статистики."""
+
+    @expose('/')
+    def index(self) -> Response:
+        """Создание списка для статистики."""
+        page = request.args.get('page', 1, type=int)
+        per_page = 5  # Количество викторин на странице
+        offset = (page - 1) * per_page
+
+        # Запрос для получения списка викторин с учетом пагинации
+        query = text(
+            'SELECT id, title FROM quizzes LIMIT :limit OFFSET :offset',
+        )
+        quizzes = db.session.execute(
+            query, {'limit': per_page, 'offset': offset},
+        ).fetchall()
+
+        # Запрос для получения общего количества викторин
+        count_query = text('SELECT COUNT(id) FROM quizzes')
+        total_quizzes = db.session.execute(count_query).scalar()
+
+        # Общее количество страниц
+        total_pages = (total_quizzes + per_page - 1) // per_page
+
+        # Передаем данные в шаблон
+        return self.render('admin/quiz_list.html',
+                           quizzes=quizzes,
+                           page=page,
+                           total_pages=total_pages)
+
+
+class CategoryListView(BaseView):
+
+    """Создание списка для статистики."""
+
+    @expose('/')
+    def index(self) -> Response:
+        """Создание списка для статистики."""
+        page = request.args.get('page', 1, type=int)
+        per_page = 5  # Количество категорий на странице
+        offset = (page - 1) * per_page
+
+        # Запрос для получения списка категорий с учетом пагинации
+        query = text(
+            'SELECT id, name FROM categories LIMIT :limit OFFSET :offset',
+        )
+        categories = db.session.execute(
+            query, {'limit': per_page, 'offset': offset},
+        ).fetchall()
+
+        # Запрос для получения общего количества категорий
+        count_query = text('SELECT COUNT(id) FROM categories')
+        total_categories = db.session.execute(count_query).scalar()
+
+        # Общее количество страниц
+        total_pages = (total_categories + per_page - 1) // per_page
+
+        # Передаем данные в шаблон
+        return self.render('admin/category_list.html',
+                           categories=categories,
+                           page=page,
+                           total_pages=total_pages)
 
 
 # Добавляем представления в админку
@@ -214,11 +282,9 @@ admin.add_view(UserAdmin(User, db.session, name='Пользователи'))
 admin.add_view(CategoryAdmin(Category, db.session, name='Категории'))
 admin.add_view(QuizAdmin(Quiz, db.session, name='Викторины'))
 admin.add_view(QuestionAdmin(Question, db.session, name='Вопросы'))
-# admin.add_view(CategoryStatsView(name='Статистика по категориям'))
-# admin.add_view(QuizStatsView(name='Статистика по викторинам'))
-# admin.add_view(QuestionStatsView(name='Статистика по вопросам'))
-admin.add_view(QuestionListView(name='Список вопросов'))
-
+admin.add_view(QuestionListView(name='Статистика по вопросам'))
+admin.add_view(QuizListView(name='Статистика по викторинам'))
+admin.add_view(CategoryListView(name='Статистика по категориям'))
 
 
 def get_locale() -> dict:

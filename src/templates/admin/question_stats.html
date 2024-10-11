@@ -1,14 +1,72 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-    <h1>Статистика по вопросу: {{ question_text }}</h1>
+<!-- Стили для страницы статистики -->
+<style>
+    /* Основной стиль для страницы */
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 24px;
+        color: #333;
+    }
 
-    <!-- Диаграмма -->
-    <div style="width: 50%; margin: 20px auto;">
-        <canvas id="statsChart"></canvas>
-    </div>
+    /* Стили для таблицы */
+    table {
+        width: 60%;
+        margin: 20px auto;
+        border-collapse: collapse;
+        font-size: 16px;
+        text-align: center;
+    }
+    table th, table td {
+        padding: 15px;
+        border: 1px solid #ddd;
+    }
+    table th {
+        background-color: #f4f4f4;
+        font-weight: bold;
+    }
+    table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    table tr:hover {
+        background-color: #f1f1f1;
+    }
 
-    <table border="1">
+    /* Кнопка возврата */
+    .btn-back {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-size: 16px;
+        margin-top: 30px;
+        transition: background-color 0.3s;
+    }
+    .btn-back:hover {
+        background-color: #0056b3;
+    }
+
+    /* Стиль для диаграммы */
+    .chart-container {
+        width: 50%;
+        margin: 20px auto;
+    }
+</style>
+
+<h1>Статистика по вопросу: {{ question_text }}</h1>
+
+<!-- Диаграмма -->
+<div class="chart-container">
+    <canvas id="statsChart"></canvas>
+</div>
+
+<!-- Таблица с отступами и улучшенными стилями -->
+<div style="text-align: center;">
+    <table>
         <thead>
             <tr>
                 <th>Всего ответов</th>
@@ -24,41 +82,42 @@
             </tr>
         </tbody>
     </table>
+</div>
 
-    <!-- Кнопка возврата -->
-    <div style="margin: 20px;">
-        <button onclick="history.back()">Назад к списку</button>
-    </div>
+<!-- Кнопка возврата с улучшенным стилем -->
+<div style="text-align: center;">
+    <a href="javascript:history.back()" class="btn-back">Назад к списку</a>
+</div>
 
-    <!-- Сценарий для рендеринга диаграммы -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        const ctx = document.getElementById('statsChart').getContext('2d');
-        const statsChart = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: ['Правильные ответы', 'Неправильные ответы'],
-                datasets: [{
-                    label: 'Ответы',
-                    data: [{{ correct_answers }}, {{ total_answers - correct_answers }}],
-                    backgroundColor: ['#4CAF50', '#F44336'],
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(tooltipItem) {
-                                return tooltipItem.raw + ' ответов';
-                            }
+<!-- Сценарий для рендеринга диаграммы -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('statsChart').getContext('2d');
+    const statsChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Правильные ответы', 'Неправильные ответы'],
+            datasets: [{
+                label: 'Ответы',
+                data: [{{ correct_answers }}, {{ total_answers - correct_answers }}],
+                backgroundColor: ['#4CAF50', '#F44336'],
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            return tooltipItem.raw + ' ответов';
                         }
                     }
                 }
             }
-        });
-    </script>
+        }
+    });
+</script>
 {% endblock %}

@@ -217,32 +217,114 @@ def results() -> Response:
 
 # Статистика по конкретному вопросу
 @app.route('/question/<int:question_id>/stats')
-def question_stats(question_id):
-    # Выполняем запрос статистики для конкретного вопроса
+def question_stats(question_id: int) -> Response:
+    """Выполняем запрос статистики для конкретного вопроса."""
     stats_query = text("""
         SELECT
             qu.title AS question_text,
             COUNT(ua.id) AS total_answers,
-            SUM(CASE WHEN ua.is_right = TRUE THEN 1 ELSE 0 END) AS correct_answers,
-            ROUND(SUM(CASE WHEN ua.is_right = TRUE THEN 1 ELSE 0 END) * 100.0 / COUNT(ua.id), 2) AS correct_percentage
+            SUM(CASE WHEN ua.is_right = TRUE THEN 1 ELSE 0 END) AS correct_ans,
+            ROUND(SUM(CASE WHEN ua.is_right = TRUE THEN 1 ELSE 0 END) * 100.0 /
+                COUNT(ua.id), 2) AS correct_percentage
         FROM questions qu
         LEFT JOIN user_answers ua ON ua.question_id = qu.id
         WHERE qu.id = :question_id
         GROUP BY qu.title
     """)
 
-    result = db.session.execute(stats_query, {'question_id': question_id}).fetchone()
+    result = db.session.execute(
+        stats_query, {'question_id': question_id},
+    ).fetchone()
 
     if result:
         question_text = result[0]  # Доступ к вопросу по индексу
         total_answers = result[1]
-        correct_answers = result[2]
+        correct_ans = result[2]
         correct_percentage = result[3]
     else:
         question_text = "Нет данных"
         total_answers = correct_answers = correct_percentage = 0
 
-    return render_template('admin/question_stats.html', question_text=question_text,
-                           total_answers=total_answers, correct_answers=correct_answers,
+    correct_answers = correct_ans
+
+    return render_template('admin/question_stats.html',
+                           question_text=question_text,
+                           total_answers=total_answers,
+                           correct_answers=correct_answers,
                            correct_percentage=correct_percentage)
 
+
+@app.route('/quiz/<int:quiz_id>/stats')
+def quiz_stats(quiz_id: int) -> Response:
+    """Выполняем запрос статистики для конкретной викторины."""
+    stats_query = text("""
+        SELECT
+            q.title AS quiz_title,
+            COUNT(ua.id) AS total_answers,
+            SUM(CASE WHEN ua.is_right = TRUE THEN 1 ELSE 0 END) AS correct_ans,
+            ROUND(SUM(CASE WHEN ua.is_right = TRUE THEN 1 ELSE 0 END) * 100.0 /
+                COUNT(ua.id), 2) AS correct_percentage
+        FROM quizzes q
+        LEFT JOIN questions qu ON q.id = qu.quiz_id
+        LEFT JOIN user_answers ua ON ua.question_id = qu.id
+        WHERE q.id = :quiz_id
+        GROUP BY q.title
+    """)
+
+    result = db.session.execute(stats_query, {'quiz_id': quiz_id}).fetchone()
+
+    if result:
+        quiz_title = result[0]  # Название викторины
+        total_answers = result[1]
+        correct_ans = result[2]
+        correct_percentage = result[3]
+    else:
+        quiz_title = "Нет данных"
+        total_answers = correct_answers = correct_percentage = 0
+
+    correct_answers = correct_ans
+
+    return render_template('admin/quiz_stats.html', quiz_title=quiz_title,
+                           total_answers=total_answers,
+                           correct_answers=correct_answers,
+                           correct_percentage=correct_percentage)
+
+
+@app.route('/category/<int:category_id>/stats')
+def category_stats(category_id: int) -> Response:
+    """Выполняем запрос статистики для конкретной категории."""
+    stats_query = text("""
+        SELECT
+            c.name AS category_name,
+            COUNT(ua.id) AS total_answers,
+            SUM(CASE WHEN ua.is_right = TRUE THEN 1 ELSE 0 END) AS correct_ans,
+            ROUND(SUM(CASE WHEN ua.is_right = TRUE THEN 1 ELSE 0 END) * 100.0 /
+                COUNT(ua.id), 2) AS correct_percentage
+        FROM categories c
+        LEFT JOIN quizzes q ON q.category_id = c.id
+        LEFT JOIN questions qu ON qu.quiz_id = q.id
+        LEFT JOIN user_answers ua ON ua.question_id = qu.id
+        WHERE c.id = :category_id
+        GROUP BY c.name
+    """)
+
+    result = db.session.execute(
+        stats_query, {'category_id': category_id},
+    ).fetchone()
+
+    if result:
+        category_name = result[0]  # Название категории
+        total_answers = result[1]
+        correct_ans = result[2]
+        correct_percentage = result[3]
+    else:
+        category_name = "Нет данных"
+        total_answers = correct_answers = correct_percentage = 0
+
+    correct_answers = correct_ans
+
+    return render_template('admin/category_stats.html',
+                           category_name=category_name,
+                           total_answers=total_answers,
+                           correct_answers=correct_answers,
+                           correct_percentage=correct_percentage)
