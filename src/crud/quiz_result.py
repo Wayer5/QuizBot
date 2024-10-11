@@ -38,8 +38,7 @@ class CRUDQuizResult(CRUDBase):
             db.session.execute(
                 select(QuizResult)
                 # загрузка связанных Quiz
-                .options(joinedload(QuizResult.quiz))
-                .where(
+                .options(joinedload(QuizResult.quiz)).where(
                     QuizResult.user_id == user_id,
                 ),
             )

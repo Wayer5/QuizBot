@@ -1,5 +1,4 @@
 import asyncio
-import logging
 
 import uvicorn
 from asgiref.wsgi import WsgiToAsgi
@@ -26,7 +25,7 @@ async def main() -> None:
         allowed_updates=bot.dp.resolve_used_update_types(),
         drop_pending_updates=True,
     )
-    logging.info('Бот запущен')
+    app.logger.info('Бот запущен')
     await webserver.serve()
     await bot.bot.session.close()
 
@@ -35,4 +34,4 @@ if __name__ == '__main__':
     try:
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
-        logging.error('Бот остановлен')
+        app.logger.error('Бот остановлен')

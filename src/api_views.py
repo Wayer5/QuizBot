@@ -1,4 +1,3 @@
-import logging
 from http import HTTPStatus
 
 from aiogram.types import Update
@@ -12,7 +11,7 @@ from . import app, bot
 @app.post(settings.WEBHOOK_PATH)
 async def webhook() -> None:
     """Получаем от тг обновления и передаем в бота."""
-    logging.info('Webhook called')
+    app.logger.info('Webhook called')
     update: Update = Update.model_validate(
         request.get_json(),
         context={'bot': bot.bot},
