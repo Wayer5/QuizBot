@@ -272,7 +272,7 @@ class UserActivityView(BaseView):
             'admin/user_activity.html',
             data=user_data,
             pagination=users,
-            search_query=search_query
+            search_query=search_query,
         )
 
 
