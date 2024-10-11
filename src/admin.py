@@ -63,7 +63,7 @@ class UserAdmin(CustomAdminView):
 
     column_list = [
         'username', 'is_active', 'is_admin', 'name',
-        'telegram_id', 'created_on', 'updated_on'
+        'telegram_id', 'created_on', 'updated_on',
     ]
 
     column_labels = {
