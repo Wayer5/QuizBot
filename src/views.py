@@ -167,7 +167,6 @@ def delete_profile() -> Response:
 
 
 @app.route('/', methods=['GET'])
-@cache.cached(timeout=50)
 async def categories() -> str:
     """Вывод страницы категорий."""
     page = request.args.get('page', DEFAULT_PAGE_NUMBER, type=int)
@@ -187,7 +186,6 @@ async def categories() -> str:
 
 
 @app.route('/<int:category_id>/', methods=['GET'])
-@cache.cached(timeout=50)
 async def quizzes(category_id: int) -> str:
     """Вывод страницы викторин."""
     page = request.args.get('page', DEFAULT_PAGE_NUMBER, type=int)
