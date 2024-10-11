@@ -5,6 +5,12 @@
 {% block body %}
     <h1>Статистика активности пользователей</h1>
     
+    <!-- Форма поиска -->
+    <form method="get" action="{{ url_for('user_activity.index') }}" class="mb-3 d-flex flex-wrap">
+        <input type="text" name="search" class="form-control flex-grow-1 mr-2 mb-2" placeholder="Поиск по имени" value="{{ search_query }}">
+        <button type="submit" class="btn btn-primary mb-2">Поиск</button>
+    </form>
+
     <table class="table table-striped">
         <thead>
             <tr>

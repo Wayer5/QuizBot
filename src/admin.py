@@ -246,30 +246,33 @@ class QuestionAdmin(CustomAdminView):
 
 class UserActivityView(BaseView):
 
-    """Добавление и перевод модели викторин в админ зону."""
+    """Представление для статистики всех пользователей."""
 
     @expose('/')
     def index(self) -> Response:
         """Получение текущей страницы из запроса."""
         page = request.args.get('page', DEFAULT_PAGE_NUMBER, type=int)
         per_page = ITEMS_PER_PAGE
+        search_query = request.args.get('search', '', type=str)
+        query = User.query
+        if search_query:
+            query = query.filter(User.name.ilike(f'%{search_query}%'))
 
-        # Получение данных о пользователях из базы данных с пагинацией
-        users = User.query.paginate(
-            page=page,
-            per_page=per_page,
-            error_out=False,
-        )
+        # Пагинация
+        users = query.paginate(page=page, per_page=per_page, error_out=False)
 
         user_data = [{
             'id': user.id,
             'name': user.name,
             'telegram_id': user.telegram_id,
             'created_on': user.created_on,
-            } for user in users.items]
+        } for user in users.items]
 
         return self.render(
-            'admin/user_activity.html', data=user_data, pagination=users,
+            'admin/user_activity.html',
+            data=user_data,
+            pagination=users,
+            search_query=search_query,
         )
 
 
