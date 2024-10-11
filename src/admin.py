@@ -1,9 +1,15 @@
 from typing import Any
 
-from flask import Response, request
-from flask_admin import Admin, BaseView, expose
+from flask import Response, redirect, request, url_for
+from flask_admin import Admin, AdminIndexView, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
+from flask_admin.model.template import LinkRowAction
 from flask_babel import Babel
+from flask_jwt_extended import (
+    current_user,
+    jwt_required,
+    verify_jwt_in_request,
+)
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import text
 from wtforms import ValidationError
@@ -11,14 +17,41 @@ from wtforms import ValidationError
 from . import app, db
 from .constants import (
     CAN_ONLY_BE_ONE_CORRECT_ANSWER,
+    DEFAULT_PAGE_NUMBER,
+    HTTP_NOT_FOUND,
+    ITEMS_PER_PAGE,
     ONE_ANSWER_VARIANT,
     ONE_CORRECT_ANSWER,
     UNIQUE_VARIANT,
+    USER_NOT_FOUND_MESSAGE,
 )
+from .crud.quiz import quiz_crud
+from .crud.quiz_result import quiz_result_crud
+from .crud.user_answer import user_answer_crud
 from .models import Category, Question, Quiz, User, Variant
 
+# # Создания экземпляра админ панели
+# admin = Admin(app, name='MedStat_Solutions', template_mode='bootstrap4')
+
+
+class MyAdminIndexView(AdminIndexView):
+
+    """Класс для переопределения главной страницы администратора."""
+
+    @expose('/')
+    def index(self) -> Response:
+        """Переопределение главной страницы администратора."""
+        admin_menu = self.admin.menu()
+        return self.render('admin_index.html', admin_menu=admin_menu)
+
+
 # Создания экземпляра админ панели
-admin = Admin(app, name='MedStat_Solutions', template_mode='bootstrap4')
+admin = Admin(
+    app,
+    name='MedStat_Solutions',
+    template_mode='bootstrap4',
+    index_view=MyAdminIndexView(),
+)
 
 
 class CustomAdminView(ModelView):
@@ -29,13 +62,23 @@ class CustomAdminView(ModelView):
     edit_template = 'csrf/edit.html'
     create_template = 'csrf/create.html'
 
+    def is_accessible(self) -> bool:
+        """Проверка доступа."""
+        verify_jwt_in_request()
+        return current_user.is_admin
+
 
 class UserAdmin(CustomAdminView):
 
     """Добавление и перевод модели пользователя в админ зону."""
 
+    column_list = [
+        'username', 'is_active', 'is_admin', 'name',
+        'telegram_id', 'created_on', 'updated_on',
+    ]
+
     column_labels = {
-        'id': 'ИД',
+        # 'id': 'ID',
         'name': 'Имя',
         'username': 'Имя пользователя',
         'telegram_id': 'ID Telegram',
@@ -51,7 +94,7 @@ class CategoryAdmin(CustomAdminView):
     """Добавление и перевод модели категорий в админ зону."""
 
     column_labels = {
-        'id': 'ID',
+        # 'id': 'ID',
         'name': 'Название',
         'is_active': 'Активен',
     }
@@ -62,7 +105,7 @@ class QuizAdmin(CustomAdminView):
     """Добавление и перевод модели викторин в админ зону."""
 
     # Отображаемые поля в списке записей
-    column_list = ['id', 'title', 'category', 'is_active']
+    column_list = ['title', 'category', 'is_active']
     # Отображаемые поля в форме создания и редактирования
     form_columns = ['title', 'category', 'is_active']
 
@@ -73,13 +116,34 @@ class QuizAdmin(CustomAdminView):
         'is_active': 'Активен',
     }
 
+    column_extra_row_actions = [
+        LinkRowAction(
+            'fa fa-play',
+            url='test_question/{row_id}/',
+            title='Пробное прохождение',
+        ),
+    ]
+
+    @expose('/test_question/<int:quiz_id>/')
+    def test_quiz_view(self, quiz_id: int) -> Response:
+        """Перенаправление на страницу тестирования."""
+        quiz = quiz_crud.get(quiz_id)
+        return redirect(
+            url_for(
+                'question',
+                category_id=quiz.category_id,
+                quiz_id=quiz_id,
+                test=True,
+            ),
+        )
+
 
 class QuestionAdmin(CustomAdminView):
 
     """Добавление и перевод модели вопросов в админ зону."""
 
     # Отображаемые поля в списке записей
-    column_list = ['id', 'title', 'quiz', 'is_active']
+    column_list = ['title', 'quiz', 'is_active']
     column_labels = {
         'id': 'ID',
         'title': 'Текст вопроса',
@@ -127,8 +191,10 @@ class QuestionAdmin(CustomAdminView):
 
         except IntegrityError as e:
             # Проверяем ошибку уникальности
-            error_message = ('duplicate key value violates unique '
-                             'constraint "_question_variant_uc"')
+            error_message = (
+                'duplicate key value violates unique '
+                'constraint "_question_variant_uc"'
+            )
             if error_message in str(e.orig):
                 raise ValidationError(UNIQUE_VARIANT)
             # Если другая ошибка — выбрасываем её заново
@@ -170,11 +236,79 @@ class QuestionAdmin(CustomAdminView):
         """
         # Получаем все записи с таким же question_id и title
         existing_variant = Variant.query.filter_by(
-            question_id=variant.question_id, title=variant.title,
+            question_id=variant.question_id,
+            title=variant.title,
         ).first()
         # Проверяем, существует ли такая запись, и это не текущий объект
         if existing_variant and existing_variant.id != variant.id:
             return True
+        return False
+
+
+class UserActivityView(BaseView):
+
+    """Добавление и перевод модели викторин в админ зону."""
+
+    @expose('/')
+    def index(self) -> Response:
+        """Получение текущей страницы из запроса."""
+        page = request.args.get('page', DEFAULT_PAGE_NUMBER, type=int)
+        per_page = ITEMS_PER_PAGE
+
+        # Получение данных о пользователях из базы данных с пагинацией
+        users = User.query.paginate(
+            page=page,
+            per_page=per_page,
+            error_out=False,
+        )
+
+        user_data = [{
+            'id': user.id,
+            'name': user.name,
+            'telegram_id': user.telegram_id,
+            'created_on': user.created_on,
+            } for user in users.items]
+
+        return self.render(
+            'admin/user_activity.html', data=user_data, pagination=users,
+        )
+
+
+class UserStatisticsView(BaseView):
+
+    """Представление для статистики конкретного пользователя."""
+
+    @expose('/')
+    @jwt_required()
+    def index(self) -> Response:
+        """Cтатистика конкретного пользователя."""
+        user_id = request.args.get('user_id')
+        if not user_id:
+            return USER_NOT_FOUND_MESSAGE, HTTP_NOT_FOUND
+        user = User.query.get(user_id)
+        if not user:
+            return USER_NOT_FOUND_MESSAGE, HTTP_NOT_FOUND
+        quiz_results = quiz_result_crud.get_results_by_user(user_id=user.id)
+        user_answers = user_answer_crud.get_results_by_user(user_id=user.id)
+        total_questions_answered = len(user_answers)
+        total_correct_answers = sum(
+            1 for answer in user_answers if answer.is_right
+        )
+        correct_percentage = (
+            total_correct_answers / total_questions_answered * 100
+        ) if total_questions_answered > 0 else 0
+
+        return self.render(
+            'admin/user_statistics.html',
+            user=user,
+            total_questions_answered=total_questions_answered,
+            total_correct_answers=total_correct_answers,
+            correct_percentage=round(correct_percentage),
+            quiz_results=quiz_results,
+        )
+
+    def is_visible(self) -> bool:
+        """Скрывает представление из основного меню Flask-Admin."""
         return False
 
 
@@ -279,9 +413,23 @@ class CategoryListView(BaseView):
 
 # Добавляем представления в админку
 admin.add_view(UserAdmin(User, db.session, name='Пользователи'))
-admin.add_view(CategoryAdmin(Category, db.session, name='Категории'))
-admin.add_view(QuizAdmin(Quiz, db.session, name='Викторины'))
+admin.add_view(
+    CategoryAdmin(
+        Category, db.session, name='Категории', endpoint='category_admin',
+    ),
+)
+admin.add_view(
+    QuizAdmin(Quiz, db.session, name='Викторины', endpoint='quiz_admin'),
+)
 admin.add_view(QuestionAdmin(Question, db.session, name='Вопросы'))
+admin.add_view(UserActivityView(
+    name='Статистика активности пользователей',
+    endpoint='user_activity',
+))
+admin.add_view(UserStatisticsView(
+    name='Статистика пользователя',
+    endpoint='user_statistics',
+))
 admin.add_view(QuestionListView(name='Статистика по вопросам'))
 admin.add_view(QuizListView(name='Статистика по викторинам'))
 admin.add_view(CategoryListView(name='Статистика по категориям'))

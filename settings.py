@@ -1,7 +1,9 @@
+import logging
 from datetime import timedelta
 from os import getenv as get
 
 from dotenv import load_dotenv
+from redis.client import Redis
 
 load_dotenv()
 
@@ -23,8 +25,38 @@ class Config(object):
     JWT_COOKIE_CSRF_PROTECT = True
     JWT_CSRF_CHECK_FORM = True
     JWT_CSRF_IN_COOKIES = True
-    JWT_TOKEN_LOCATION = ["cookies", "headers"]
+    JWT_TOKEN_LOCATION = ['cookies', 'headers']
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
+    SESSION_TYPE = 'redis'
+    SESSION_REDIS = Redis(
+        host=get('REDIS_HOST'),
+        port=6379,
+        db=0,
+        username=get('REDIS_USER'),
+        password=get('REDIS_USER_PASSWORD'),
+    )
+    SESSION_PERMANENT = False
+    PERMANENT_SESSION_LIFETIME = timedelta(minutes=3)
+    SESSION_COOKIE_SAMESITE = 'None'
+    SESSION_COOKIE_SECURE = True
+    CACHE_TYPE = 'RedisCache'
+    CACHE_REDIS_URL = (
+        f'redis://'
+        f'{get("REDIS_USER")}:'
+        f'{get("REDIS_USER_PASSWORD")}@'
+        f'{get("REDIS_HOST")}:6379/2'
+    )
+    try:
+        info = SESSION_REDIS.info()
+        logging.info(info['redis_version'])
+        response = SESSION_REDIS.ping()
+        if response:
+            logging.info('Подключение успешно!')
+            logging.inf0(response)
+        else:
+            logging.info('Не удалось подключиться к Redis.')
+    except Exception as e:
+        logging.info(f'Ошибка: {e}')
 
 
 class Settings:

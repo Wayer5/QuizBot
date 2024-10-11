@@ -1,0 +1,36 @@
+{% extends 'admin/master.html' %}
+
+{% block title %}Статистика пользователя{% endblock %}
+
+{% block body %}
+    <h1>Статистика пользователя: {{ user.name }}</h1>
+    <button onclick="window.history.back()" class="btn btn-primary mb-3">Вернуться назад</button>
+    
+    <div class="text-center mt-3 mb-4">
+        <p><strong>Всего вопросов отвечено:</strong> {{ total_questions_answered }}</p>
+        <p><strong>Всего правильных ответов:</strong> {{ total_correct_answers }}</p>
+        <p><strong>Процент правильных ответов:</strong> {{ correct_percentage }}%</p>
+    </div>
+
+    <h2>Результаты Викторин</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Викторина</th>
+                <th>Пройдена</th>
+                <th>Кол-во отвеченных вопросов</th>
+                <th>Кол-во правильных ответов</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in quiz_results %}
+            <tr>
+                <td>{{ result.quiz.title }}</td>
+                <td>{{ 'Да' if result.is_complete else 'Нет' }}</td>
+                <td>{{ result.total_questions }}</td>
+                <td>{{ result.correct_answers_count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
