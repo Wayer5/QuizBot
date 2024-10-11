@@ -60,8 +60,13 @@ class UserAdmin(CustomAdminView):
 
     """Добавление и перевод модели пользователя в админ зону."""
 
+    column_list = [
+        'username', 'is_active', 'is_admin', 'name',
+        'telegram_id', 'created_on', 'updated_on'
+    ]
+
     column_labels = {
-        'id': 'ИД',
+        # 'id': 'ID',
         'name': 'Имя',
         'username': 'Имя пользователя',
         'telegram_id': 'ID Telegram',
@@ -77,7 +82,7 @@ class CategoryAdmin(CustomAdminView):
     """Добавление и перевод модели категорий в админ зону."""
 
     column_labels = {
-        'id': 'ID',
+        # 'id': 'ID',
         'name': 'Название',
         'is_active': 'Активен',
     }
@@ -88,7 +93,7 @@ class QuizAdmin(CustomAdminView):
     """Добавление и перевод модели викторин в админ зону."""
 
     # Отображаемые поля в списке записей
-    column_list = ['id', 'title', 'category', 'is_active']
+    column_list = ['title', 'category', 'is_active']
     # Отображаемые поля в форме создания и редактирования
     form_columns = ['title', 'category', 'is_active']
 
@@ -126,7 +131,7 @@ class QuestionAdmin(CustomAdminView):
     """Добавление и перевод модели вопросов в админ зону."""
 
     # Отображаемые поля в списке записей
-    column_list = ['id', 'title', 'quiz', 'is_active']
+    column_list = ['title', 'quiz', 'is_active']
     column_labels = {
         'id': 'ID',
         'title': 'Текст вопроса',
