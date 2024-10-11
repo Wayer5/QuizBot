@@ -8,7 +8,6 @@ from flask_sqlalchemy import SQLAlchemy
 
 from settings import Config, LoggingSettings
 
-
 logging.config.dictConfig(LoggingSettings.logging_config())
 
 app = Flask(__name__)

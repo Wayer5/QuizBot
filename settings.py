@@ -125,7 +125,7 @@ class LoggingSettings:
             },
             'root': {
                 'level': logging.DEBUG,
-                'handlers': ['all_file', 'console']
+                'handlers': ['all_file', 'console'],
             },
         }
 
