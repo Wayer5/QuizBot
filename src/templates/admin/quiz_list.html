@@ -79,6 +79,11 @@
     }
 </style>
 
+<form method="get" action="{{ url_for('quiz_list.index') }}" class="mb-3 d-flex flex-wrap">
+    <input type="text" name="search" class="form-control flex-grow-1 mr-2 mb-2" placeholder="Поиск по названию" value="{{ search_query }}">
+    <button type="submit" class="btn btn-primary mb-2">Поиск</button>
+</form>
+
 <table>
     <thead>
         <tr>
@@ -89,7 +94,7 @@
         {% for quiz in quizzes %}
         <tr>
             <td>
-                <a href="{{ url_for('quiz_stats', quiz_id=quiz.id) }}">{{ quiz.title }}</a>
+                <a href="{{ url_for('quiz_statistics.index', quiz_id=quiz.id) }}">{{ quiz.title }}</a>
             </td>
         </tr>
         {% endfor %}

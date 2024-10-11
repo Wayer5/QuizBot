@@ -255,6 +255,7 @@ class UserActivityView(BaseView):
     """Представление для статистики всех пользователей."""
 
     @expose('/')
+    @jwt_required()
     def index(self) -> Response:
         """Получение текущей страницы из запроса."""
         page = request.args.get('page', DEFAULT_PAGE_NUMBER, type=int)
@@ -278,7 +279,7 @@ class UserActivityView(BaseView):
         ]
 
         return self.render(
-            'admin/user_activity.html',
+            'admin/user_list.html',
             data=user_data,
             pagination=users,
             search_query=search_query,
@@ -325,7 +326,7 @@ class UserStatisticsView(BaseView):
         return False
 
 
-class QuestionListView(BaseView):
+class CategoryListView(BaseView):
 
     """Создание списка для статистики."""
 
@@ -333,29 +334,91 @@ class QuestionListView(BaseView):
     def index(self) -> Response:
         """Создание списка для статистики."""
         page = request.args.get('page', 1, type=int)
-        per_page = 5  # Количество вопросов на странице
+        per_page = 5  # Количество категорий на странице
         offset = (page - 1) * per_page
 
-        # Запрос для получения списка вопросов с учетом пагинации
-        query = text(
-            'SELECT id, title FROM questions LIMIT :limit OFFSET :offset',
-        )
-        questions = db.session.execute(
-            query, {'limit': per_page, 'offset': offset},
-        ).fetchall()
+        # Запрос для получения списка категорий с учетом пагинации
+        # query = text(
+        #     'SELECT id, name FROM categories LIMIT :limit OFFSET :offset',
+        # )
 
-        # Запрос для получения общего количества вопросов
-        count_query = text('SELECT COUNT(id) FROM questions')
-        total_questions = db.session.execute(count_query).scalar()
+        search_query = request.args.get('search', '', type=str)
+        query = Category.query
+        if search_query:
+            query = query.filter(Category.name.ilike(f'%{search_query}%'))
+
+        # Пагинация
+        categories = query.paginate(page=page, per_page=per_page, error_out=False)
+
+        # categories = db.session.execute(
+        #     query, {'limit': per_page, 'offset': offset},
+        # ).fetchall()
+
+        # Запрос для получения общего количества категорий
+        count_query = text('SELECT COUNT(id) FROM categories')
+        total_categories = db.session.execute(count_query).scalar()
 
         # Общее количество страниц
-        total_pages = (total_questions + per_page - 1) // per_page
+        total_pages = (total_categories + per_page - 1) // per_page
 
         # Передаем данные в шаблон
-        return self.render('admin/question_list.html',
-                           questions=questions,
+        return self.render('admin/category_list.html',
+                           categories=categories,
                            page=page,
-                           total_pages=total_pages)
+                           total_pages=total_pages,
+                           search_query=search_query,)
+
+
+class CategoryStatisticsView(BaseView):
+
+    """Представление для статистики конкретной категории."""
+
+    # Статистика по конкретной категории
+    @expose('/')
+    @jwt_required()
+    def index(self) -> Response:
+        """Выполняем запрос статистики для конкретной категории."""
+        category_id = request.args.get('category_id')
+
+        stats_query = text("""
+            SELECT
+                c.name AS category_name,
+                COUNT(ua.id) AS total_answers,
+                SUM(CASE WHEN ua.is_right = TRUE THEN 1 ELSE 0 END) AS correct_ans,
+                ROUND(SUM(CASE WHEN ua.is_right = TRUE THEN 1 ELSE 0 END) * 100.0 /
+                    COUNT(ua.id), 2) AS correct_percentage
+            FROM categories c
+            LEFT JOIN quizzes q ON q.category_id = c.id
+            LEFT JOIN questions qu ON qu.quiz_id = q.id
+            LEFT JOIN user_answers ua ON ua.question_id = qu.id
+            WHERE c.id = :category_id
+            GROUP BY c.name
+        """)
+
+        result = db.session.execute(
+            stats_query, {'category_id': category_id},
+        ).fetchone()
+
+        if result:
+            category_name = result[0]  # Название категории
+            total_answers = result[1]
+            correct_ans = result[2]
+            correct_percentage = result[3]
+        else:
+            category_name = "Нет данных"
+            total_answers = correct_answers = correct_percentage = 0
+
+        correct_answers = correct_ans
+
+        return self.render('admin/category_statistics.html',
+                           category_name=category_name,
+                           total_answers=total_answers,
+                           correct_answers=correct_answers,
+                           correct_percentage=correct_percentage)
+
+    def is_visible(self) -> bool:
+        """Скрывает представление из основного меню Flask-Admin."""
+        return False
 
 
 class QuizListView(BaseView):
@@ -369,13 +432,21 @@ class QuizListView(BaseView):
         per_page = 5  # Количество викторин на странице
         offset = (page - 1) * per_page
 
-        # Запрос для получения списка викторин с учетом пагинации
-        query = text(
-            'SELECT id, title FROM quizzes LIMIT :limit OFFSET :offset',
-        )
-        quizzes = db.session.execute(
-            query, {'limit': per_page, 'offset': offset},
-        ).fetchall()
+        search_query = request.args.get('search', '', type=str)
+        query = Quiz.query
+        if search_query:
+            query = query.filter(Quiz.title.ilike(f'%{search_query}%'))
+
+        # Пагинация
+        quizzes = query.paginate(page=page, per_page=per_page, error_out=False)
+
+        # # Запрос для получения списка викторин с учетом пагинации
+        # query = text(
+        #     'SELECT id, title FROM quizzes LIMIT :limit OFFSET :offset',
+        # )
+        # quizzes = db.session.execute(
+        #     query, {'limit': per_page, 'offset': offset},
+        # ).fetchall()
 
         # Запрос для получения общего количества викторин
         count_query = text('SELECT COUNT(id) FROM quizzes')
@@ -388,46 +459,153 @@ class QuizListView(BaseView):
         return self.render('admin/quiz_list.html',
                            quizzes=quizzes,
                            page=page,
-                           total_pages=total_pages)
+                           total_pages=total_pages,
+                           search_query=search_query,)
 
 
-class CategoryListView(BaseView):
+class QuizStatisticsView(BaseView):
+
+    """Представление для статистики конкретной викторины."""
+
+    # Статистика по конкретному вопросу
+    @expose('/')
+    @jwt_required()
+    def index(self) -> Response:
+        quiz_id = request.args.get('quiz_id')
+        stats_query = text("""
+            SELECT
+                q.title AS quiz_title,
+                COUNT(ua.id) AS total_answers,
+                SUM(CASE WHEN ua.is_right = TRUE THEN 1 ELSE 0 END) AS correct_ans,
+                ROUND(SUM(CASE WHEN ua.is_right = TRUE THEN 1 ELSE 0 END) * 100.0 /
+                    COUNT(ua.id), 2) AS correct_percentage
+            FROM quizzes q
+            LEFT JOIN questions qu ON q.id = qu.quiz_id
+            LEFT JOIN user_answers ua ON ua.question_id = qu.id
+            WHERE q.id = :quiz_id
+            GROUP BY q.title
+        """)
+
+        result = db.session.execute(
+            stats_query, {'quiz_id': quiz_id}
+        ).fetchone()
+
+        if result:
+            quiz_title = result[0]  # Название викторины
+            total_answers = result[1]
+            correct_ans = result[2]
+            correct_percentage = result[3]
+        else:
+            quiz_title = "Нет данных"
+            total_answers = correct_answers = correct_percentage = 0
+
+        correct_answers = correct_ans
+
+        return self.render('admin/quiz_statistics.html', quiz_title=quiz_title,
+                           total_answers=total_answers,
+                           correct_answers=correct_answers,
+                           correct_percentage=correct_percentage)
+
+    def is_visible(self) -> bool:
+        """Скрывает представление из основного меню Flask-Admin."""
+        return False
+
+
+class QuestionListView(BaseView):
 
     """Создание списка для статистики."""
 
+    @jwt_required()
     @expose('/')
     def index(self) -> Response:
         """Создание списка для статистики."""
         page = request.args.get('page', 1, type=int)
-        per_page = 5  # Количество категорий на странице
+        per_page = 5  # Количество вопросов на странице
         offset = (page - 1) * per_page
 
-        # Запрос для получения списка категорий с учетом пагинации
-        query = text(
-            'SELECT id, name FROM categories LIMIT :limit OFFSET :offset',
-        )
-        categories = db.session.execute(
-            query, {'limit': per_page, 'offset': offset},
-        ).fetchall()
+        search_query = request.args.get('search', '', type=str)
+        query = Question.query
+        if search_query:
+            query = query.filter(Question.title.ilike(f'%{search_query}%'))
 
-        # Запрос для получения общего количества категорий
-        count_query = text('SELECT COUNT(id) FROM categories')
-        total_categories = db.session.execute(count_query).scalar()
+        # Пагинация
+        questions = query.paginate(page=page, per_page=per_page, error_out=False)
+
+        # # Запрос для получения списка вопросов с учетом пагинации
+        # query = text(
+        #     'SELECT id, title FROM questions LIMIT :limit OFFSET :offset',
+        # )
+        # questions = db.session.execute(
+        #     query, {'limit': per_page, 'offset': offset},
+        # ).fetchall()
+
+        # Запрос для получения общего количества вопросов
+        count_query = text('SELECT COUNT(id) FROM questions')
+        total_questions = db.session.execute(count_query).scalar()
 
         # Общее количество страниц
-        total_pages = (total_categories + per_page - 1) // per_page
+        total_pages = (total_questions + per_page - 1) // per_page
 
         # Передаем данные в шаблон
-        return self.render('admin/category_list.html',
-                           categories=categories,
+        return self.render('admin/question_list.html',
+                           questions=questions,
                            page=page,
-                           total_pages=total_pages)
+                           total_pages=total_pages,
+                           search_query=search_query,)
+
+
+class QuestionStatisticsView(BaseView):
+
+    """Представление для статистики конкретного вопроса."""
+
+    # Статистика по конкретному вопросу
+    @expose('/')
+    @jwt_required()
+    def index(self) -> Response:
+        """Выполняем запрос статистики для конкретного вопроса."""
+        question_id = request.args.get('question_id')
+        stats_query = text("""
+            SELECT
+                qu.title AS question_text,
+                COUNT(ua.id) AS total_answers,
+                SUM(CASE WHEN ua.is_right = TRUE THEN 1 ELSE 0 END) AS correct_ans,
+                ROUND(SUM(CASE WHEN ua.is_right = TRUE THEN 1 ELSE 0 END) * 100.0 /
+                    COUNT(ua.id), 2) AS correct_percentage
+            FROM questions qu
+            LEFT JOIN user_answers ua ON ua.question_id = qu.id
+            WHERE qu.id = :question_id
+            GROUP BY qu.title
+        """)
+
+        result = db.session.execute(
+            stats_query, {'question_id': question_id},
+        ).fetchone()
+
+        if result:
+            question_text = result[0]  # Доступ к вопросу по индексу
+            total_answers = result[1]
+            correct_ans = result[2]
+            correct_percentage = result[3]
+        else:
+            question_text = "Нет данных"
+            total_answers = correct_answers = correct_percentage = 0
+
+        correct_answers = correct_ans
+
+        return self.render('admin/question_statistics.html',
+                           question_text=question_text,
+                           total_answers=total_answers,
+                           correct_answers=correct_answers,
+                           correct_percentage=correct_percentage)
+
+    def is_visible(self) -> bool:
+        """Скрывает представление из основного меню Flask-Admin."""
+        return False
 
 
 # Добавляем представления в админку
 admin.add_view(UserAdmin(User, db.session, name='Пользователи'))
-admin.add_view(
-    CategoryAdmin(
+admin.add_view(CategoryAdmin(
         Category,
         db.session,
         name='Категории',
@@ -439,16 +617,34 @@ admin.add_view(
 )
 admin.add_view(QuestionAdmin(Question, db.session, name='Вопросы'))
 admin.add_view(UserActivityView(
-    name='Статистика активности пользователей',
-    endpoint='user_activity',
-))
+    name='Статистика пользователей',
+    endpoint='user_list',)
+)
 admin.add_view(UserStatisticsView(
-    name='Статистика пользователя',
-    endpoint='user_statistics',
-))
-admin.add_view(QuestionListView(name='Статистика по вопросам'))
-admin.add_view(QuizListView(name='Статистика по викторинам'))
-admin.add_view(CategoryListView(name='Статистика по категориям'))
+    endpoint='user_statistics',)
+)
+admin.add_view(CategoryListView(
+    name='Статистика по категориям',
+    endpoint='category_list',)
+)
+admin.add_view(CategoryStatisticsView(
+    endpoint='category_statistics',)
+)
+admin.add_view(QuizListView(
+    name='Статистика по викторинам',
+    endpoint='quiz_list',)
+)
+admin.add_view(QuizStatisticsView(
+    endpoint='quiz_statistics',)
+)
+admin.add_view(QuestionListView(
+    name='Статистика по вопросам',
+    endpoint='question_list',)
+)
+admin.add_view(QuestionStatisticsView(
+    name='Статистика вопросов',
+    endpoint='question_statistics',)
+)
 
 
 def get_locale() -> dict:

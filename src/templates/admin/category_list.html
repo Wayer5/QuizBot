@@ -79,6 +79,12 @@
     }
 </style>
 
+<!-- Форма поиска -->
+<form method="get" action="{{ url_for('category_list.index') }}" class="mb-3 d-flex flex-wrap">
+    <input type="text" name="search" class="form-control flex-grow-1 mr-2 mb-2" placeholder="Поиск по названиям" value="{{ search_query }}">
+    <button type="submit" class="btn btn-primary mb-2">Поиск</button>
+</form>
+
 <table>
     <thead>
         <tr>
@@ -89,7 +95,7 @@
         {% for category in categories %}
         <tr>
             <td>
-                <a href="{{ url_for('category_stats', category_id=category.id) }}">{{ category.name }}</a>
+                <a href="{{ url_for('category_statistics.index', category_id=category.id) }}">{{ category.name }}</a>
             </td>
         </tr>
         {% endfor %}

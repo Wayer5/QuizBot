@@ -1,7 +1,7 @@
-{% extends "base.html" %}
+{% extends 'admin/master.html' %}
 
-{% block content %}
-<!-- Стили для страницы статистики -->
+{% block body %}
+<!-- Стили для страницы статистики викторин -->
 <style>
     /* Основной стиль для страницы */
     h1 {
@@ -57,7 +57,7 @@
     }
 </style>
 
-<h1>Статистика по категории: {{ category_name }}</h1>
+<h1>Статистика по викторине: {{ quiz_name }}</h1>
 
 <!-- Диаграмма -->
 <div class="chart-container" style="width: 50%; margin: 0 auto;">
