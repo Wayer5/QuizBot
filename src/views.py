@@ -17,9 +17,8 @@ from flask_jwt_extended import (
     unset_jwt_cookies,
 )
 
-from constants import DEFAULT_PAGE_NUMBER, HTTP_NOT_FOUND, PER_PAGE
-
 from . import app, cache
+from src.constants import DEFAULT_PAGE_NUMBER, HTTP_NOT_FOUND, PER_PAGE
 from src.crud.category import category_crud
 from src.crud.question import question_crud
 from src.crud.quiz import quiz_crud
