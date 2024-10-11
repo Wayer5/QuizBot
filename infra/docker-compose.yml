@@ -17,6 +17,7 @@ services:
     volumes:
       - static:/backend_static
       - migration:/app/migrations
+      - ../logs:/app/logs
     ports:
       - "${PORT}:${PORT}"
     depends_on:

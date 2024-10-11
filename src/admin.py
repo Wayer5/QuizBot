@@ -72,8 +72,13 @@ class UserAdmin(CustomAdminView):
     """Добавление и перевод модели пользователя в админ зону."""
 
     column_list = [
-        'username', 'is_active', 'is_admin', 'name',
-        'telegram_id', 'created_on', 'updated_on',
+        'username',
+        'is_active',
+        'is_admin',
+        'name',
+        'telegram_id',
+        'created_on',
+        'updated_on',
     ]
 
     column_labels = {
@@ -261,12 +266,15 @@ class UserActivityView(BaseView):
         # Пагинация
         users = query.paginate(page=page, per_page=per_page, error_out=False)
 
-        user_data = [{
-            'id': user.id,
-            'name': user.name,
-            'telegram_id': user.telegram_id,
-            'created_on': user.created_on,
-        } for user in users.items]
+        user_data = [
+            {
+                'id': user.id,
+                'name': user.name,
+                'telegram_id': user.telegram_id,
+                'created_on': user.created_on,
+            }
+            for user in users.items
+        ]
 
         return self.render(
             'admin/user_activity.html',
@@ -297,8 +305,10 @@ class UserStatisticsView(BaseView):
             1 for answer in user_answers if answer.is_right
         )
         correct_percentage = (
-            total_correct_answers / total_questions_answered * 100
-        ) if total_questions_answered > 0 else 0
+            (total_correct_answers / total_questions_answered * 100)
+            if total_questions_answered > 0
+            else 0
+        )
 
         return self.render(
             'admin/user_statistics.html',
@@ -318,21 +328,28 @@ class UserStatisticsView(BaseView):
 admin.add_view(UserAdmin(User, db.session, name='Пользователи'))
 admin.add_view(
     CategoryAdmin(
-        Category, db.session, name='Категории', endpoint='category_admin',
+        Category,
+        db.session,
+        name='Категории',
+        endpoint='category_admin',
     ),
 )
 admin.add_view(
     QuizAdmin(Quiz, db.session, name='Викторины', endpoint='quiz_admin'),
 )
 admin.add_view(QuestionAdmin(Question, db.session, name='Вопросы'))
-admin.add_view(UserActivityView(
-    name='Статистика активности пользователей',
-    endpoint='user_activity',
-))
-admin.add_view(UserStatisticsView(
-    name='Статистика пользователя',
-    endpoint='user_statistics',
-))
+admin.add_view(
+    UserActivityView(
+        name='Статистика активности пользователей',
+        endpoint='user_activity',
+    ),
+)
+admin.add_view(
+    UserStatisticsView(
+        name='Статистика пользователя',
+        endpoint='user_statistics',
+    ),
+)
 
 
 def get_locale() -> dict:
