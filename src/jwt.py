@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 
@@ -65,7 +64,7 @@ def refresh_expiring_jwts(response: Response) -> Response:
         if target_timestamp > exp_timestamp:
             access_token = create_access_token(identity=get_jwt_identity())
             set_access_cookies(response, access_token)
-            logging.info('Token refreshed succesfully')
+            app.logger.info('Token refreshed succesfully')
         return response
     except (RuntimeError, KeyError):
         return response

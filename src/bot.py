@@ -1,5 +1,3 @@
-import logging
-
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
@@ -15,12 +13,10 @@ from aiogram.types import (
 
 from settings import settings
 
+from . import app
 from .constants import BAN_WARN_MESSAGE
 from src.crud.telegram_user import telegram_user_crud
 from src.crud.user import user_crud
-
-# Включаем логирование
-logging.basicConfig(level=logging.INFO)
 
 # Создаем объект бота. https://t.me/MedStatSolution_Bot
 bot: Bot = Bot(
@@ -75,7 +71,7 @@ async def cmd_start(message: Message) -> None:
                 'is_admin': is_admin,
             },
         )
-        logging.info(
+        app.logger.info(
             f'Пользователь {name} ({username}) зарегистрирован в боте.',
         )
 
@@ -98,7 +94,7 @@ async def cmd_start(message: Message) -> None:
                 'added_to_attachment_menu': added_to_attachment_menu,
             },
         )
-        logging.info(
+        app.logger.info(
             f'Пользователь {tg_user_id} зарегистрирован в TelegramUser.',
         )
 
