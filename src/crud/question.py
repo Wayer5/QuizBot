@@ -1,8 +1,8 @@
 from typing import Optional, Tuple
 
 from sqlalchemy import null, select, true
-from sqlalchemy.sql import text
 from sqlalchemy.exc import DataError
+from sqlalchemy.sql import text
 
 from src import db
 from src.crud.base import CRUDBase
@@ -73,7 +73,7 @@ class CRUDQuestion(CRUDBase):
                 LEFT JOIN user_answers ua ON ua.question_id = qu.id
                 WHERE qu.id = :question_id
                 GROUP BY qu.title
-                """
+                """,
             )
 
             statistic = db.session.execute(

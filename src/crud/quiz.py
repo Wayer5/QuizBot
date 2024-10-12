@@ -1,9 +1,9 @@
 from typing import Optional, Tuple
 
 from sqlalchemy import select, true
+from sqlalchemy.exc import DataError
 from sqlalchemy.orm import Query
 from sqlalchemy.sql import text
-from sqlalchemy.exc import DataError
 
 from src import db
 from src.crud.base import CRUDBase
@@ -47,11 +47,11 @@ class CRUDQuiz(CRUDBase):
                 LEFT JOIN user_answers ua ON ua.question_id = qu.id
                 WHERE q.id = :quiz_id
                 GROUP BY q.title
-                """
+                """,
             )
 
             statistic = db.session.execute(
-                stats_query, {'quiz_id': quiz_id}
+                stats_query, {'quiz_id': quiz_id},
             ).fetchone()
         except DataError:
             # Обрабатываем деление на ноль или другие ошибки данных

@@ -1,9 +1,9 @@
 from typing import Tuple
 
 from sqlalchemy import true
+from sqlalchemy.exc import DataError
 from sqlalchemy.orm import Query
 from sqlalchemy.sql import text
-from sqlalchemy.exc import DataError
 
 from src import db
 from src.crud.base import CRUDBase
@@ -37,7 +37,7 @@ class CRUDCategory(CRUDBase):
                 LEFT JOIN user_answers ua ON ua.question_id = qu.id
                 WHERE c.id = :category_id
                 GROUP BY c.name
-                """
+                """,
             )
 
             statistic = db.session.execute(

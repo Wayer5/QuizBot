@@ -24,11 +24,11 @@ from .constants import (
     UNIQUE_VARIANT,
     USER_NOT_FOUND_MESSAGE,
 )
+from .crud.category import category_crud
+from .crud.question import question_crud
 from .crud.quiz import quiz_crud
 from .crud.quiz_result import quiz_result_crud
 from .crud.user_answer import user_answer_crud
-from .crud.category import category_crud
-from .crud.question import question_crud
 from .models import Category, Question, Quiz, User, Variant
 
 # # Создания экземпляра админ панели
@@ -250,6 +250,15 @@ class QuestionAdmin(CustomAdminView):
         return False
 
 
+class NotVisibleMixin(BaseView):
+
+    """Миксин для скрытия страницы из админки."""
+
+    def is_visible(self) -> bool:
+        """Скрывает представление из основного меню Flask-Admin."""
+        return False
+
+
 class UserListView(BaseView):
 
     """Представление для статистики всех пользователей."""
@@ -257,9 +266,10 @@ class UserListView(BaseView):
     @expose('/')
     @jwt_required()
     def index(self) -> Response:
-        """Получение текущей страницы из запроса."""
+        """Создание списка для статистики пользователей."""
         page = request.args.get('page', DEFAULT_PAGE_NUMBER, type=int)
         per_page = ITEMS_PER_PAGE
+
         search_query = request.args.get('search', '', type=str)
         query = User.query
         if search_query:
@@ -286,7 +296,7 @@ class UserListView(BaseView):
         )
 
 
-class UserStatisticsView(BaseView):
+class UserStatisticsView(NotVisibleMixin):
 
     """Представление для статистики конкретного пользователя."""
 
@@ -321,18 +331,14 @@ class UserStatisticsView(BaseView):
             quiz_results=quiz_results,
         )
 
-    def is_visible(self) -> bool:
-        """Скрывает представление из основного меню Flask-Admin."""
-        return False
-
 
 class CategoryListView(BaseView):
 
-    """Создание списка для статистики."""
+    """Создание списка категорий для статистики."""
 
     @expose('/')
     def index(self) -> Response:
-        """Создание списка для статистики."""
+        """Создание списка для статистики категорий."""
         page = request.args.get('page', DEFAULT_PAGE_NUMBER, type=int)
         per_page = ITEMS_PER_PAGE
 
@@ -343,7 +349,7 @@ class CategoryListView(BaseView):
 
         # Пагинация
         categories = query.paginate(
-            page=page, per_page=per_page, error_out=False
+            page=page, per_page=per_page, error_out=False,
         )
 
         category_data = [
@@ -358,25 +364,24 @@ class CategoryListView(BaseView):
         return self.render('admin/category_list.html',
                            data=category_data,
                            pagination=categories,
-                           search_query=search_query,)
+                           search_query=search_query)
 
 
-class CategoryStatisticsView(BaseView):
+class CategoryStatisticsView(NotVisibleMixin):
 
     """Представление для статистики конкретной категории."""
 
-    # Статистика по конкретной категории
     @expose('/')
     @jwt_required()
     def index(self) -> Response:
-        """Выполняем запрос статистики для конкретной категории."""
+        """Статистика по конкретной категории."""
         category_id = request.args.get('category_id')
 
         statictic = category_crud.get_statistic(category_id)
 
         (
             category_name, total_answers,
-            correct_answers, correct_percentage
+            correct_answers, correct_percentage,
         ) = statictic
 
         return self.render('admin/category_statistics.html',
@@ -385,18 +390,14 @@ class CategoryStatisticsView(BaseView):
                            correct_answers=correct_answers,
                            correct_percentage=correct_percentage)
 
-    def is_visible(self) -> bool:
-        """Скрывает представление из основного меню Flask-Admin."""
-        return False
-
 
 class QuizListView(BaseView):
 
-    """Создание списка для статистики."""
+    """Создание списка викторин для статистики."""
 
     @expose('/')
     def index(self) -> Response:
-        """Создание списка для статистики."""
+        """Создание списка для статистики викторин."""
         page = request.args.get('page', DEFAULT_PAGE_NUMBER, type=int)
         per_page = ITEMS_PER_PAGE
 
@@ -420,10 +421,10 @@ class QuizListView(BaseView):
         return self.render('admin/quiz_list.html',
                            data=quiz_data,
                            pagination=quizzes,
-                           search_query=search_query,)
+                           search_query=search_query)
 
 
-class QuizStatisticsView(BaseView):
+class QuizStatisticsView(NotVisibleMixin):
 
     """Представление для статистики конкретной викторины."""
 
@@ -431,23 +432,20 @@ class QuizStatisticsView(BaseView):
     @expose('/')
     @jwt_required()
     def index(self) -> Response:
+        """Выполняем запрос статистики для конкретной викторины."""
         quiz_id = request.args.get('quiz_id')
 
         statictic = quiz_crud.get_statistic(quiz_id)
 
         (
             quiz_title, total_answers,
-            correct_answers, correct_percentage
+            correct_answers, correct_percentage,
         ) = statictic
 
         return self.render('admin/quiz_statistics.html', quiz_title=quiz_title,
                            total_answers=total_answers,
                            correct_answers=correct_answers,
                            correct_percentage=correct_percentage)
-
-    def is_visible(self) -> bool:
-        """Скрывает представление из основного меню Flask-Admin."""
-        return False
 
 
 class QuestionListView(BaseView):
@@ -468,7 +466,7 @@ class QuestionListView(BaseView):
 
         # Пагинация
         questions = query.paginate(
-            page=page, per_page=per_page, error_out=False
+            page=page, per_page=per_page, error_out=False,
         )
 
         question_data = [
@@ -483,10 +481,10 @@ class QuestionListView(BaseView):
         return self.render('admin/question_list.html',
                            data=question_data,
                            pagination=questions,
-                           search_query=search_query,)
+                           search_query=search_query)
 
 
-class QuestionStatisticsView(BaseView):
+class QuestionStatisticsView(NotVisibleMixin):
 
     """Представление для статистики конкретного вопроса."""
 
@@ -501,7 +499,7 @@ class QuestionStatisticsView(BaseView):
 
         (
             question_text, total_answers,
-            correct_answers, correct_percentage
+            correct_answers, correct_percentage,
         ) = statictic
 
         return self.render('admin/question_statistics.html',
@@ -510,50 +508,46 @@ class QuestionStatisticsView(BaseView):
                            correct_answers=correct_answers,
                            correct_percentage=correct_percentage)
 
-    def is_visible(self) -> bool:
-        """Скрывает представление из основного меню Flask-Admin."""
-        return False
-
 
 # Добавляем представления в админку
 admin.add_view(UserAdmin(User, db.session, name='Пользователи'))
 admin.add_view(CategoryAdmin(
-    Category, db.session, name='Категории', endpoint='category_admin',),
+    Category, db.session, name='Категории', endpoint='category_admin'),
 )
 admin.add_view(
-    QuizAdmin(Quiz, db.session, name='Викторины', endpoint='quiz_admin',),
+    QuizAdmin(Quiz, db.session, name='Викторины', endpoint='quiz_admin'),
 )
 admin.add_view(QuestionAdmin(Question, db.session, name='Вопросы'))
 
 # Добавляем представления для страниц статистик в админку
 admin.add_view(UserListView(
     name='Статистика пользователей',
-    endpoint='user_list',)
+    endpoint='user_list'),
 )
 admin.add_view(UserStatisticsView(
-    endpoint='user_statistics',)
+    endpoint='user_statistics'),
 )
 admin.add_view(CategoryListView(
     name='Статистика по категориям',
-    endpoint='category_list',)
+    endpoint='category_list'),
 )
 admin.add_view(CategoryStatisticsView(
-    endpoint='category_statistics',)
+    endpoint='category_statistics'),
 )
 admin.add_view(QuizListView(
     name='Статистика по викторинам',
-    endpoint='quiz_list',)
+    endpoint='quiz_list'),
 )
 admin.add_view(QuizStatisticsView(
-    endpoint='quiz_statistics',)
+    endpoint='quiz_statistics'),
 )
 admin.add_view(QuestionListView(
     name='Статистика по вопросам',
-    endpoint='question_list',)
+    endpoint='question_list'),
 )
 admin.add_view(QuestionStatisticsView(
     name='Статистика вопросов',
-    endpoint='question_statistics',)
+    endpoint='question_statistics'),
 )
 
 
