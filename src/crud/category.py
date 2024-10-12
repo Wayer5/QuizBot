@@ -3,7 +3,7 @@ from sqlalchemy.orm import Query
 
 from src import db
 from src.crud.base import CRUDBase
-from src.models import Category, Quiz, Question
+from src.models import Category, Question, Quiz
 
 
 class CRUDCategory(CRUDBase):
@@ -15,11 +15,11 @@ class CRUDCategory(CRUDBase):
         return db.session.query(Category).filter(
             Category.is_active == is_active,
             Category.quizzes.any(
-                Quiz.is_active == is_active
+                Quiz.is_active == is_active,
             ),
             Category.quizzes.any(
-                Quiz.questions.any(Question.is_active == is_active)
-            )
+                Quiz.questions.any(Question.is_active == is_active),
+            ),
         )
 
 
