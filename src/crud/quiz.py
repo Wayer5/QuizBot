@@ -7,7 +7,7 @@ from sqlalchemy.sql import text
 
 from src import db
 from src.crud.base import CRUDBase
-from src.models import Quiz
+from src.models import Question, Quiz
 
 
 class CRUDQuiz(CRUDBase):
@@ -23,6 +23,7 @@ class CRUDQuiz(CRUDBase):
         return db.session.query(Quiz).filter(
             Quiz.category_id == category_id,
             Quiz.is_active == is_active,
+            Quiz.questions.any(Question.is_active == is_active),
         )
 
     def get_by_id(self, quiz_id: int) -> Optional[Quiz]:

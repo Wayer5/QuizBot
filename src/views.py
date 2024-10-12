@@ -161,7 +161,19 @@ def delete_profile() -> Response:
 
     user_crud.remove(current_user)
 
-    return render_template('categories.html')
+    page = request.args.get('page', DEFAULT_PAGE_NUMBER, type=int)
+    per_page = PER_PAGE
+    categories_paginated = category_crud.get_active().paginate(
+        page=page,
+        per_page=per_page,
+        error_out=False,
+    )
+
+    return render_template(
+        'categories.html',
+        categories=categories_paginated.items,
+        pagination=categories_paginated,
+    )
 
 
 @app.route('/', methods=['GET'])

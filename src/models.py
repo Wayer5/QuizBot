@@ -51,7 +51,7 @@ class Category(db.Model):
         comment='Уникальный идентификатор категории.',
     )
     name = db.Column(
-        db.String(50),
+        db.String(30),
         nullable=False,
         unique=True,
         comment='Название категории викторины.',
@@ -90,7 +90,7 @@ class Quiz(db.Model):
         comment='Уникальный идентификатор викторины.',
     )
     title = db.Column(
-        db.String(150),
+        db.String(30),
         nullable=False,
         comment='Название викторины.',
         unique=True,
@@ -143,7 +143,7 @@ class Question(db.Model):
         index=True,
     )
     title = db.Column(
-        db.String(150),
+        db.String(175),
         nullable=False,
         comment='Текст вопроса.',
         unique=True,
@@ -196,12 +196,12 @@ class Variant(db.Model):
         comment='Идентификатор вопроса, к которому относится данный ответ.',
     )
     title = db.Column(
-        db.String(150),
+        db.String(60),
         nullable=False,
         comment='Текст варианта ответа.',
     )
     description = db.Column(
-        db.Text,
+        db.String(600),
         nullable=True,
         comment='Дополнительное описание или пояснение для варианта ответа.',
     )
