@@ -16,8 +16,8 @@ from settings import settings
 
 from . import app
 from .constants import BAN_WARN_MESSAGE
-from src.crud.telegram_user import telegram_user_crud
-from src.crud.user import user_crud
+from .crud.telegram_user import telegram_user_crud
+from .crud.user import user_crud
 
 # Создаем объект бота. https://t.me/MedStatSolution_Bot
 bot: Bot = Bot(

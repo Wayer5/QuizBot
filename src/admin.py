@@ -31,9 +31,6 @@ from .crud.quiz_result import quiz_result_crud
 from .crud.user_answer import user_answer_crud
 from .models import Category, Question, Quiz, User, Variant
 
-# # Создания экземпляра админ панели
-# admin = Admin(app, name='MedStat_Solutions', template_mode='bootstrap4')
-
 
 class MyAdminIndexView(AdminIndexView):
 
@@ -43,7 +40,7 @@ class MyAdminIndexView(AdminIndexView):
     def index(self) -> Response:
         """Переопределение главной страницы администратора."""
         admin_menu = self.admin.menu()
-        return self.render('admin_index.html', admin_menu=admin_menu)
+        return self.render('admin/admin_index.html', admin_menu=admin_menu)
 
 
 # Создания экземпляра админ панели

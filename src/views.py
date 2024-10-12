@@ -16,15 +16,15 @@ from flask_jwt_extended import (
 )
 
 from . import app, cache
-from src.constants import DEFAULT_PAGE_NUMBER, HTTP_NOT_FOUND, PER_PAGE
-from src.crud.category import category_crud
-from src.crud.question import question_crud
-from src.crud.quiz import quiz_crud
-from src.crud.quiz_result import quiz_result_crud
-from src.crud.user import user_crud
-from src.crud.user_answer import user_answer_crud
-from src.crud.variant import variant_crud
-from src.utils import Dotdict, obj_to_dict
+from .constants import DEFAULT_PAGE_NUMBER, HTTP_NOT_FOUND, PER_PAGE
+from .crud.category import category_crud
+from .crud.question import question_crud
+from .crud.quiz import quiz_crud
+from .crud.quiz_result import quiz_result_crud
+from .crud.user import user_crud
+from .crud.user_answer import user_answer_crud
+from .crud.variant import variant_crud
+from .utils import Dotdict, obj_to_dict
 
 
 @app.route('/login', methods=['POST'])
