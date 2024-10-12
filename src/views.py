@@ -161,7 +161,7 @@ def delete_profile() -> Response:
 
     user_crud.remove(current_user)
 
-    return render_template('categories.html')
+    return 'Профиль удален', 204
 
 
 @app.route('/', methods=['GET'])
