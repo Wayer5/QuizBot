@@ -101,11 +101,9 @@ async def cmd_start(message: Message) -> None:
 
     # Отправляем приветственное сообщение с кнопкой 'Start'
     await message.answer(
-        f"""
-        👋 Привет, {tg_user.first_name}!
-        Мы рады видеть тебя у нас в {emoji.emojize(":robot:")}!
-        Нажми кнопку ⬇️, чтобы продолжить.
-        """,
+        (f'👋 Привет, {tg_user.first_name}!\n'
+         f'Мы рады видеть тебя у нас в боте{emoji.emojize(":robot:")}!\n'
+         'Нажми кнопку ⬇️, чтобы продолжить.'),
         reply_markup=create_reply_keyboard(),
     )
 
@@ -130,7 +128,7 @@ async def on_start_button(message: Message) -> None:
     web_app_url: str = settings.WEB_URL
 
     web_app_button: InlineKeyboardButton = InlineKeyboardButton(
-        text='Квиз',
+        text='Викторина',
         web_app=WebAppInfo(url=web_app_url),
     )
 
@@ -145,6 +143,6 @@ async def on_start_button(message: Message) -> None:
 
     # Отправляем инлайн-кнопку для открытия WebApp
     await message.answer(
-        'Нажми кнопку Квиз⬇️, чтобы открыть приложение квиза!',
+        'Нажми кнопку Викторина⬇️, чтобы открыть приложение!',
         reply_markup=keyboard,
     )
