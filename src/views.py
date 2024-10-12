@@ -76,7 +76,7 @@ async def auntification() -> str:
 
 
 @app.route('/me', methods=['GET'])
-@cache.cached(timeout=50)
+@cache.cached(timeout=5)
 @jwt_required()
 def profile() -> Response:
     """Отображаем профиль пользователя."""
