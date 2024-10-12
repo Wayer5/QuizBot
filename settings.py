@@ -92,9 +92,7 @@ class LoggingSettings:
     @classmethod
     def logging_file_path(cls) -> str:
         """Путь к файлу логов."""
-        log_file_name = (
-            datetime.now().strftime(('%Y-%m-%d')) + '_.log'
-        )
+        log_file_name = datetime.now().strftime(('%Y-%m-%d')) + '_.log'
         return f'{cls.logging_dir_path()}/{log_file_name}'
 
     @classmethod

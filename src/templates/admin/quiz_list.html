@@ -1,34 +1,73 @@
 {% extends 'admin/master.html' %}
 
-{% block title %}Статистика активности пользователей{% endblock %}
-
 {% block body %}
-    <h1>Статистика активности пользователей</h1>
-    
-    <!-- Форма поиска -->
-    <form method="get" action="{{ url_for('user_activity.index') }}" class="mb-3 d-flex flex-wrap">
-        <input type="text" name="search" class="form-control flex-grow-1 mr-2 mb-2" placeholder="Поиск по имени" value="{{ search_query }}">
+    <h1>Статистика по викторинам</h1>
+
+    <!-- Стили для пагинации -->
+    <style>
+        /* Стиль для кнопок пагинации */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            align-items: center;
+        }
+        .pagination a {
+            color: #3498db;
+            text-decoration: none;
+            padding: 5px 8px;  /* Уменьшена ширина кнопок */
+            border: 1px solid #ddd;
+            margin: 0 5px;
+            border-radius: 5px;
+            background-color: #f4f4f4;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .pagination a:hover {
+            background-color: #ddd;
+        }
+        .pagination .disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Стиль для стрелочек */
+        .arrow {
+            font-size: 28px;
+            font-weight: bold;
+            vertical-align: middle;
+        }
+
+        /* Новый стиль для надписи страницы */
+        .pagination span {
+            font-size: 14px;
+            margin: 0 10px;
+            align-self: center;
+        }
+
+        .pagination span.page-text {
+            text-align: left;
+            flex-grow: 1;
+        }
+    </style>
+
+    <form method="get" action="{{ url_for('quiz_list.index') }}" class="mb-3 d-flex flex-wrap">
+        <input type="text" name="search" class="form-control flex-grow-1 mr-2 mb-2" placeholder="Поиск по названию" value="{{ search_query }}">
         <button type="submit" class="btn btn-primary mb-2">Поиск</button>
     </form>
 
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Имя пользователя</th>
-                <th>Telegram ID</th>
-                <th>Дата создания</th>
+                <th>Викторина</th>
             </tr>
         </thead>
         <tbody>
-            {% for user in data %}
+            {% for quiz in data %}
             <tr>
                 <td>
-                    <a href="{{ url_for('user_statistics.index', user_id=user.id) }}">
-                        {{ user.name }}
-                    </a>
+                    <a href="{{ url_for('quiz_statistics.index', quiz_id=quiz.id) }}">{{ quiz.title }}</a>
                 </td>
-                <td>{{ user.telegram_id }}</td>
-                <td>{{ user.created_on.strftime('%d.%m.%Y') }}</td>
             </tr>
             {% endfor %}
         </tbody>
