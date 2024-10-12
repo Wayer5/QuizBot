@@ -66,11 +66,11 @@ docker compose up --build
 # Создатели
 
 - >Тимлид команды: [Клищенко Павел](https://github.com/PaShyKDF),
-  >Автор: [Борисов Максим](https://github.com/Wayer5),
-  >Автор: [Зайцев Дмитрий](https://github.com/of1nn),
-  >Автор: [Клобков Павел](https://github.com/Pavel-K14),
-  >Автор: [Бабич Денис](https://github.com/babichdenis),
-  >Автор: [Ряднов Никита](https://github.com/Riadnov-dev).
+- >Автор: [Борисов Максим](https://github.com/Wayer5),
+- >Автор: [Зайцев Дмитрий](https://github.com/of1nn),
+- >Автор: [Клобков Павел](https://github.com/Pavel-K14),
+- >Автор: [Бабич Денис](https://github.com/babichdenis),
+- >Автор: [Ряднов Никита](https://github.com/Riadnov-dev).
 
 
 
