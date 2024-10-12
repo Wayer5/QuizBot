@@ -5,26 +5,47 @@ from sqlalchemy import UniqueConstraint
 from . import db
 
 
-class User(db.Model):
+class BaseModel(db.Model):
+
+    """Базовая модель для всех других моделей."""
+
+    __abstract__ = True
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True,
+        unique=True,
+        comment='Уникальный идентификатор.',
+    )
+    is_active = db.Column(
+        db.Boolean,
+        default=True,
+        comment='Флаг активности записи.',
+    )
+    created_on = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+        comment='Дата и время создания записи.',
+    )
+
+
+class User(BaseModel):
 
     """Модель пользователя.
 
     Хранит информацию о пользователях.
-
     """
 
     __tablename__ = 'users'
-    id = db.Column(db.Integer, unique=True, primary_key=True)
+
     name = db.Column(db.String)
     username = db.Column(db.String, unique=True)
     telegram_id = db.Column(db.BigInteger)
-    created_on = db.Column(db.DateTime(), default=datetime.utcnow)
     updated_on = db.Column(
-        db.DateTime(),
+        db.DateTime,
         default=datetime.utcnow,
         onupdate=datetime.utcnow,
     )
-    is_active = db.Column(db.Boolean(), default=True)
     is_admin = db.Column(db.Boolean(), default=False)
 
     # Связь с таблицей QuizResult
@@ -36,30 +57,20 @@ class User(db.Model):
     )
 
 
-class Category(db.Model):
+class Category(BaseModel):
 
     """Модель категории викторины.
 
     Хранит информацию о различных категориях викторин.
-
     """
 
     __tablename__ = 'categories'
-    id = db.Column(
-        db.Integer,
-        primary_key=True,
-        comment='Уникальный идентификатор категории.',
-    )
+
     name = db.Column(
         db.String(50),
         nullable=False,
         unique=True,
         comment='Название категории викторины.',
-    )
-    is_active = db.Column(
-        db.Boolean,
-        default=True,
-        comment='Флаг активности категории.',
     )
 
     # Связь с таблицей quizzes
@@ -75,25 +86,20 @@ class Category(db.Model):
         return self.name
 
 
-class Quiz(db.Model):
+class Quiz(BaseModel):
 
     """Модель викторины.
 
     Содержит основную информацию о викторине, такую как название и категория.
-
     """
 
     __tablename__ = 'quizzes'
-    id = db.Column(
-        db.Integer,
-        primary_key=True,
-        comment='Уникальный идентификатор викторины.',
-    )
+
     title = db.Column(
         db.String(150),
         nullable=False,
-        comment='Название викторины.',
         unique=True,
+        comment='Название викторины.',
     )
     category_id = db.Column(
         db.Integer,
@@ -102,11 +108,6 @@ class Quiz(db.Model):
         comment='Идентификатор категории, к которой относится викторина.',
     )
     category = db.relationship('Category', back_populates='quizzes')
-    is_active = db.Column(
-        db.Boolean,
-        default=True,
-        comment='Флаг активности викторины.',
-    )
 
     # Связь с таблицей questions
     questions = db.relationship(
@@ -127,44 +128,31 @@ class Quiz(db.Model):
         return self.title
 
 
-class Question(db.Model):
+class Question(BaseModel):
 
     """Модель вопроса.
 
     Содержит информацию о вопросах, относящихся к викторине.
-
     """
 
     __tablename__ = 'questions'
-    id = db.Column(
-        db.Integer,
-        primary_key=True,
-        comment='Уникальный идентификатор вопроса.',
-        index=True,
-    )
+
     title = db.Column(
         db.String(150),
         nullable=False,
-        comment='Текст вопроса.',
         unique=True,
+        comment='Текст вопроса.',
     )
     quiz_id = db.Column(
         db.Integer,
         db.ForeignKey('quizzes.id'),
         nullable=False,
-        comment='Идентификатор викторины, к которой относится вопрос.',
         index=True,
+        comment='Идентификатор викторины, к которой относится вопрос.',
     )
     quiz = db.relationship(
         'Quiz',
-        back_populates='questions',
-    )
-    is_active = db.Column(
-        db.Boolean,
-        default=True,
-        comment='Флаг активности вопроса.',
-        index=True,
-    )
+        back_populates='questions')
 
     # Связь с таблицей variants
     variants = db.relationship(
@@ -175,20 +163,15 @@ class Question(db.Model):
     )
 
 
-class Variant(db.Model):
+class Variant(BaseModel):
 
     """Модель варианта ответа.
 
     Содержит информацию о вариантах ответа на вопрос.
-
     """
 
     __tablename__ = 'variants'
-    id = db.Column(
-        db.Integer,
-        primary_key=True,
-        comment='Уникальный идентификатор варианта ответа.',
-    )
+
     question_id = db.Column(
         db.Integer,
         db.ForeignKey('questions.id'),
@@ -210,6 +193,7 @@ class Variant(db.Model):
         default=False,
         comment='Флаг, указывающий, является ли данный ответ правильным.',
     )
+
     __table_args__ = (
         UniqueConstraint(
             'question_id',
@@ -219,7 +203,7 @@ class Variant(db.Model):
     )
 
 
-class QuizResult(db.Model):
+class QuizResult(BaseModel):
 
     """Модель результатов викторины.
 
@@ -229,11 +213,7 @@ class QuizResult(db.Model):
     """
 
     __tablename__ = 'quiz_results'
-    id = db.Column(
-        db.Integer,
-        primary_key=True,
-        comment='Уникальный идентификатор результата викторины.',
-    )
+
     user_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id'),
@@ -269,6 +249,7 @@ class QuizResult(db.Model):
         nullable=False,
         comment='Идентификатор последнего отвеченного вопроса.',
     )
+
     __table_args__ = (
         UniqueConstraint(
             'user_id',
@@ -278,7 +259,7 @@ class QuizResult(db.Model):
     )
 
 
-class UserAnswer(db.Model):
+class UserAnswer(BaseModel):
 
     """Модель ответов пользователей на вопросы.
 
@@ -287,24 +268,20 @@ class UserAnswer(db.Model):
     """
 
     __tablename__ = 'user_answers'
-    id = db.Column(
-        db.Integer,
-        primary_key=True,
-        comment='Уникальный идентификатор ответа пользователя.',
-    )
+
     user_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id'),
         nullable=True,
-        comment='Идентификатор пользователя.',
         index=True,
+        comment='Идентификатор пользователя.',
     )
     question_id = db.Column(
         db.Integer,
         db.ForeignKey('questions.id'),
         nullable=False,
-        comment='Идентификатор вопроса, на который ответил пользователь.',
         index=True,
+        comment='Идентификатор вопроса, на который ответил пользователь.',
     )
     answer_id = db.Column(
         db.Integer,
@@ -317,6 +294,7 @@ class UserAnswer(db.Model):
         default=False,
         comment='Флаг, указывающий, является ли ответ правильным.',
     )
+
     __table_args__ = (
         UniqueConstraint(
             'user_id',
@@ -326,16 +304,12 @@ class UserAnswer(db.Model):
     )
 
 
-class TelegramUser(db.Model):
+class TelegramUser(BaseModel):
 
     """Модель для хранения информации о пользователях Telegram."""
 
     __tablename__ = 'telegram_users'
-    id = db.Column(
-        db.Integer,
-        primary_key=True,
-        comment='Уникальный идентификатор записи в таблице.',
-    )
+
     telegram_id = db.Column(
         db.BigInteger,
         unique=True,
@@ -373,11 +347,6 @@ class TelegramUser(db.Model):
         default=False,
         comment='Указывает, добавил ли пользователь бота в меню вложений.',
     )
-    created_on = db.Column(
-        db.DateTime,
-        default=datetime.utcnow,
-        comment='Дата и время создания записи.',
-    )
 
     def __repr__(self) -> str:
-        return f'<TelegramUser id={self.telegram_id}'
+        return f'<TelegramUser id={self.telegram_id}>'
