@@ -1,6 +1,8 @@
-from typing import Optional
+from typing import Optional, Tuple
 
 from sqlalchemy import null, select, true
+from sqlalchemy.exc import DataError
+from sqlalchemy.sql import text
 
 from src import db
 from src.crud.base import CRUDBase
@@ -55,6 +57,34 @@ class CRUDQuestion(CRUDBase):
             .scalars()
             .all()
         )
+
+    def get_statistic(self, question_id: int) -> Tuple:
+        """Получить статистику по вопросу."""
+        try:
+            stats_query = text(
+                """
+                SELECT
+                    qu.title AS question_text,
+                    COUNT(ua.id) AS total_answers,
+                    SUM(CASE WHEN ua.is_right = TRUE THEN 1 ELSE 0 END),
+                    ROUND(SUM(CASE WHEN ua.is_right = TRUE THEN 1 ELSE 0 END) *
+                    100.0 / COUNT(ua.id), 2)
+                FROM questions qu
+                LEFT JOIN user_answers ua ON ua.question_id = qu.id
+                WHERE qu.id = :question_id
+                GROUP BY qu.title
+                """,
+            )
+
+            statistic = db.session.execute(
+                    stats_query, {'question_id': question_id},
+            ).fetchone()
+        except DataError:
+            # Обрабатываем деление на ноль или другие ошибки данных
+            db.session.rollback()  # Откатываем сессию
+            statistic = ('Нет данных', 0, 0, 0)
+
+        return statistic
 
 
 question_crud = CRUDQuestion(Question)
