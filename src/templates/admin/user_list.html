@@ -3,6 +3,54 @@
 {% block title %}Статистика активности пользователей{% endblock %}
 
 {% block body %}
+    <!-- Стили для пагинации -->
+    <style>
+        /* Стиль для кнопок пагинации */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            align-items: center;
+        }
+        .pagination a {
+            color: #3498db;
+            text-decoration: none;
+            padding: 5px 8px;  /* Уменьшена ширина кнопок */
+            border: 1px solid #ddd;
+            margin: 0 5px;
+            border-radius: 5px;
+            background-color: #f4f4f4;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .pagination a:hover {
+            background-color: #ddd;
+        }
+        .pagination .disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Стиль для стрелочек */
+        .arrow {
+            font-size: 28px;
+            font-weight: bold;
+            vertical-align: middle;
+        }
+
+        /* Новый стиль для надписи страницы */
+        .pagination span {
+            font-size: 14px;
+            margin: 0 10px;
+            align-self: center;
+        }
+
+        .pagination span.page-text {
+            text-align: left;
+            flex-grow: 1;
+        }
+    </style>
+
     <h1>Статистика активности пользователей</h1>
     
     <!-- Форма поиска -->
