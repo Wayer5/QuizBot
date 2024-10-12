@@ -9,14 +9,16 @@
 
     <h1 class="mb-3" style="font-size: 24px;">Упс! Тут ничего нет...</h1>
     <p class="mb-4" style="font-size: 16px;">
-        Не переживайте! Все под контролем. Мы починим это. 
-        А пока вы можете вернуться к категориям.
+        Не переживайте! Все под контролем. Мы починим это.
+        {% if is_admin %}
+            А пока вы можете вернуться на главную админки.
+        {% else %}
+            А пока вы можете вернуться к категориям.
+        {% endif %}
     </p>
 
-    <!-- Кнопка для возврата к категориям -->
-    {% if not is_category_page %}
-    <a href="{{ url_for('categories') }}" class="btn btn-primary btn-lg" style="width: 100%; max-width: 320px;">Вернуться к категориям</a>
-    {% endif %}
+    <!-- Кнопка для возврата -->
+    <a href="{{ button_link }}" class="btn btn-primary btn-lg" style="width: 100%; max-width: 320px;">{{ button_text }}</a>
 </section>
 
 <!-- CSS для мобильного формата -->

@@ -164,6 +164,7 @@ def delete_profile() -> Response:
     return 'Профиль удален', 204
 
 
+
 @app.route('/', methods=['GET'])
 async def categories() -> str:
     """Вывод страницы категорий."""
