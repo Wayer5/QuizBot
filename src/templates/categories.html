@@ -1,21 +1,106 @@
-{% extends "base.html" %} 
+{% extends "base.html" %}
 
 {% block title %}Рубрики{% endblock %}
 
+{% block stylesheets %}
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+{% endblock stylesheets %}
+
 {% block content %}
-<div class="container">
-  <h1 class="text-center">Рубрики</h1>
+<div class="container mt-4" style="max-width: 600px;">
+    <h1 class="text-center">Рубрики</h1>
+    <div class="card" style="border: none; box-shadow: none;">
+        <div class="card-body" style="padding: 0;">
+            <div class="list-group">
+                {% for category in categories %}
+                <a href="{{ url_for('quizzes', category_id=category.id) }}" class="list-group-item list-group-item-action" style="border: none; border-radius: 4px; color: #000;">
+                        <h5 class="mb-0">{{ category.name }}</h5>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Добавляем пагинацию только если страниц больше одной -->
+    {% if pagination.pages > 1 %}
+    <div class="mt-4">
+        <nav aria-label="Pagination">
+            <ul class="pagination justify-content-center">
+                {% if pagination.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('categories', page=pagination.prev_num) }}">Предыдущая</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Предыдущая</span>
+                    </li>
+                {% endif %}
+
+                {% for page_num in pagination.iter_pages() %}
+                    {% if page_num %}
+                        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('categories', page=page_num) }}">{{ page_num }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if pagination.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('categories', page=pagination.next_num) }}">Следующая</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Следующая</span>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
 </div>
-<div class="table-container mt-5">
-  <ul class="list-group">
-    {% for category in categories %}
-    <li class="list-group-item">
-      <a href="{{ url_for('quizzes', category_id=category.id) }}"
-        >{{ category.name }}</a
-      >
-    </li>
-    {% endfor %}
-  </ul>
-</div>
+
 {% include 'login_script.html' %}
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f5f7fa;
+    }
+
+    .container {
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+
+    .card {
+        box-shadow: none;
+    }
+
+    h1 {
+        font-size: 28px;
+        margin-bottom: 20px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: #fff;
+    }
+
+    .pagination .page-link {
+        color: #007bff;
+    }
+
+    .pagination .page-item.disabled .page-link {
+        color: #6c757d;
+    }
+</style>
+
 {% endblock %}
