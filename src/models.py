@@ -29,14 +29,6 @@ class IsActiveMixin:
     is_active = db.Column(db.Boolean, default=True)
 
 
-class TitleMixin:
-
-    """Миксин для названия объекта."""
-
-    __abstract__ = True
-    title = db.Column(db.String(150), nullable=False, unique=True)
-
-
 class User(BaseModel, TimestampMixin, IsActiveMixin):
 
     """Модель пользователя.
@@ -94,7 +86,7 @@ class Category(BaseModel, IsActiveMixin):
         return self.name
 
 
-class Quiz(BaseModel, IsActiveMixin, TitleMixin):
+class Quiz(BaseModel, IsActiveMixin):
 
     """Модель викторины.
 
@@ -103,6 +95,12 @@ class Quiz(BaseModel, IsActiveMixin, TitleMixin):
     """
 
     __tablename__ = 'quizzes'
+    title = db.Column(
+        db.String(30),
+        nullable=False,
+        comment='Название викторины.',
+        unique=True,
+    )
     category_id = db.Column(
         db.Integer,
         db.ForeignKey('categories.id'),
@@ -130,7 +128,7 @@ class Quiz(BaseModel, IsActiveMixin, TitleMixin):
         return self.title
 
 
-class Question(BaseModel, IsActiveMixin, TitleMixin):
+class Question(BaseModel, IsActiveMixin):
 
     """Модель вопроса.
 
@@ -139,6 +137,12 @@ class Question(BaseModel, IsActiveMixin, TitleMixin):
     """
 
     __tablename__ = 'questions'
+    title = db.Column(
+        db.String(175),
+        nullable=False,
+        comment='Текст вопроса.',
+        unique=True,
+    )
     quiz_id = db.Column(
         db.Integer,
         db.ForeignKey('quizzes.id'),
@@ -160,7 +164,7 @@ class Question(BaseModel, IsActiveMixin, TitleMixin):
     )
 
 
-class Variant(BaseModel, TitleMixin):
+class Variant(BaseModel):
 
     """Модель варианта ответа.
 
@@ -174,6 +178,11 @@ class Variant(BaseModel, TitleMixin):
         db.ForeignKey('questions.id'),
         nullable=False,
         comment='Идентификатор вопроса, к которому относится данный ответ.',
+    )
+    title = db.Column(
+        db.String(60),
+        nullable=False,
+        comment='Текст варианта ответа.',
     )
     description = db.Column(
         db.Text,
