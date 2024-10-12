@@ -7,42 +7,50 @@ from . import db
 
 class BaseModel(db.Model):
 
-    """Базовая модель для всех других моделей."""
+    """Базовая модель."""
 
     __abstract__ = True
-
-    id = db.Column(
-        db.Integer,
-        primary_key=True,
-        unique=True,
-        comment='Уникальный идентификатор.',
-    )
-    is_active = db.Column(
-        db.Boolean,
-        default=True,
-        comment='Флаг активности записи.',
-    )
-    created_on = db.Column(
-        db.DateTime,
-        default=datetime.utcnow,
-        comment='Дата и время создания записи.',
-    )
+    id = db.Column(db.Integer, primary_key=True, unique=True)
 
 
-class User(BaseModel):
+class TimestampMixin:
+
+    """Миксин для временной метки."""
+
+    __abstract__ = True
+    created_on = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class IsActiveMixin:
+
+    """Миксин для флага активнен."""
+
+    __abstract__ = True
+    is_active = db.Column(db.Boolean, default=True)
+
+
+class TitleMixin:
+
+    """Миксин для названия объекта."""
+
+    __abstract__ = True
+    title = db.Column(db.String(150), nullable=False, unique=True)
+
+
+class User(BaseModel, TimestampMixin, IsActiveMixin):
 
     """Модель пользователя.
 
     Хранит информацию о пользователях.
+
     """
 
     __tablename__ = 'users'
-
     name = db.Column(db.String)
     username = db.Column(db.String, unique=True)
     telegram_id = db.Column(db.BigInteger)
     updated_on = db.Column(
-        db.DateTime,
+        db.DateTime(),
         default=datetime.utcnow,
         onupdate=datetime.utcnow,
     )
@@ -57,15 +65,15 @@ class User(BaseModel):
     )
 
 
-class Category(BaseModel):
+class Category(BaseModel, IsActiveMixin):
 
     """Модель категории викторины.
 
     Хранит информацию о различных категориях викторин.
+
     """
 
     __tablename__ = 'categories'
-
     name = db.Column(
         db.String(50),
         nullable=False,
@@ -86,21 +94,15 @@ class Category(BaseModel):
         return self.name
 
 
-class Quiz(BaseModel):
+class Quiz(BaseModel, IsActiveMixin, TitleMixin):
 
     """Модель викторины.
 
     Содержит основную информацию о викторине, такую как название и категория.
+
     """
 
     __tablename__ = 'quizzes'
-
-    title = db.Column(
-        db.String(150),
-        nullable=False,
-        unique=True,
-        comment='Название викторины.',
-    )
     category_id = db.Column(
         db.Integer,
         db.ForeignKey('categories.id'),
@@ -128,31 +130,26 @@ class Quiz(BaseModel):
         return self.title
 
 
-class Question(BaseModel):
+class Question(BaseModel, IsActiveMixin, TitleMixin):
 
     """Модель вопроса.
 
     Содержит информацию о вопросах, относящихся к викторине.
+
     """
 
     __tablename__ = 'questions'
-
-    title = db.Column(
-        db.String(150),
-        nullable=False,
-        unique=True,
-        comment='Текст вопроса.',
-    )
     quiz_id = db.Column(
         db.Integer,
         db.ForeignKey('quizzes.id'),
         nullable=False,
-        index=True,
         comment='Идентификатор викторины, к которой относится вопрос.',
+        index=True,
     )
     quiz = db.relationship(
         'Quiz',
-        back_populates='questions')
+        back_populates='questions',
+    )
 
     # Связь с таблицей variants
     variants = db.relationship(
@@ -163,25 +160,20 @@ class Question(BaseModel):
     )
 
 
-class Variant(BaseModel):
+class Variant(BaseModel, TitleMixin):
 
     """Модель варианта ответа.
 
     Содержит информацию о вариантах ответа на вопрос.
+
     """
 
     __tablename__ = 'variants'
-
     question_id = db.Column(
         db.Integer,
         db.ForeignKey('questions.id'),
         nullable=False,
         comment='Идентификатор вопроса, к которому относится данный ответ.',
-    )
-    title = db.Column(
-        db.String(150),
-        nullable=False,
-        comment='Текст варианта ответа.',
     )
     description = db.Column(
         db.Text,
@@ -193,7 +185,6 @@ class Variant(BaseModel):
         default=False,
         comment='Флаг, указывающий, является ли данный ответ правильным.',
     )
-
     __table_args__ = (
         UniqueConstraint(
             'question_id',
@@ -213,7 +204,6 @@ class QuizResult(BaseModel):
     """
 
     __tablename__ = 'quiz_results'
-
     user_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id'),
@@ -249,7 +239,6 @@ class QuizResult(BaseModel):
         nullable=False,
         comment='Идентификатор последнего отвеченного вопроса.',
     )
-
     __table_args__ = (
         UniqueConstraint(
             'user_id',
@@ -268,20 +257,19 @@ class UserAnswer(BaseModel):
     """
 
     __tablename__ = 'user_answers'
-
     user_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id'),
         nullable=True,
-        index=True,
         comment='Идентификатор пользователя.',
+        index=True,
     )
     question_id = db.Column(
         db.Integer,
         db.ForeignKey('questions.id'),
         nullable=False,
-        index=True,
         comment='Идентификатор вопроса, на который ответил пользователь.',
+        index=True,
     )
     answer_id = db.Column(
         db.Integer,
@@ -294,7 +282,6 @@ class UserAnswer(BaseModel):
         default=False,
         comment='Флаг, указывающий, является ли ответ правильным.',
     )
-
     __table_args__ = (
         UniqueConstraint(
             'user_id',
@@ -304,12 +291,11 @@ class UserAnswer(BaseModel):
     )
 
 
-class TelegramUser(BaseModel):
+class TelegramUser(BaseModel, TimestampMixin):
 
     """Модель для хранения информации о пользователях Telegram."""
 
     __tablename__ = 'telegram_users'
-
     telegram_id = db.Column(
         db.BigInteger,
         unique=True,
@@ -349,4 +335,4 @@ class TelegramUser(BaseModel):
     )
 
     def __repr__(self) -> str:
-        return f'<TelegramUser id={self.telegram_id}>'
+        return f'<TelegramUser id={self.telegram_id}'
