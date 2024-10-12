@@ -20,14 +20,15 @@ def page_not_found(error: Exception) -> Response:
     Response: HTML-страница для отображения ошибки 404.
 
     """
-    is_category_page = request.path == url_for('categories')
-    return (
-        render_template(
-            '404.html',
-            is_category_page=is_category_page,
-        ),
-        HTTP_NOT_FOUND,
-    )
+    if request.path.startswith('/admin'):
+        # Если ошибка произошла на странице админки
+        return render_template(
+            'admin/404.html',
+            button_text='Вернуться на главную',
+            button_link=url_for('admin.index'),
+        ), HTTP_NOT_FOUND
+    # Если ошибка произошла на пользовательской странице
+    return render_template('404.html'), HTTP_NOT_FOUND
 
 
 @jwt.unauthorized_loader

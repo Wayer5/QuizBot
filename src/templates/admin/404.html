@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Упс! Страница не найдена{% endblock %}
+
+{% block content %}
+<section class="container my-5 px-4 text-center" style="max-width: 400px; margin: 0 auto;">
+    <!-- Место для подгружаемой картинки -->
+    <img src="{{ url_for('static', filename='images/404.png') }}" alt="404 Not Found" class="img-fluid mb-4" style="max-width: 100%; height: auto;">
+
+    <h1 class="mb-3" style="font-size: 24px;">Упс! Тут ничего нет...</h1>
+    <p class="mb-4" style="font-size: 16px;">
+        Не переживайте! Все под контролем. Мы починим это.
+    </p>
+
+    <!-- Кнопка для возврата на главную админки -->
+    <a href="{{ url_for('admin.index') }}" class="btn btn-primary btn-lg" style="width: 100%; max-width: 320px;">Вернуться на главную</a>
+</section>
+
+<!-- CSS для мобильного формата -->
+<style>
+    body {
+        font-size: 16px;
+    }
+    h1 {
+        font-size: 22px;
+    }
+    .container {
+        background-color: #ffffff;
+        padding: 10px;
+    }
+    .btn {
+        padding: 12px 20px;
+    }
+
+    /* Добавляем адаптацию для планшетов */
+    @media (min-width: 600px) {
+        h1 {
+            font-size: 26px; /* Увеличиваем шрифт на планшетах */
+        }
+        p {
+            font-size: 18px; /* Увеличиваем шрифт для текста на планшетах */
+        }
+        .btn {
+            padding: 14px 22px; /* Увеличиваем размер кнопки на планшетах */
+        }
+    }
+
+    /* Адаптация для больших экранов (планшеты и десктопы) */
+    @media (min-width: 992px) {
+        .container {
+            max-width: 600px; /* Широкий контейнер для больших экранов */
+        }
+        h1 {
+            font-size: 28px;
+        }
+        p {
+            font-size: 20px;
+        }
+        .btn {
+            padding: 16px 24px;
+            max-width: 400px; /* Широкая кнопка на больших экранах */
+        }
+    }
+
+</style>
+{% endblock %}
