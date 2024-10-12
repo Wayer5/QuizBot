@@ -12,11 +12,15 @@ class CRUDQuiz(CRUDBase):
 
     """Круд класс викторин."""
 
-    def get_by_category_id(self, category_id: int, is_active: bool = true(),
-                           ) -> Query:
+    def get_by_category_id(
+        self,
+        category_id: int,
+        is_active: bool = true(),
+    ) -> Query:
         """Получение викторин по id категории как запрос Query."""
         return db.session.query(Quiz).filter(
-            Quiz.category_id == category_id, Quiz.is_active == is_active,
+            Quiz.category_id == category_id,
+            Quiz.is_active == is_active,
         )
 
     def get_by_id(self, quiz_id: int) -> Optional[Quiz]:

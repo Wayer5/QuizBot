@@ -19,6 +19,7 @@ charset-normalizer==3.3.2
 click==8.1.7
 colorama==0.4.6
 cryptography==38.0.4
+emoji==2.14.0
 flake8==4.0.1
 Flask==3.0.3
 Flask-Admin==1.6.1

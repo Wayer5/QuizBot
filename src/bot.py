@@ -1,3 +1,4 @@
+import emoji
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
@@ -35,12 +36,12 @@ def create_reply_keyboard() -> ReplyKeyboardMarkup:
     Returns
     -------
     ReplyKeyboardMarkup
-        Клавиатура с кнопкой 'Start'.
+        Клавиатура с кнопкой 'Продолжить'.
 
     """
     return ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text='Start')],
+            [KeyboardButton(text='Продолжить')],
         ],
         resize_keyboard=True,
     )
@@ -100,12 +101,16 @@ async def cmd_start(message: Message) -> None:
 
     # Отправляем приветственное сообщение с кнопкой 'Start'
     await message.answer(
-        'Привет, Я МедСтатбот! Нажми кнопку "Start", чтобы продолжить.',
+        f"""
+        👋 Привет, {tg_user.first_name}!
+        Мы рады видеть тебя у нас в {emoji.emojize(":robot:")}!
+        Нажми кнопку ⬇️, чтобы продолжить.
+        """,
         reply_markup=create_reply_keyboard(),
     )
 
 
-@dp.message(lambda message: message.text == 'Start')
+@dp.message(lambda message: message.text == 'Продолжить')
 async def on_start_button(message: Message) -> None:
     """Обработка нажатия кнопки 'Start' и отправка WebApp кнопки.
 
@@ -140,6 +145,6 @@ async def on_start_button(message: Message) -> None:
 
     # Отправляем инлайн-кнопку для открытия WebApp
     await message.answer(
-        'Нажми кнопку ниже, чтобы открыть WebApp:',
+        'Нажми кнопку Квиз⬇️, чтобы открыть приложение квиза!',
         reply_markup=keyboard,
     )
