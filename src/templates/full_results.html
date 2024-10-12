@@ -45,31 +45,30 @@
             <ul style="list-style-type: none; padding: 0">
               {% for answer in question.possible_answers %}
               <li class="mb-2">
-                {% if answer == question.correct_answer %} {% if answer ==
-                question.user_answer %}
-                <span class="text-success">
-                  <i class="fas fa-check-circle"></i> {{ answer }}
-                </span>
-                <p class="text-success small">
-                  <strong>{{ question.description }}</strong>
-                </p>
-                {% else %}
-                <span class="d-flex align-items-center">
-                  <span class="circle"></span> {{ answer }}
-                </span>
-                {% endif %} {% elif answer == question.user_answer %}
-                <span class="text-danger">
-                  <i class="fas fa-times-circle"></i> {{ answer }}
+                {% if answer == question.correct_answer %}
+                  {% if answer == question.user_answer %}
+                    <span class="text-success">
+                      <i class="fas fa-check-circle"></i> {{ answer }}
+                    </span>
+                    <p class="text-success small">
+                      <strong>{{ question.description }}</strong>
+                    </p>
+                  {% else %}
+                    <span class="text-muted text-success">
+                      <i class="fas fa-check-circle"></i> {{ answer }}
+                    </span>
+                  {% endif %}
+                {% elif answer == question.user_answer %}
+                  <span class="text-danger">
+                    <i class="fas fa-times-circle"></i> {{ answer }}
+                  </span>
                   <p class="text-danger small">
-                    <strong
-                      >{{ question.description }}</strong
-                    >
+                    <strong>{{ question.description }}</strong>
                   </p>
-                </span>
                 {% else %}
-                <span class="d-flex align-items-center">
-                  <span class="circle"></span> {{ answer }}
-                </span>
+                  <span class="d-flex align-items-center">
+                    <span class="circle"></span> {{ answer }}
+                  </span>
                 {% endif %}
               </li>
               {% endfor %}
