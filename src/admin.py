@@ -32,6 +32,16 @@ from .crud.user_answer import user_answer_crud
 from .models import Category, Question, Quiz, User, Variant
 
 
+class BaseView(BaseView):
+
+    """Базовый класс для всех представлений."""
+
+    def is_accessible(self) -> bool:
+        """Проверка доступа."""
+        verify_jwt_in_request()
+        return super().is_accessible() and current_user.is_admin
+
+
 class MyAdminIndexView(AdminIndexView):
 
     """Класс для переопределения главной страницы администратора."""
@@ -39,6 +49,9 @@ class MyAdminIndexView(AdminIndexView):
     @expose('/')
     def index(self) -> Response:
         """Переопределение главной страницы администратора."""
+        verify_jwt_in_request()
+        if current_user.is_admin is False:
+            return redirect(url_for('categories'))
         admin_menu = self.admin.menu()
         return self.render('admin/admin_index.html', admin_menu=admin_menu)
 
