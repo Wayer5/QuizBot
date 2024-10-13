@@ -36,7 +36,8 @@ class BaseView(BaseView):
 
     """Базовый класс для всех представлений."""
 
-    def is_accessible(self):
+    def is_accessible(self) -> bool:
+        """Проверка доступа."""
         verify_jwt_in_request()
         return super().is_accessible() and current_user.is_admin
 
