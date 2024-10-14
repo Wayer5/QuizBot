@@ -1,6 +1,6 @@
 from typing import Any
 
-from flask import Response, redirect, request, url_for, flash
+from flask import Response, flash, redirect, request, url_for
 from flask_admin import Admin, AdminIndexView, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.model.template import LinkRowAction
@@ -10,6 +10,7 @@ from flask_jwt_extended import (
     jwt_required,
     verify_jwt_in_request,
 )
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 from wtforms import ValidationError
 
@@ -17,16 +18,16 @@ from . import app, db
 from .constants import (
     CAN_ONLY_BE_ONE_CORRECT_ANSWER,
     DEFAULT_PAGE_NUMBER,
+    DELETE_ERROR_MESSAGE,
+    ERROR_FOR_CATEGORY,
+    ERROR_FOR_QUESTION,
+    ERROR_FOR_QUIZ,
     HTTP_NOT_FOUND,
     ITEMS_PER_PAGE,
     ONE_ANSWER_VARIANT,
     ONE_CORRECT_ANSWER,
     UNIQUE_VARIANT,
     USER_NOT_FOUND_MESSAGE,
-    DELETE_ERROR_MESSAGE,
-    ERROR_FOR_CATEGORY,
-    ERROR_FOR_QUIZ,
-    ERROR_FOR_QUESTION,
 )
 from .crud.category import category_crud
 from .crud.question import question_crud
@@ -109,9 +110,12 @@ class UserAdmin(CustomAdminView):
 
 
 class IntegrityErrorMixin:
+
+    """Миксин обработки ошибки удаления связанного объекта и БД."""
+
     delete_error_message = ''
 
-    def delete_model(self, model):
+    def delete_model(self, model: SQLAlchemy) -> bool:
         """Переопределяем метод удаления модели."""
         try:
             # Пытаемся удалить модель
