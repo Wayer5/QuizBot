@@ -1,6 +1,6 @@
 from typing import Any
 
-from flask import Response, redirect, request, url_for
+from flask import Response, redirect, request, url_for, flash
 from flask_admin import Admin, AdminIndexView, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.model.template import LinkRowAction
@@ -23,6 +23,10 @@ from .constants import (
     ONE_CORRECT_ANSWER,
     UNIQUE_VARIANT,
     USER_NOT_FOUND_MESSAGE,
+    DELETE_ERROR_MESSAGE,
+    ERROR_FOR_CATEGORY,
+    ERROR_FOR_QUIZ,
+    ERROR_FOR_QUESTION,
 )
 from .crud.category import category_crud
 from .crud.question import question_crud
@@ -104,9 +108,31 @@ class UserAdmin(CustomAdminView):
     }
 
 
-class CategoryAdmin(CustomAdminView):
+class IntegrityErrorMixin:
+    delete_error_message = ''
+
+    def delete_model(self, model):
+        """Переопределяем метод удаления модели."""
+        try:
+            # Пытаемся удалить модель
+            self.session.delete(model)
+            self.session.commit()
+            return True
+        except IntegrityError as e:
+            # Откатываем транзакцию
+            self.session.rollback()
+            # Логируем сообщение об ошибке (по желанию)
+            print(f'Ошибка целостности: {str(e)}')
+            # Отображаем пользовательское сообщение
+            flash(DELETE_ERROR_MESSAGE + self.delete_error_message, 'error')
+            return False
+
+
+class CategoryAdmin(IntegrityErrorMixin, CustomAdminView):
 
     """Добавление и перевод модели категорий в админ зону."""
+
+    delete_error_message = ERROR_FOR_CATEGORY
 
     column_labels = {
         # 'id': 'ID',
@@ -115,10 +141,11 @@ class CategoryAdmin(CustomAdminView):
     }
 
 
-class QuizAdmin(CustomAdminView):
+class QuizAdmin(IntegrityErrorMixin, CustomAdminView):
 
     """Добавление и перевод модели викторин в админ зону."""
 
+    delete_error_message = ERROR_FOR_QUIZ
     # Отображаемые поля в списке записей
     column_list = ['title', 'category', 'is_active']
     # Отображаемые поля в форме создания и редактирования
@@ -153,10 +180,11 @@ class QuizAdmin(CustomAdminView):
         )
 
 
-class QuestionAdmin(CustomAdminView):
+class QuestionAdmin(IntegrityErrorMixin, CustomAdminView):
 
     """Добавление и перевод модели вопросов в админ зону."""
 
+    delete_error_message = ERROR_FOR_QUESTION
     # Отображаемые поля в списке записей
     column_list = ['title', 'quiz', 'is_active']
     column_labels = {
