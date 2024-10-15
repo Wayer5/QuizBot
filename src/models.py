@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy import UniqueConstraint
+from sqlalchemy.orm import deferred
 
 from . import db
 
@@ -150,11 +151,17 @@ class Question(BaseModel, IsActiveMixin):
         comment='Идентификатор викторины, к которой относится вопрос.',
         index=True,
     )
+    image = deferred(
+        db.Column(
+            db.Text,
+            nullable=True,
+            comment='Изображение',
+        ),
+    )
     quiz = db.relationship(
         'Quiz',
         back_populates='questions',
     )
-
     # Связь с таблицей variants
     variants = db.relationship(
         'Variant',

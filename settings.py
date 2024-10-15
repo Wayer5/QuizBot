@@ -27,7 +27,7 @@ class Config(object):
     JWT_CSRF_CHECK_FORM = True
     JWT_CSRF_IN_COOKIES = True
     JWT_TOKEN_LOCATION = ['cookies', 'headers']
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=15)
     SESSION_TYPE = 'redis'
     SESSION_REDIS = Redis(
         host=get('REDIS_HOST'),

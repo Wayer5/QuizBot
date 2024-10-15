@@ -22,19 +22,25 @@ def page_not_found(error: Exception) -> Response:
     """
     if request.path.startswith('/admin'):
         # Ошибка на странице админки
-        return render_template(
-            'errors/404.html',
-            is_admin=True,
-            button_text='Вернуться на главную',
-            button_link='/admin',
-        ), HTTP_NOT_FOUND
+        return (
+            render_template(
+                'errors/404.html',
+                is_admin=True,
+                button_text='Вернуться на главную',
+                button_link='/admin',
+            ),
+            HTTP_NOT_FOUND,
+        )
     # Ошибка на пользовательской странице
-    return render_template(
-        'errors/404.html',
-        is_admin=False,
-        button_text='Вернуться к категориям',
-        button_link=url_for('categories'),
-    ), HTTP_NOT_FOUND
+    return (
+        render_template(
+            'errors/404.html',
+            is_admin=False,
+            button_text='Вернуться к категориям',
+            button_link=url_for('categories'),
+        ),
+        HTTP_NOT_FOUND,
+    )
 
 
 @jwt.unauthorized_loader
