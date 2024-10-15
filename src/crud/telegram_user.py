@@ -2,7 +2,7 @@ from typing import Optional
 
 from src import db
 from src.crud.base import CRUDBase
-from src.models import TelegramUser
+from src.models.telegram_user import TelegramUser
 
 
 class CRUDTelegramUser(CRUDBase):

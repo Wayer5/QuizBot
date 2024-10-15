@@ -19,14 +19,42 @@ migrate = Migrate(app, db)
 RedisSession(app)
 cache = Cache(app)
 
+from .views import (  # noqa
+    auth,
+    category,
+    image,
+    pro_file,
+    question,
+    quiz,
+    result,
+)
+
+from .models import (  # noqa
+    base,
+    category,
+    question,
+    quiz_result,
+    quiz,
+    telegram_user,
+    user_answer,
+    user,
+    variant,
+)
+
+from .admin import (  # noqa
+    base,
+    category,
+    connect,
+    index,
+    question,
+    quiz,
+    user,
+)
 
 from . import (  # noqa
     bot,
     constants,
     api_views,
     jwt,
-    admin,
-    models,
-    views,
     error_handlers,
 )

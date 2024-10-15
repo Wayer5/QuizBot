@@ -7,7 +7,9 @@ from sqlalchemy.sql import text
 
 from src import db
 from src.crud.base import CRUDBase
-from src.models import Category, Question, Quiz
+from src.models.category import Category
+from src.models.question import Question
+from src.models.quiz import Quiz
 
 
 class CRUDCategory(CRUDBase):

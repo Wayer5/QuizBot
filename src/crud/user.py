@@ -2,7 +2,7 @@ from typing import Optional
 
 from src import db
 from src.crud.base import CRUDBase
-from src.models import User
+from src.models.user import User
 
 
 class CRUDUser(CRUDBase):
