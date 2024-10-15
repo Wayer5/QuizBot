@@ -426,7 +426,7 @@ def results(quiz_id: int, test: str) -> str:
                 'possible_answers': possible_answers,
                 # Описание правильного ответа
                 'correct_description': correct_variant.description
-                if correct_variant 
+                if correct_variant
                 else None,
                 'image_url': image_url if image_url else None,
             },
