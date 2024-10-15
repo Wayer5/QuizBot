@@ -5,7 +5,7 @@ from sqlalchemy.orm import joinedload
 
 from src import db
 from src.crud.base import CRUDBase
-from src.models import QuizResult
+from src.models.quiz_result import QuizResult
 
 
 class CRUDQuizResult(CRUDBase):

@@ -19,7 +19,6 @@ from .constants import BAN_WARN_MESSAGE
 from .crud.telegram_user import telegram_user_crud
 from .crud.user import user_crud
 
-# Создаем объект бота. https://t.me/MedStatSolution_Bot
 bot: Bot = Bot(
     token=settings.TELEGRAM_TOKEN,
     default=DefaultBotProperties(parse_mode=ParseMode.HTML),

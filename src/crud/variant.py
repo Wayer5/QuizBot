@@ -1,5 +1,5 @@
 from src.crud.base import CRUDBase
-from src.models import Variant
+from src.models.variant import Variant
 
 
 class CRUDVariant(CRUDBase):

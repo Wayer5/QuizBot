@@ -6,7 +6,8 @@ from sqlalchemy.sql import text
 
 from src import db
 from src.crud.base import CRUDBase
-from src.models import Question, UserAnswer
+from src.models.question import Question
+from src.models.user_answer import UserAnswer
 
 
 class CRUDQuestion(CRUDBase):

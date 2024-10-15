@@ -13,7 +13,7 @@
         <div class="card-body" style="padding: 0;">
             <div class="list-group">
                 {% for quiz in quizzes %}
-                <a href="{{ url_for('question', category_id=quiz.category.id, quiz_id=quiz.id) }}" class="list-group-item list-group-item-action" style="border: none; border-radius: 4px; color: #000;">
+                <a href="{{ url_for('questions', category_id=quiz.category.id, quiz_id=quiz.id) }}" class="list-group-item list-group-item-action" style="border: none; border-radius: 4px; color: #000;">
                         <h5 class="mb-0">{{ quiz.title }}</h5>
                     </a>
                 {% endfor %}
