@@ -1,7 +1,7 @@
 import base64
 from typing import Any
 
-from flask import Response, redirect, request, url_for
+from flask import Response, flash, redirect, request, url_for
 from flask_admin import Admin, AdminIndexView, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.model.template import LinkRowAction
@@ -11,6 +11,7 @@ from flask_jwt_extended import (
     jwt_required,
     verify_jwt_in_request,
 )
+from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.file import FileAllowed, FileField, FileStorage, ValidationError
 from sqlalchemy.exc import IntegrityError
 
@@ -18,6 +19,10 @@ from . import app, cache, db
 from .constants import (
     CAN_ONLY_BE_ONE_CORRECT_ANSWER,
     DEFAULT_PAGE_NUMBER,
+    DELETE_ERROR_MESSAGE,
+    ERROR_FOR_CATEGORY,
+    ERROR_FOR_QUESTION,
+    ERROR_FOR_QUIZ,
     HTTP_NOT_FOUND,
     ITEMS_PER_PAGE,
     ONE_ANSWER_VARIANT,
@@ -124,9 +129,34 @@ class UserAdmin(CustomAdminView):
             cache.set(f'user_{model.id}', model, timeout=60 * 60)
 
 
-class CategoryAdmin(CustomAdminView):
+class IntegrityErrorMixin:
+
+    """Миксин обработки ошибки удаления связанного объекта и БД."""
+
+    delete_error_message = ''
+
+    def delete_model(self, model: SQLAlchemy) -> bool:
+        """Переопределяем метод удаления модели."""
+        try:
+            # Пытаемся удалить модель
+            self.session.delete(model)
+            self.session.commit()
+            return True
+        except IntegrityError as e:
+            # Откатываем транзакцию
+            self.session.rollback()
+            # Логируем сообщение об ошибке (по желанию)
+            print(f'Ошибка целостности: {str(e)}')
+            # Отображаем пользовательское сообщение
+            flash(DELETE_ERROR_MESSAGE + self.delete_error_message, 'error')
+            return False
+
+
+class CategoryAdmin(IntegrityErrorMixin, CustomAdminView):
 
     """Добавление и перевод модели категорий в админ зону."""
+
+    delete_error_message = ERROR_FOR_CATEGORY
 
     column_labels = {
         # 'id': 'ID',
@@ -149,10 +179,11 @@ class CategoryAdmin(CustomAdminView):
         )
 
 
-class QuizAdmin(CustomAdminView):
+class QuizAdmin(IntegrityErrorMixin, CustomAdminView):
 
     """Добавление и перевод модели викторин в админ зону."""
 
+    delete_error_message = ERROR_FOR_QUIZ
     # Отображаемые поля в списке записей
     column_list = ['title', 'category', 'is_active']
     # Отображаемые поля в форме создания и редактирования
@@ -187,10 +218,11 @@ class QuizAdmin(CustomAdminView):
         )
 
 
-class QuestionAdmin(CustomAdminView):
+class QuestionAdmin(IntegrityErrorMixin, CustomAdminView):
 
     """Добавление и перевод модели вопросов в админ зону."""
 
+    delete_error_message = ERROR_FOR_QUESTION
     # Отображаемые поля в списке записей
     column_list = ['title', 'quiz', 'is_active']
     column_labels = {

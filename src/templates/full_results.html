@@ -47,25 +47,28 @@
               <li class="mb-2">
                 {% if answer == question.correct_answer %}
                   {% if answer == question.user_answer %}
+                    <!-- Пользователь выбрал правильный ответ -->
                     <span class="text-success">
                       <i class="fas fa-check-circle"></i> {{ answer }}
                     </span>
                     <p class="text-success small">
-                      <strong>{{ question.description }}</strong>
+                      <strong>{{ question.correct_description }}</strong>
                     </p>
-                  {% else %}
-                    <span class="text-muted text-success">
-                      <i class="fas fa-check-circle"></i> {{ answer }}
-                    </span>
-                  {% endif %}
+                    {% else %}
+                      <!-- Правильный ответ (пользователь выбрал неправильный) -->
+                      <span class="text-muted text-success">
+                        <i class="fas fa-check-circle"></i> {{ answer }}
+                      </span>
+                      <p class="text-muted small">
+                        <strong>{{ question.correct_description }}</strong>
+                      </p>
+                      {% endif %}
                 {% elif answer == question.user_answer %}
                   <span class="text-danger">
                     <i class="fas fa-times-circle"></i> {{ answer }}
                   </span>
-                  <p class="text-danger small">
-                    <strong>{{ question.description }}</strong>
-                  </p>
                 {% else %}
+                  <!-- Остальные ответы -->
                   <span class="d-flex align-items-center">
                     <span class="circle"></span> {{ answer }}
                   </span>
