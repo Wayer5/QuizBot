@@ -19,7 +19,7 @@ async def quizzes(category_id: int) -> str:
         error_out=False,
     )
     if not quizzes_paginated.items:
-        return render_template('404.html'), HTTP_NOT_FOUND
+        return render_template('errors/404.html'), HTTP_NOT_FOUND
 
     return render_template(
         'quizzes.html',

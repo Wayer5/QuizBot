@@ -1,7 +1,10 @@
+from typing import Any
+
 from flask import Response, request
 from flask_admin import BaseView, expose
 from flask_jwt_extended import jwt_required
 
+from src import app, cache
 from src.admin.base import CustomAdminView, NotVisibleMixin
 from src.constants import (
     DEFAULT_PAGE_NUMBER,
@@ -37,6 +40,25 @@ class UserAdmin(CustomAdminView):
         'is_active': 'Активен',
         'is_admin': 'Администратор',
     }
+
+    def after_model_delete(self, model: Any) -> None:
+        """Удаляем кэш в след за моделью."""
+        cache.delete(f'user_{model.id}')
+        app.logger.info(
+            f'User {model.username} has been deleted and cache invalidated.',
+        )
+
+    def after_model_change(
+        self, form: Any, model: Any, is_created: bool,
+    ) -> None:
+        """Удаляем кэш после изменений."""
+        if not model.is_active:
+            cache.delete(f'user_{model.id}')
+            app.logger.info(
+                f'User {model.username} has been banned.',
+            )
+        elif is_created:
+            cache.set(f'user_{model.id}', model, timeout=60 * 60)
 
 
 class UserListView(BaseView):

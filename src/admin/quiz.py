@@ -48,7 +48,7 @@ class QuizAdmin(IntegrityErrorMixin, CustomAdminView):
         quiz = quiz_crud.get(quiz_id)
         return redirect(
             url_for(
-                'questions',
+                'question',
                 category_id=quiz.category_id,
                 quiz_id=quiz_id,
                 test=True,
@@ -83,10 +83,12 @@ class QuizListView(BaseView):
         ]
 
         # Передаем данные в шаблон
-        return self.render('admin/quiz_list.html',
-                           data=quiz_data,
-                           pagination=quizzes,
-                           search_query=search_query)
+        return self.render(
+            'admin/quiz_list.html',
+            data=quiz_data,
+            pagination=quizzes,
+            search_query=search_query,
+        )
 
 
 class QuizStatisticsView(NotVisibleMixin):
@@ -103,11 +105,16 @@ class QuizStatisticsView(NotVisibleMixin):
         statictic = quiz_crud.get_statistic(quiz_id)
 
         (
-            quiz_title, total_answers,
-            correct_answers, correct_percentage,
+            quiz_title,
+            total_answers,
+            correct_answers,
+            correct_percentage,
         ) = statictic
 
-        return self.render('admin/quiz_statistics.html', quiz_title=quiz_title,
-                           total_answers=total_answers,
-                           correct_answers=correct_answers,
-                           correct_percentage=correct_percentage)
+        return self.render(
+            'admin/quiz_statistics.html',
+            quiz_title=quiz_title,
+            total_answers=total_answers,
+            correct_answers=correct_answers,
+            correct_percentage=correct_percentage,
+        )

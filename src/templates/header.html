@@ -1,10 +1,10 @@
 <header class="navbar navbar-light bg-light">
   <div class="container-fluid">
-    <a class="navbar-brand" href="{{ url_for('categories') }}"
+    <a class="navbar-brand" href="{{ url_for('quiz_admin.index_view' if test == 'True' else 'categories') }}"
       >MedStat Solution</a
     >
     <div class="d-flex justify-content-end">
-      <a class="nav-link" href="{{ url_for('profile') }}">
+      <a class="nav-link" href="{{ url_for('quiz_admin.index_view' if test == 'True' else 'profile') }}">
         <i class="bi bi-person-circle fs-1"></i>
       </a>
     </div>

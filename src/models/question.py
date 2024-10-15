@@ -1,3 +1,5 @@
+from sqlalchemy.orm import deferred
+
 from src import db
 from src.models.base import BaseModel, IsActiveMixin
 
@@ -24,11 +26,17 @@ class Question(BaseModel, IsActiveMixin):
         comment='Идентификатор викторины, к которой относится вопрос.',
         index=True,
     )
+    image = deferred(
+        db.Column(
+            db.Text,
+            nullable=True,
+            comment='Изображение',
+        ),
+    )
     quiz = db.relationship(
         'Quiz',
         back_populates='questions',
     )
-
     # Связь с таблицей variants
     variants = db.relationship(
         'Variant',

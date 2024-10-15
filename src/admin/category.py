@@ -1,7 +1,10 @@
+from typing import Any
+
 from flask import Response, request
 from flask_admin import BaseView, expose
 from flask_jwt_extended import jwt_required
 
+from src import app, cache
 from src.admin.base import (
     CustomAdminView,
     IntegrityErrorMixin,
@@ -28,6 +31,20 @@ class CategoryAdmin(IntegrityErrorMixin, CustomAdminView):
         'is_active': 'Активен',
     }
 
+    def after_model_create(self, model: Any) -> None:
+        """Удаляем кэш после создания категории."""
+        cache.delete('categories_view_cache')
+        app.logger.info(
+            f'Category {model.name} has been created and cache invalidated.',
+        )
+
+    def after_model_delete(self, model: Any) -> None:
+        """Удаляем кэш после удаления категории."""
+        cache.delete('categories_view_cache')
+        app.logger.info(
+            f'Category {model.name} has been deleted and cache invalidated.',
+        )
+
 
 class CategoryListView(BaseView):
 
@@ -46,7 +63,9 @@ class CategoryListView(BaseView):
 
         # Пагинация
         categories = query.paginate(
-            page=page, per_page=per_page, error_out=False,
+            page=page,
+            per_page=per_page,
+            error_out=False,
         )
 
         category_data = [
@@ -58,10 +77,12 @@ class CategoryListView(BaseView):
         ]
 
         # Передаем данные в шаблон
-        return self.render('admin/category_list.html',
-                           data=category_data,
-                           pagination=categories,
-                           search_query=search_query)
+        return self.render(
+            'admin/category_list.html',
+            data=category_data,
+            pagination=categories,
+            search_query=search_query,
+        )
 
 
 class CategoryStatisticsView(NotVisibleMixin):
@@ -77,12 +98,16 @@ class CategoryStatisticsView(NotVisibleMixin):
         statictic = category_crud.get_statistic(category_id)
 
         (
-            category_name, total_answers,
-            correct_answers, correct_percentage,
+            category_name,
+            total_answers,
+            correct_answers,
+            correct_percentage,
         ) = statictic
 
-        return self.render('admin/category_statistics.html',
-                           category_name=category_name,
-                           total_answers=total_answers,
-                           correct_answers=correct_answers,
-                           correct_percentage=correct_percentage)
+        return self.render(
+            'admin/category_statistics.html',
+            category_name=category_name,
+            total_answers=total_answers,
+            correct_answers=correct_answers,
+            correct_percentage=correct_percentage,
+        )

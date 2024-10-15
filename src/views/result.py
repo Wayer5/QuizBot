@@ -1,6 +1,7 @@
 from flask import (
     render_template,
     session,
+    url_for,
 )
 from flask_jwt_extended import (
     current_user,
@@ -77,8 +78,9 @@ def results(quiz_id: int, test: str) -> str:
             (ua for ua in user_answers if ua.question_id == question.id),
             None,
         )
-        correct_answer_text = next(
-            (v.title for v in question.variants if v.is_right_choice),
+        # Найдем правильный вариант ответа
+        correct_variant = next(
+            (v for v in question.variants if v.is_right_choice),
             None,
         )
         # Получаем текст ответа пользователя
@@ -89,22 +91,28 @@ def results(quiz_id: int, test: str) -> str:
             user_answer
             if test
             else next(
-                v for v in question.variants if v.id == user_answer.answer_id
-            )
-        )
+                (
+                    v for v in question.variants
+                    if v.id == user_answer.answer_id
+                ),
+                None,
+            ))
         # Собираем все возможные ответы
         possible_answers = [v.title for v in question.variants]
-        # Собираем информацию о вопросе
+        image_url = url_for('get_question_image', question_id=question.id)
         quiz_result.questions.append(
             {
                 'title': question.title,
                 'user_answer': user_answer.title,
-                'correct_answer': correct_answer_text,
+                'correct_answer': (
+                    correct_variant.title if correct_variant else None
+                ),
                 'possible_answers': possible_answers,
-                # Описание
-                'description': user_answer.description
-                if user_answer
+                # Описание правильного ответа
+                'correct_description': correct_variant.description
+                if correct_variant
                 else None,
+                'image_url': image_url if image_url else None,
             },
         )
 

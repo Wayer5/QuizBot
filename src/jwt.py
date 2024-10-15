@@ -11,7 +11,7 @@ from flask_jwt_extended import (
 )
 
 from . import app, cache
-from .models.user import User
+from src.models.user import User
 
 jwt = JWTManager(app)
 

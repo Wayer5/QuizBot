@@ -1,10 +1,11 @@
+import base64
 from typing import Any
 
 from flask import Response, request
 from flask_admin import BaseView, expose
 from flask_jwt_extended import jwt_required
+from flask_wtf.file import FileAllowed, FileField, FileStorage, ValidationError
 from sqlalchemy.exc import IntegrityError
-from wtforms import ValidationError
 
 from src.admin.base import (
     CustomAdminView,
@@ -38,6 +39,17 @@ class QuestionAdmin(IntegrityErrorMixin, CustomAdminView):
         'quiz': 'Викторина',
         'is_active': 'Активен',
     }
+    form_extra_fields = {
+        'image': FileField(
+            'Загрузите изображение',
+            validators=[
+                FileAllowed(
+                    ['png', 'jpg', 'jpeg', 'gif'],
+                    'Только изображения',
+                ),
+            ],
+        ),
+    }
     # Добаление возможности при создании вопроса
     # сразу добавлять варианты ответов
     inline_models = [
@@ -68,10 +80,16 @@ class QuestionAdmin(IntegrityErrorMixin, CustomAdminView):
 
     def on_model_change(self, form: Any, model: Any, is_created: bool) -> None:
         """Проверка на количество правильных вариантов и обработка ошибок."""
+        if 'image' in form.data:
+            image = form.data['image']
+            if image and isinstance(image, FileStorage):
+                image_data = image.read()
+                model.image = base64.b64encode(image_data).decode('utf-8')
+            else:
+                model.image = None
+        else:
+            model.image = None
         try:
-            # Попытка сохранения модели
-            super(QuestionAdmin, self).on_model_change(form, model, is_created)
-
             # Обрабатываем инлайн модели (Variants)
             for variant in model.variants:
                 if self.is_duplicate_variant(variant):
@@ -151,7 +169,9 @@ class QuestionListView(BaseView):
 
         # Пагинация
         questions = query.paginate(
-            page=page, per_page=per_page, error_out=False,
+            page=page,
+            per_page=per_page,
+            error_out=False,
         )
 
         question_data = [
@@ -163,10 +183,12 @@ class QuestionListView(BaseView):
         ]
 
         # Передаем данные в шаблон
-        return self.render('admin/question_list.html',
-                           data=question_data,
-                           pagination=questions,
-                           search_query=search_query)
+        return self.render(
+            'admin/question_list.html',
+            data=question_data,
+            pagination=questions,
+            search_query=search_query,
+        )
 
 
 class QuestionStatisticsView(NotVisibleMixin):
@@ -183,12 +205,16 @@ class QuestionStatisticsView(NotVisibleMixin):
         statictic = question_crud.get_statistic(question_id)
 
         (
-            question_text, total_answers,
-            correct_answers, correct_percentage,
+            question_text,
+            total_answers,
+            correct_answers,
+            correct_percentage,
         ) = statictic
 
-        return self.render('admin/question_statistics.html',
-                           question_text=question_text,
-                           total_answers=total_answers,
-                           correct_answers=correct_answers,
-                           correct_percentage=correct_percentage)
+        return self.render(
+            'admin/question_statistics.html',
+            question_text=question_text,
+            total_answers=total_answers,
+            correct_answers=correct_answers,
+            correct_percentage=correct_percentage,
+        )

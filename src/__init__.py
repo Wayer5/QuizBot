@@ -22,6 +22,7 @@ cache = Cache(app)
 from .views import (  # noqa
     auth,
     category,
+    image,
     pro_file,
     question,
     quiz,
