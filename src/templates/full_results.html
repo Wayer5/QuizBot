@@ -73,6 +73,15 @@
               </li>
               {% endfor %}
             </ul>
+            {% if question.image_url %}
+            <img
+                src="{{ question.image_url }}"
+                alt="Image description" 
+                class="img-fluid rounded"
+                style="max-width: 100%; height: auto; margin: 10px auto; display: none;"
+                onload="this.style.display='block'"
+            />
+            {% endif %}
           </div>
           {% endfor %}
           </div>

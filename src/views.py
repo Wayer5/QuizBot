@@ -1,9 +1,13 @@
+import base64
+from io import BytesIO
+
 from flask import (
     Response,
     jsonify,
     redirect,
     render_template,
     request,
+    send_file,
     session,
     url_for,
 )
@@ -159,12 +163,14 @@ def delete_profile() -> Response:
         answer.user_id = None
         user_crud.update(answer, {'user_id': None})
 
+    cache.delete(f'user_{user.id}')
     user_crud.remove(current_user)
 
     return 'Профиль удален', 204
 
 
 @app.route('/', methods=['GET'])
+@cache.cached(timeout=30, key_prefix='categories_view_cache')
 async def categories() -> str:
     """Вывод страницы категорий."""
     page = request.args.get('page', DEFAULT_PAGE_NUMBER, type=int)
@@ -175,7 +181,7 @@ async def categories() -> str:
         error_out=False,
     )
     if not categories_paginated.items:
-        return render_template('404.html'), HTTP_NOT_FOUND
+        return render_template('errors/404.html'), HTTP_NOT_FOUND
     return render_template(
         'categories.html',
         categories=categories_paginated.items,
@@ -194,7 +200,7 @@ async def quizzes(category_id: int) -> str:
         error_out=False,
     )
     if not quizzes_paginated.items:
-        return render_template('404.html'), HTTP_NOT_FOUND
+        return render_template('errors/404.html'), HTTP_NOT_FOUND
 
     return render_template(
         'quizzes.html',
@@ -267,6 +273,7 @@ def question(category_id: int, quiz_id: int, test: str) -> str:
                     'is_right': chosen_answer.is_right_choice,
                 },
             )
+        image_url = url_for('get_question_image', question_id=question_id)
         return render_template(
             'question_result.html',
             category_id=category_id,
@@ -274,6 +281,7 @@ def question(category_id: int, quiz_id: int, test: str) -> str:
             answer=chosen_answer.title,
             description=chosen_answer.description,
             user_answer=chosen_answer.is_right_choice,
+            image_url=image_url if image_url else None,
             test=test,
         )
     if not test:
@@ -312,6 +320,16 @@ def question(category_id: int, quiz_id: int, test: str) -> str:
         answers=answers,
         test=test,
     )
+
+
+@app.route('/question/image/<int:question_id>')
+def get_question_image(question_id: int) -> Response:
+    """Выдает изображение."""
+    question = question_crud.get(question_id)
+    if question and question.image:
+        image_data = base64.b64decode(question.image)
+        return send_file(BytesIO(image_data), mimetype='image/jpeg')
+    return 'Изображение не найдено', 404
 
 
 @app.route(
@@ -393,7 +411,7 @@ def results(quiz_id: int, test: str) -> str:
         )
         # Собираем все возможные ответы
         possible_answers = [v.title for v in question.variants]
-        # Собираем информацию о вопросе
+        image_url = url_for('get_question_image', question_id=question.id)
         quiz_result.questions.append(
             {
                 'title': question.title,
@@ -404,6 +422,7 @@ def results(quiz_id: int, test: str) -> str:
                 'description': user_answer.description
                 if user_answer
                 else None,
+                'image_url': image_url if image_url else None,
             },
         )
 

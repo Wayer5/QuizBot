@@ -1,3 +1,4 @@
+import base64
 from typing import Any
 
 from flask import Response, redirect, request, url_for
@@ -10,10 +11,10 @@ from flask_jwt_extended import (
     jwt_required,
     verify_jwt_in_request,
 )
+from flask_wtf.file import FileAllowed, FileField, FileStorage, ValidationError
 from sqlalchemy.exc import IntegrityError
-from wtforms import ValidationError
 
-from . import app, db
+from . import app, cache, db
 from .constants import (
     CAN_ONLY_BE_ONE_CORRECT_ANSWER,
     DEFAULT_PAGE_NUMBER,
@@ -103,6 +104,25 @@ class UserAdmin(CustomAdminView):
         'is_admin': 'Администратор',
     }
 
+    def after_model_delete(self, model: Any) -> None:
+        """Удаляем кэш в след за моделью."""
+        cache.delete(f'user_{model.id}')
+        app.logger.info(
+            f'User {model.username} has been deleted and cache invalidated.',
+        )
+
+    def after_model_change(
+        self, form: Any, model: Any, is_created: bool,
+    ) -> None:
+        """Удаляем кэш после изменений."""
+        if not model.is_active:
+            cache.delete(f'user_{model.id}')
+            app.logger.info(
+                f'User {model.username} has been banned.',
+            )
+        elif is_created:
+            cache.set(f'user_{model.id}', model, timeout=60 * 60)
+
 
 class CategoryAdmin(CustomAdminView):
 
@@ -113,6 +133,20 @@ class CategoryAdmin(CustomAdminView):
         'name': 'Название',
         'is_active': 'Активен',
     }
+
+    def after_model_create(self, model: Any) -> None:
+        """Удаляем кэш после создания категории."""
+        cache.delete('categories_view_cache')
+        app.logger.info(
+            f'Category {model.name} has been created and cache invalidated.',
+        )
+
+    def after_model_delete(self, model: Any) -> None:
+        """Удаляем кэш после удаления категории."""
+        cache.delete('categories_view_cache')
+        app.logger.info(
+            f'Category {model.name} has been deleted and cache invalidated.',
+        )
 
 
 class QuizAdmin(CustomAdminView):
@@ -165,6 +199,17 @@ class QuestionAdmin(CustomAdminView):
         'quiz': 'Викторина',
         'is_active': 'Активен',
     }
+    form_extra_fields = {
+        'image': FileField(
+            'Загрузите изображение',
+            validators=[
+                FileAllowed(
+                    ['png', 'jpg', 'jpeg', 'gif'],
+                    'Только изображения',
+                ),
+            ],
+        ),
+    }
     # Добаление возможности при создании вопроса
     # сразу добавлять варианты ответов
     inline_models = [
@@ -195,10 +240,16 @@ class QuestionAdmin(CustomAdminView):
 
     def on_model_change(self, form: Any, model: Any, is_created: bool) -> None:
         """Проверка на количество правильных вариантов и обработка ошибок."""
+        if 'image' in form.data:
+            image = form.data['image']
+            if image and isinstance(image, FileStorage):
+                image_data = image.read()
+                model.image = base64.b64encode(image_data).decode('utf-8')
+            else:
+                model.image = None
+        else:
+            model.image = None
         try:
-            # Попытка сохранения модели
-            super(QuestionAdmin, self).on_model_change(form, model, is_created)
-
             # Обрабатываем инлайн модели (Variants)
             for variant in model.variants:
                 if self.is_duplicate_variant(variant):
@@ -359,7 +410,9 @@ class CategoryListView(BaseView):
 
         # Пагинация
         categories = query.paginate(
-            page=page, per_page=per_page, error_out=False,
+            page=page,
+            per_page=per_page,
+            error_out=False,
         )
 
         category_data = [
@@ -371,10 +424,12 @@ class CategoryListView(BaseView):
         ]
 
         # Передаем данные в шаблон
-        return self.render('admin/category_list.html',
-                           data=category_data,
-                           pagination=categories,
-                           search_query=search_query)
+        return self.render(
+            'admin/category_list.html',
+            data=category_data,
+            pagination=categories,
+            search_query=search_query,
+        )
 
 
 class CategoryStatisticsView(NotVisibleMixin):
@@ -390,15 +445,19 @@ class CategoryStatisticsView(NotVisibleMixin):
         statictic = category_crud.get_statistic(category_id)
 
         (
-            category_name, total_answers,
-            correct_answers, correct_percentage,
+            category_name,
+            total_answers,
+            correct_answers,
+            correct_percentage,
         ) = statictic
 
-        return self.render('admin/category_statistics.html',
-                           category_name=category_name,
-                           total_answers=total_answers,
-                           correct_answers=correct_answers,
-                           correct_percentage=correct_percentage)
+        return self.render(
+            'admin/category_statistics.html',
+            category_name=category_name,
+            total_answers=total_answers,
+            correct_answers=correct_answers,
+            correct_percentage=correct_percentage,
+        )
 
 
 class QuizListView(BaseView):
@@ -428,10 +487,12 @@ class QuizListView(BaseView):
         ]
 
         # Передаем данные в шаблон
-        return self.render('admin/quiz_list.html',
-                           data=quiz_data,
-                           pagination=quizzes,
-                           search_query=search_query)
+        return self.render(
+            'admin/quiz_list.html',
+            data=quiz_data,
+            pagination=quizzes,
+            search_query=search_query,
+        )
 
 
 class QuizStatisticsView(NotVisibleMixin):
@@ -448,14 +509,19 @@ class QuizStatisticsView(NotVisibleMixin):
         statictic = quiz_crud.get_statistic(quiz_id)
 
         (
-            quiz_title, total_answers,
-            correct_answers, correct_percentage,
+            quiz_title,
+            total_answers,
+            correct_answers,
+            correct_percentage,
         ) = statictic
 
-        return self.render('admin/quiz_statistics.html', quiz_title=quiz_title,
-                           total_answers=total_answers,
-                           correct_answers=correct_answers,
-                           correct_percentage=correct_percentage)
+        return self.render(
+            'admin/quiz_statistics.html',
+            quiz_title=quiz_title,
+            total_answers=total_answers,
+            correct_answers=correct_answers,
+            correct_percentage=correct_percentage,
+        )
 
 
 class QuestionListView(BaseView):
@@ -476,7 +542,9 @@ class QuestionListView(BaseView):
 
         # Пагинация
         questions = query.paginate(
-            page=page, per_page=per_page, error_out=False,
+            page=page,
+            per_page=per_page,
+            error_out=False,
         )
 
         question_data = [
@@ -488,10 +556,12 @@ class QuestionListView(BaseView):
         ]
 
         # Передаем данные в шаблон
-        return self.render('admin/question_list.html',
-                           data=question_data,
-                           pagination=questions,
-                           search_query=search_query)
+        return self.render(
+            'admin/question_list.html',
+            data=question_data,
+            pagination=questions,
+            search_query=search_query,
+        )
 
 
 class QuestionStatisticsView(NotVisibleMixin):
@@ -508,21 +578,30 @@ class QuestionStatisticsView(NotVisibleMixin):
         statictic = question_crud.get_statistic(question_id)
 
         (
-            question_text, total_answers,
-            correct_answers, correct_percentage,
+            question_text,
+            total_answers,
+            correct_answers,
+            correct_percentage,
         ) = statictic
 
-        return self.render('admin/question_statistics.html',
-                           question_text=question_text,
-                           total_answers=total_answers,
-                           correct_answers=correct_answers,
-                           correct_percentage=correct_percentage)
+        return self.render(
+            'admin/question_statistics.html',
+            question_text=question_text,
+            total_answers=total_answers,
+            correct_answers=correct_answers,
+            correct_percentage=correct_percentage,
+        )
 
 
 # Добавляем представления в админку
 admin.add_view(UserAdmin(User, db.session, name='Пользователи'))
-admin.add_view(CategoryAdmin(
-    Category, db.session, name='Категории', endpoint='category_admin'),
+admin.add_view(
+    CategoryAdmin(
+        Category,
+        db.session,
+        name='Категории',
+        endpoint='category_admin',
+    ),
 )
 admin.add_view(
     QuizAdmin(Quiz, db.session, name='Викторины', endpoint='quiz_admin'),
@@ -530,34 +609,35 @@ admin.add_view(
 admin.add_view(QuestionAdmin(Question, db.session, name='Вопросы'))
 
 # Добавляем представления для страниц статистик в админку
-admin.add_view(UserListView(
-    name='Статистика пользователей',
-    endpoint='user_list'),
+admin.add_view(
+    UserListView(name='Статистика пользователей', endpoint='user_list'),
 )
-admin.add_view(UserStatisticsView(
-    endpoint='user_statistics'),
+admin.add_view(
+    UserStatisticsView(endpoint='user_statistics'),
 )
-admin.add_view(CategoryListView(
-    name='Статистика по категориям',
-    endpoint='category_list'),
+admin.add_view(
+    CategoryListView(
+        name='Статистика по категориям',
+        endpoint='category_list',
+    ),
 )
-admin.add_view(CategoryStatisticsView(
-    endpoint='category_statistics'),
+admin.add_view(
+    CategoryStatisticsView(endpoint='category_statistics'),
 )
-admin.add_view(QuizListView(
-    name='Статистика по викторинам',
-    endpoint='quiz_list'),
+admin.add_view(
+    QuizListView(name='Статистика по викторинам', endpoint='quiz_list'),
 )
-admin.add_view(QuizStatisticsView(
-    endpoint='quiz_statistics'),
+admin.add_view(
+    QuizStatisticsView(endpoint='quiz_statistics'),
 )
-admin.add_view(QuestionListView(
-    name='Статистика по вопросам',
-    endpoint='question_list'),
+admin.add_view(
+    QuestionListView(name='Статистика по вопросам', endpoint='question_list'),
 )
-admin.add_view(QuestionStatisticsView(
-    name='Статистика вопросов',
-    endpoint='question_statistics'),
+admin.add_view(
+    QuestionStatisticsView(
+        name='Статистика вопросов',
+        endpoint='question_statistics',
+    ),
 )
 
 

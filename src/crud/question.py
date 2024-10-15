@@ -2,6 +2,7 @@ from typing import Optional, Tuple
 
 from sqlalchemy import null, select, true
 from sqlalchemy.exc import DataError
+from sqlalchemy.orm import defer
 from sqlalchemy.sql import text
 
 from src import db
@@ -23,6 +24,7 @@ class CRUDQuestion(CRUDBase):
         return (
             db.session.execute(
                 select(Question)
+                .options(defer(Question.image))
                 .where(
                     Question.quiz_id == quiz_id,
                     Question.is_active == is_active,
@@ -48,6 +50,7 @@ class CRUDQuestion(CRUDBase):
         return (
             db.session.execute(
                 select(Question)
+                .options(defer(Question.image))
                 .where(
                     Question.quiz_id == quiz_id,
                     Question.is_active == is_active,
@@ -77,7 +80,8 @@ class CRUDQuestion(CRUDBase):
             )
 
             statistic = db.session.execute(
-                    stats_query, {'question_id': question_id},
+                stats_query,
+                {'question_id': question_id},
             ).fetchone()
         except DataError:
             # Обрабатываем деление на ноль или другие ошибки данных
