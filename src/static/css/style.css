@@ -218,3 +218,7 @@ h3 {
 .btn-outline-secondary {
     margin-top: 10px; /* Отступ между кнопкой и другими кнопками */
 }
+
+img.error {
+    display: none;
+}

@@ -49,7 +49,8 @@ class CRUDCategory(CRUDBase):
             )
 
             statistic = db.session.execute(
-                stats_query, {'category_id': category_id},
+                stats_query,
+                {'category_id': category_id},
             ).fetchone()
         except DataError:
             # Обрабатываем деление на ноль или другие ошибки данных

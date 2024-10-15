@@ -10,7 +10,7 @@ from flask_jwt_extended import (
     set_access_cookies,
 )
 
-from . import app
+from . import app, cache
 from .models.user import User
 
 jwt = JWTManager(app)
@@ -40,8 +40,14 @@ def user_lookup_callback(_jwt_header: Any, jwt_data: Any) -> Optional[User]:
 
     """
     identity = jwt_data['sub']
-    user = User.query.filter_by(id=identity).one_or_none()
-
+    # Проверяем, есть ли пользователь в кэше
+    user = cache.get(f'user_{identity}')
+    if not user:
+        # Если нет то ищем в бд
+        user = User.query.filter_by(id=identity).one_or_none()
+        # Кэшируем пользователя
+        if user:
+            cache.set(f'user_{identity}', user, timeout=60 * 60)
     # Проверка на активность пользователя
     if user and not user.is_active:
         abort(401)
@@ -60,11 +66,17 @@ def refresh_expiring_jwts(response: Response) -> Response:
     try:
         exp_timestamp = get_jwt()['exp']
         now = datetime.now(timezone.utc)
-        target_timestamp = datetime.timestamp(now + timedelta(minutes=30))
+        target_timestamp = datetime.timestamp(now + timedelta(minutes=15))
         if target_timestamp > exp_timestamp:
-            access_token = create_access_token(identity=get_jwt_identity())
+            user_id = get_jwt_identity()
+            user = cache.get(f'user_{user_id}')
+            if not user:
+                user = User.query.filter_by(id=user_id).one_or_none()
+                cache.set(f'user_{user_id}', user, timeout=60 * 60)
+                app.logger.info('Token refreshed successfully cache')
+            access_token = create_access_token(identity=user)
             set_access_cookies(response, access_token)
-            app.logger.info('Token refreshed succesfully')
+            app.logger.debug('Token refreshed successfully')
         return response
     except (RuntimeError, KeyError):
         return response

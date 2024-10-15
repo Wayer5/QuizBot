@@ -57,7 +57,8 @@ class CRUDQuiz(CRUDBase):
             )
 
             statistic = db.session.execute(
-                stats_query, {'quiz_id': quiz_id},
+                stats_query,
+                {'quiz_id': quiz_id},
             ).fetchone()
         except DataError:
             # Обрабатываем деление на ноль или другие ошибки данных
