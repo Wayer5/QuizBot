@@ -98,7 +98,7 @@ def delete_profile() -> Response:
         answer.user_id = None
         user_crud.update(answer, {'user_id': None})
 
-    cache.delete(f'user_{user.id}')
+    # cache.delete(f'user_{user.id}')
     user_crud.remove(current_user)
 
     return 'Профиль удален', 204
