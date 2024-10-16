@@ -14,7 +14,7 @@ class Question(BaseModel, IsActiveMixin):
 
     __tablename__ = 'questions'
     title = db.Column(
-        db.String(175),
+        db.String(220),
         nullable=False,
         comment='Текст вопроса.',
         unique=True,

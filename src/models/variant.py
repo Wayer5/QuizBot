@@ -25,7 +25,7 @@ class Variant(BaseModel):
         comment='Текст варианта ответа.',
     )
     description = db.Column(
-        db.String(600),
+        db.String(650),
         nullable=True,
         comment='Дополнительное описание или пояснение для варианта ответа.',
     )
