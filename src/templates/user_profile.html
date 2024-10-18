@@ -47,6 +47,50 @@
       </a>
       {% endfor %}
     </div>
+
+    <!-- Элементы управления пагинацией -->
+    {% if pagination.pages > 1 %}
+    <nav aria-label="Пагинация">
+      <ul class="pagination justify-content-center">
+        {% if pagination.has_prev %}
+        <li class="page-item">
+          <a class="page-link" href="{{ url_for('profile', page=pagination.prev_num) }}" aria-label="Предыдущая">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+          <span class="page-link" aria-hidden="true">&laquo;</span>
+        </li>
+        {% endif %}
+
+        {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+          {% if p %}
+            {% if p == pagination.page %}
+            <li class="page-item active"><span class="page-link">{{ p }}</span></li>
+            {% else %}
+            <li class="page-item"><a class="page-link" href="{{ url_for('profile', page=p) }}">{{ p }}</a></li>
+            {% endif %}
+          {% else %}
+          <li class="page-item disabled"><span class="page-link">…</span></li>
+          {% endif %}
+        {% endfor %}
+
+        {% if pagination.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="{{ url_for('profile', page=pagination.next_num) }}" aria-label="Следующая">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+          <span class="page-link" aria-hidden="true">&raquo;</span>
+        </li>
+        {% endif %}
+      </ul>
+    </nav>
+    {% endif %}
+    
     {% else %}
     <p class="text-center">Нет информации о результатах.</p>
     {% endif %}

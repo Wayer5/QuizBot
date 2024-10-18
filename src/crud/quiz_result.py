@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlalchemy import select
+from sqlalchemy import Result, select
 from sqlalchemy.orm import joinedload
 
 from src import db
@@ -44,6 +44,19 @@ class CRUDQuizResult(CRUDBase):
             )
             .scalars()
             .all()
+        )
+
+    def get_results_by_user_paginated(
+        self,
+        user_id: int,
+        page: int,
+        per_page: int,
+    ) -> Result:
+        """Получить результаты квизов пользователя c пагинацией."""
+        return (
+            self.model.query
+            .filter_by(user_id=user_id)
+            .paginate(page=page, per_page=per_page, error_out=False)
         )
 
 
