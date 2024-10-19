@@ -1,6 +1,7 @@
 from flask import (
     Response,
     render_template,
+    request,
 )
 from flask_jwt_extended import (
     current_user,
@@ -8,6 +9,10 @@ from flask_jwt_extended import (
 )
 
 from src import app, cache
+from src.constants import (
+    DEFAULT_PAGE_NUMBER,
+    ITEMS_PER_PAGE,
+)
 from src.crud.question import question_crud
 from src.crud.quiz_result import quiz_result_crud
 from src.crud.user import user_crud
@@ -20,12 +25,21 @@ from src.crud.user_answer import user_answer_crud
 def profile() -> Response:
     """Отображаем профиль пользователя."""
     user = current_user
-    quiz_results = quiz_result_crud.get_results_by_user(user.id)
+    page = request.args.get('page', DEFAULT_PAGE_NUMBER, type=int)
+    per_page = ITEMS_PER_PAGE
 
-    total_questions = sum(result.total_questions for result in quiz_results)
-    correct_answers_count = sum(
-        result.correct_answers_count for result in quiz_results
+    all_quiz_results = quiz_result_crud.get_results_by_user(user.id)
+    total_questions = sum(
+        result.total_questions for result in all_quiz_results
     )
+    correct_answers_count = sum(
+        result.correct_answers_count for result in all_quiz_results
+    )
+
+    pagination = quiz_result_crud.get_results_by_user_paginated(
+        user.id, page, per_page,
+    )
+    quiz_results = pagination.items
 
     # Добавляем вопросы к каждому результату
     for result in quiz_results:
@@ -76,6 +90,7 @@ def profile() -> Response:
         quiz_results=quiz_results,
         total_questions=total_questions,
         correct_answers_count=correct_answers_count,
+        pagination=pagination,
     )
 
 
