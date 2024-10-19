@@ -9,13 +9,14 @@ from flask_jwt_extended import (
 )
 
 from src import app, cache
-from src.constants import DEFAULT_PAGE_NUMBER
+from src.constants import (
+    DEFAULT_PAGE_NUMBER,
+    ITEMS_PER_PAGE,
+)
 from src.crud.question import question_crud
 from src.crud.quiz_result import quiz_result_crud
 from src.crud.user import user_crud
 from src.crud.user_answer import user_answer_crud
-
-ITEMS_PER_PAGE = 5
 
 
 @app.route('/me', methods=['GET'])
