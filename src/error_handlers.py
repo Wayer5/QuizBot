@@ -1,6 +1,6 @@
 from typing import Callable
 
-from flask import Response, render_template, request, url_for
+from flask import Response, render_template, request
 
 from . import app
 from .constants import HTTP_NOT_FOUND, UNAUTHORIZED
@@ -26,18 +26,16 @@ def page_not_found(error: Exception) -> Response:
             render_template(
                 'errors/404.html',
                 is_admin=True,
-                button_text='Вернуться на главную',
-                button_link='/admin',
             ),
             HTTP_NOT_FOUND,
         )
     # Ошибка на пользовательской странице
+    index = True if request.path == '/' else False
     return (
         render_template(
             'errors/404.html',
             is_admin=False,
-            button_text='Вернуться к категориям',
-            button_link=url_for('categories'),
+            index=index,
         ),
         HTTP_NOT_FOUND,
     )
