@@ -4,11 +4,38 @@
 
 ## 📖 О проекте
 
-Телеграмм-бот, позволяющий пользователям проходить викторины с использованием Web Apps. Проект также собирает и анализирует статистику ответов пользователей, которая доступна через админ панель.
+Телеграмм-бот, позволяющий пользователям проходить интерактивные викторины с использованием Web Apps. Проект разработан для того, чтобы предоставить пользователям удобный способ получения знаний и тестирования своих навыков через викторины по различным тематикам. Пользовательская часть реализована в виде бота, который предлагает пользователям вопросы и варианты ответов, а по завершению предоставляет результаты. Проект также включает административную панель, через которую можно управлять категориями, викторинами и вопросами, а также отслеживать статистику прохождений.
+
+Основные функции проекта:
+
+- **Прохождение викторин**: пользователи могут выбирать категории и проходить викторины, отвечая на вопросы с несколькими вариантами ответов.
+- **Анализ результатов**: бот сохраняет результаты каждого пользователя и предоставляет возможность их просмотра после завершения викторины.
+- **Административная панель**: администраторы могут управлять категориями, викторинами, добавлять и редактировать вопросы, а также просматривать статистику ответов.
+- **Статистика**: отображение результатов и статистики по каждой категории и викторине, включая количество правильных и неправильных ответов.
+- **Профиль пользователя**: возможность просмотра истории пройденных викторин и результатов в личном профиле.
+
+Проект идеально подходит для образовательных целей, а также для проведения интерактивных тестов и опросов в различных областях знаний.
+
+![Коллаж интерфейса проекта](src/static/images/readme.jpg)
+
+*Коллаж, демонстрирующий интерфейс бота: прохождение викторины, вопросы, ответы, результаты, административная панель и статистика.*
 
 ## Использованные технологии в проекте
 
-<img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white"/> <img src="https://img.shields.io/badge/Webhooks-FF7F50?style=for-the-badge&logo=webhooks&logoColor=white"/> <img src="https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white"/> <img src="https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white"/> <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white"/> <img src="https://img.shields.io/badge/SQLAlchemy-CCA76E?style=for-the-badge&logo=alchemy&logoColor=white"/> <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white"/> 
+<img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white"/> 
+<img src="https://img.shields.io/badge/Webhooks-FF7F50?style=for-the-badge&logo=webhooks&logoColor=white"/> 
+<img src="https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white"/> 
+<img src="https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white"/> 
+<img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white"/> 
+<img src="https://img.shields.io/badge/SQLAlchemy-CCA76E?style=for-the-badge&logo=alchemy&logoColor=white"/> 
+<img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white"/> 
+<img src="https://img.shields.io/badge/Asyncio-049FD9?style=for-the-badge&logo=asyncio&logoColor=white"/>
+<img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white"/>
+<img src="https://img.shields.io/badge/Flask_Admin-000000?style=for-the-badge&logo=flask&logoColor=white"/>
+<img src="https://img.shields.io/badge/Bootstrap-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white"/>
+<img src="https://img.shields.io/badge/Jinja2-B4172D?style=for-the-badge&logo=jinja&logoColor=white"/>
+<img src="https://img.shields.io/badge/CI%2FCD-000000?style=for-the-badge&logo=githubactions&logoColor=white"/>
+<img src="https://img.shields.io/badge/GitHub%20Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white"/>
 
 ---
 
