@@ -40,14 +40,8 @@ def user_lookup_callback(_jwt_header: Any, jwt_data: Any) -> Optional[User]:
 
     """
     identity = jwt_data['sub']
-    # Проверяем, есть ли пользователь в кэше
-    user = cache.get(f'user_{identity}')
-    if not user:
-        # Если нет то ищем в бд
-        user = User.query.filter_by(id=identity).one_or_none()
-        # Кэшируем пользователя
-        if user:
-            cache.set(f'user_{identity}', user, timeout=60 * 60)
+    user = User.query.filter_by(id=identity).one_or_none()
+
     # Проверка на активность пользователя
     if user and not user.is_active:
         abort(401)
