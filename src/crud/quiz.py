@@ -1,9 +1,7 @@
 from typing import Optional, Tuple
 
 from sqlalchemy import select, true
-from sqlalchemy.exc import DataError
-from sqlalchemy.orm import joinedload, Query
-from sqlalchemy.sql import text
+from sqlalchemy.orm import Query
 
 from src import db
 from src.crud.base import CRUDBase
@@ -62,7 +60,7 @@ class CRUDQuiz(CRUDBase):
             db.session.query(UserAnswer)
             .filter(
                 UserAnswer.question_id.in_(questions_subquery),
-                UserAnswer.is_right == True
+                UserAnswer.is_right,
             )
             .count()
         )

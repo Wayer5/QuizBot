@@ -1,9 +1,7 @@
 from typing import Tuple
 
 from sqlalchemy import true
-from sqlalchemy.exc import DataError
-from sqlalchemy.orm import joinedload, Query
-from sqlalchemy.sql import text
+from sqlalchemy.orm import Query
 
 from src import db
 from src.crud.base import CRUDBase
@@ -31,13 +29,14 @@ class CRUDCategory(CRUDBase):
 
     def get_statistic(self, category_id: int) -> Tuple:
         """Получить статистику по категории."""
-        category = db.session.query(Category.name).filter(Category.id == category_id).first()
+        category = db.session.query(
+            Category.name).filter(Category.id == category_id).first()
         if not category:
             return ('Нет данных', 0, 0, 0)
 
         category_name = category.name
 
-        # Выполняем соединения между таблицами по внешним ключам
+        # Выбираем все ответы пользователей, относящиеся к данной категории.
         results = (
             db.session.query(UserAnswer.is_right)
             .join(Question, UserAnswer.question_id == Question.id)
@@ -51,11 +50,14 @@ class CRUDCategory(CRUDBase):
         correct_answers = sum(1 for result in results if result.is_right)
 
         if total_answers > 0:
-            correct_percentage = round((correct_answers / total_answers) * 100.0, 2)
+            correct_percentage = round(
+                (correct_answers / total_answers) * 100.0, 2)
         else:
             correct_percentage = 0
 
-        return (category_name, total_answers, correct_answers, correct_percentage)
+        return (
+            category_name, total_answers, correct_answers, correct_percentage,
+        )
 
 
 category_crud = CRUDCategory(Category)
