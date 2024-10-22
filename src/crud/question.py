@@ -65,31 +65,26 @@ class CRUDQuestion(CRUDBase):
     def get_statistic(self, question_id: int) -> Tuple:
         """Получить статистику по вопросу."""
         try:
-            stats_query = text(
-                """
-                SELECT
-                    qu.title AS question_text,
-                    COUNT(ua.id) AS total_answers,
-                    SUM(CASE WHEN ua.is_right = TRUE THEN 1 ELSE 0 END),
-                    ROUND(SUM(CASE WHEN ua.is_right = TRUE THEN 1 ELSE 0 END) *
-                    100.0 / COUNT(ua.id), 2)
-                FROM questions qu
-                LEFT JOIN user_answers ua ON ua.question_id = qu.id
-                WHERE qu.id = :question_id
-                GROUP BY qu.title
-                """,
-            )
+            question = db.session.query(Question).filter(Question.id == question_id).first()
+            if not question:
+                return ('Нет данных', 0, 0, 0)
 
-            statistic = db.session.execute(
-                stats_query,
-                {'question_id': question_id},
-            ).fetchone()
-        except DataError:
-            # Обрабатываем деление на ноль или другие ошибки данных
-            db.session.rollback()  # Откатываем сессию
-            statistic = ('Нет данных', 0, 0, 0)
+            question_text = question.title
 
-        return statistic
+            user_answers = db.session.query(UserAnswer.is_right).filter(UserAnswer.question_id == question_id).all()
+
+            total_answers = len(user_answers)
+            correct_answers = sum(1 for ua in user_answers if ua.is_right)
+
+            if total_answers > 0:
+                correct_percentage = round((correct_answers / total_answers) * 100.0, 2)
+            else:
+                correct_percentage = 0
+
+            return (question_text, total_answers, correct_answers, correct_percentage)
+        except Exception:
+            db.session.rollback()
+            return ('Нет данных', 0, 0, 0)
 
 
 question_crud = CRUDQuestion(Question)

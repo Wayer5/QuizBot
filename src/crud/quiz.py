@@ -2,13 +2,14 @@ from typing import Optional, Tuple
 
 from sqlalchemy import select, true
 from sqlalchemy.exc import DataError
-from sqlalchemy.orm import Query
+from sqlalchemy.orm import joinedload, Query
 from sqlalchemy.sql import text
 
 from src import db
 from src.crud.base import CRUDBase
 from src.models.question import Question
 from src.models.quiz import Quiz
+from src.models.user_answer import UserAnswer
 
 
 class CRUDQuiz(CRUDBase):
@@ -39,33 +40,40 @@ class CRUDQuiz(CRUDBase):
 
     def get_statistic(self, quiz_id: int) -> Tuple:
         """Получить статистику по викторине."""
-        try:
-            stats_query = text(
-                """
-                SELECT
-                    q.title AS quiz_title,
-                    COUNT(ua.id) AS total_answers,
-                    SUM(CASE WHEN ua.is_right = TRUE THEN 1 ELSE 0 END),
-                    ROUND(SUM(CASE WHEN ua.is_right = TRUE THEN 1 ELSE 0 END) *
-                    100.0 / COUNT(ua.id), 2)
-                FROM quizzes q
-                LEFT JOIN questions qu ON q.id = qu.quiz_id
-                LEFT JOIN user_answers ua ON ua.question_id = qu.id
-                WHERE q.id = :quiz_id
-                GROUP BY q.title
-                """,
+        quiz = db.session.query(Quiz).filter(Quiz.id == quiz_id).first()
+
+        if not quiz:
+            return ('Нет данных', 0, 0, 0)
+
+        # Получаем все вопросы викторины
+        questions_subquery = (
+            db.session.query(Question.id)
+            .filter(Question.quiz_id == quiz_id)
+            .subquery()
+        )
+
+        total_answers = (
+            db.session.query(UserAnswer)
+            .filter(UserAnswer.question_id.in_(questions_subquery))
+            .count()
+        )
+
+        correct_answers = (
+            db.session.query(UserAnswer)
+            .filter(
+                UserAnswer.question_id.in_(questions_subquery),
+                UserAnswer.is_right == True
             )
+            .count()
+        )
 
-            statistic = db.session.execute(
-                stats_query,
-                {'quiz_id': quiz_id},
-            ).fetchone()
-        except DataError:
-            # Обрабатываем деление на ноль или другие ошибки данных
-            db.session.rollback()  # Откатываем сессию
-            statistic = ('Нет данных', 0, 0, 0)
+        if total_answers > 0:
+            correct_percentage = round(
+                (correct_answers / total_answers) * 100.0, 2)
+        else:
+            correct_percentage = 0
 
-        return statistic
+        return (quiz.title, total_answers, correct_answers, correct_percentage)
 
 
 quiz_crud = CRUDQuiz(Quiz)
