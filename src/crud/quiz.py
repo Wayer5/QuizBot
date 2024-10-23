@@ -73,7 +73,7 @@ class CRUDQuiz(CRUDBase):
                 correct_percentage = 0
 
             return (
-                quiz.title, total_answers, correct_answers, correct_percentage
+                quiz.title, total_answers, correct_answers, correct_percentage,
             )
         except Exception:
             db.session.rollback()
