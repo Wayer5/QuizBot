@@ -42,19 +42,4 @@ class CRUDUserAnswer(CRUDBase):
         )
 
 
-class CRUDQuestion(CRUDBase):
-
-    """Круд класс для вопросов."""
-
-    def get_all_by_quiz_id(self, quiz_id: int) -> List[Question]:
-        """Получить все вопросы по идентификатору викторины."""
-        return (
-            db.session.execute(
-                select(Question).where(Question.quiz_id == quiz_id),
-            )
-            .scalars()
-            .all()
-        )
-
-
 user_answer_crud = CRUDUserAnswer(UserAnswer)
