@@ -12,12 +12,11 @@ from aiogram.types import (
     WebAppInfo,
 )
 
-from settings import settings
-
 from . import app
 from .constants import BAN_WARN_MESSAGE
 from .crud.telegram_user import telegram_user_crud
 from .crud.user import user_crud
+from src.settings import settings
 
 bot: Bot = Bot(
     token=settings.TELEGRAM_TOKEN,

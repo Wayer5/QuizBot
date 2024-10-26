@@ -3,9 +3,8 @@ from http import HTTPStatus
 from aiogram.types import Update
 from flask import Response, request
 
-from settings import settings
-
 from . import app, bot
+from src.settings import settings
 
 
 @app.post(settings.WEBHOOK_PATH)
