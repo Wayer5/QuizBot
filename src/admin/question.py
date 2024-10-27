@@ -33,6 +33,8 @@ class QuestionAdmin(IntegrityErrorMixin, CustomAdminView):
     delete_error_message = ERROR_FOR_QUESTION
     # Отображаемые поля в списке записей
     column_list = ['title', 'category', 'is_active']
+    # Отображаемые поля в форме создания и редактирования
+    form_columns = ['title', 'category', 'is_active']
     column_labels = {
         'id': 'ID',
         'title': 'Текст вопроса',

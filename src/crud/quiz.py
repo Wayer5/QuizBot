@@ -1,6 +1,6 @@
 from typing import Optional, Tuple
 
-from sqlalchemy import select, true
+from sqlalchemy import select  # , true
 from sqlalchemy.orm import Query
 
 from src import db
@@ -25,6 +25,10 @@ class CRUDQuiz(CRUDBase):
     #         Quiz.is_active == is_active,
     #         Quiz.questions.any(Question.is_active == is_active),
     #     )
+
+    def get_multi_query(self) -> Query:
+        """Создать список объектов."""
+        return Quiz.query
 
     def get_by_id(self, quiz_id: int) -> Optional[Quiz]:
         """Получить викторину по ID."""

@@ -2,6 +2,7 @@ from flask import Response, redirect, request, url_for
 from flask_admin import BaseView, expose
 from flask_admin.model.template import LinkRowAction
 from flask_jwt_extended import jwt_required
+from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 
 from src.admin.base import (
     CustomAdminView,
@@ -15,6 +16,7 @@ from src.constants import (
 )
 from src.crud.quiz import quiz_crud
 from src.models.quiz import Quiz
+from src.models.question import Question
 
 
 class QuizAdmin(IntegrityErrorMixin, CustomAdminView):
@@ -25,12 +27,21 @@ class QuizAdmin(IntegrityErrorMixin, CustomAdminView):
     # Отображаемые поля в списке записей
     column_list = ['title', 'is_active']
     # Отображаемые поля в форме создания и редактирования
-    form_columns = ['title', 'is_active']
+    form_columns = ['title', 'questions', 'is_active']
 
     column_labels = {
         'id': 'ID',
         'title': 'Название',
+        'questions': 'Вопросы',
         'is_active': 'Активен',
+    }
+
+    form_extra_fields = {
+        'questions': QuerySelectMultipleField(
+            'Вопросы',
+            query_factory=lambda: Question.query.all(),
+            allow_blank=False,
+        )
     }
 
     column_extra_row_actions = [

@@ -15,7 +15,7 @@ async def quizzes() -> str:
     """Вывод страницы викторин."""
     page = request.args.get('page', DEFAULT_PAGE_NUMBER, type=int)
     per_page = PER_PAGE
-    quizzes_paginated = quiz_crud.get_multi().paginate(
+    quizzes_paginated = quiz_crud.get_multi_query().paginate(
         page=page,
         per_page=per_page,
         error_out=False,

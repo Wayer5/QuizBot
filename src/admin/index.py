@@ -15,6 +15,6 @@ class MyAdminIndexView(AdminIndexView):
         """Переопределение главной страницы администратора."""
         verify_jwt_in_request()
         if current_user.is_admin is False:
-            return redirect(url_for('categories'))
+            return redirect(url_for('quizzes'))
         admin_menu = self.admin.menu()
         return self.render('admin/admin_index.html', admin_menu=admin_menu)

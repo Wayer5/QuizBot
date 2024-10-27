@@ -1,5 +1,6 @@
 from src import db
 from src.models.base import BaseModel, IsActiveMixin
+from src.models.quiz_question import quiz_questions
 
 
 class Quiz(BaseModel, IsActiveMixin):
@@ -27,11 +28,18 @@ class Quiz(BaseModel, IsActiveMixin):
     # category = db.relationship('Category', back_populates='quizzes')
 
     # Связь с таблицей questions
+    # questions = db.relationship(
+    #     'Question',
+    #     back_populates='quiz',
+    #     lazy=True,
+    #     cascade='all,delete',
+    # )
+
     questions = db.relationship(
         'Question',
-        back_populates='quiz',
-        lazy=True,
-        cascade='all,delete',
+        secondary=quiz_questions,
+        back_populates='quizzes',
+        lazy='subquery'
     )
 
     # Связь с таблицей результатов викторины

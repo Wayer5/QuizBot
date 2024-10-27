@@ -35,6 +35,7 @@ from .models import (  # noqa
     question,
     quiz_result,
     quiz,
+    quiz_question,
     telegram_user,
     user_answer,
     user,

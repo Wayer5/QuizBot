@@ -25,7 +25,7 @@ class CRUDQuestion(CRUDBase):
                 select(Question)
                 .options(defer(Question.image))
                 .where(
-                    Question.quiz_id == quiz_id,
+                    Question.quizzes.any(id=quiz_id),
                     Question.is_active == is_active,
                     UserAnswer.id == null(),
                 )
@@ -51,7 +51,7 @@ class CRUDQuestion(CRUDBase):
                 select(Question)
                 .options(defer(Question.image))
                 .where(
-                    Question.quiz_id == quiz_id,
+                    Question.quizzes.any(id=quiz_id),
                     Question.is_active == is_active,
                 )
                 .order_by(Question.id),

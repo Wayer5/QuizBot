@@ -32,7 +32,7 @@
                     <button id="next-button" type="submit" class="btn btn-primary btn-lg" style="display: none;">Далее</button>
 
                     <!-- Кнопка "Вернуться в категории" -->
-                    <a href="{{ url_for('quiz_admin.index_view' if test == 'True' else 'categories') }}" class="btn btn-outline-secondary btn-lg mt-2">
+                    <a href="{{ url_for('quiz_admin.index_view' if test == 'True' else 'quizzes') }}" class="btn btn-outline-secondary btn-lg mt-2">
                         {% if test == 'True' %} Вернуться к викторинам {% else %} Вернуться в категории {% endif %}
                     </a>
                 </div>
