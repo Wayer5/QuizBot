@@ -12,7 +12,7 @@ class CRUDQuizResult(CRUDBase):
 
     """Круд класс для результатов квиза."""
 
-    def get_by_user_and_quiz(
+    async def get_by_user_and_quiz(
         self,
         user_id: int,
         quiz_id: int,
@@ -29,7 +29,7 @@ class CRUDQuizResult(CRUDBase):
             .first()
         )
 
-    def get_results_by_user(
+    async def get_results_by_user(
         self,
         user_id: int,
     ) -> Optional[QuizResult]:
@@ -46,17 +46,15 @@ class CRUDQuizResult(CRUDBase):
             .all()
         )
 
-    def get_results_by_user_paginated(
+    async def get_results_by_user_paginated(
         self,
         user_id: int,
         page: int,
         per_page: int,
     ) -> Result:
         """Получить результаты квизов пользователя c пагинацией."""
-        return (
-            self.model.query
-            .filter_by(user_id=user_id)
-            .paginate(page=page, per_page=per_page, error_out=False)
+        return self.model.query.filter_by(user_id=user_id).paginate(
+            page=page, per_page=per_page, error_out=False,
         )
 
 

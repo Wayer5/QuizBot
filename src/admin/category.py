@@ -91,11 +91,11 @@ class CategoryStatisticsView(NotVisibleMixin):
 
     @expose('/')
     @jwt_required()
-    def index(self) -> Response:
+    async def index(self) -> Response:
         """Статистика по конкретной категории."""
         category_id = request.args.get('category_id')
 
-        statictic = category_crud.get_statistic(category_id)
+        statictic = await category_crud.get_statistic(category_id)
 
         (
             category_name,

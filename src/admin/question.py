@@ -198,11 +198,11 @@ class QuestionStatisticsView(NotVisibleMixin):
     # Статистика по конкретному вопросу
     @expose('/')
     @jwt_required()
-    def index(self) -> Response:
+    async def index(self) -> Response:
         """Выполняем запрос статистики для конкретного вопроса."""
         question_id = request.args.get('question_id')
 
-        statictic = question_crud.get_statistic(question_id)
+        statictic = await question_crud.get_statistic(question_id)
 
         (
             question_text,

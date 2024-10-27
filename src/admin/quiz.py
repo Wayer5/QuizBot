@@ -43,9 +43,9 @@ class QuizAdmin(IntegrityErrorMixin, CustomAdminView):
     ]
 
     @expose('/test_question/<int:quiz_id>/')
-    def test_quiz_view(self, quiz_id: int) -> Response:
+    async def test_quiz_view(self, quiz_id: int) -> Response:
         """Перенаправление на страницу тестирования."""
-        quiz = quiz_crud.get(quiz_id)
+        quiz = await quiz_crud.get(quiz_id)
         return redirect(
             url_for(
                 'question',
@@ -98,11 +98,11 @@ class QuizStatisticsView(NotVisibleMixin):
     # Статистика по конкретному вопросу
     @expose('/')
     @jwt_required()
-    def index(self) -> Response:
+    async def index(self) -> Response:
         """Выполняем запрос статистики для конкретной викторины."""
         quiz_id = request.args.get('quiz_id')
 
-        statictic = quiz_crud.get_statistic(quiz_id)
+        statictic = await quiz_crud.get_statistic(quiz_id)
 
         (
             quiz_title,

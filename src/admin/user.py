@@ -49,7 +49,10 @@ class UserAdmin(CustomAdminView):
         )
 
     def after_model_change(
-        self, form: Any, model: Any, is_created: bool,
+        self,
+        form: Any,
+        model: Any,
+        is_created: bool,
     ) -> None:
         """Удаляем кэш после изменений."""
         if not model.is_active:
@@ -104,7 +107,7 @@ class UserStatisticsView(NotVisibleMixin):
 
     @expose('/')
     @jwt_required()
-    def index(self) -> Response:
+    async def index(self) -> Response:
         """Cтатистика конкретного пользователя."""
         user_id = request.args.get('user_id')
         if not user_id:
@@ -112,8 +115,12 @@ class UserStatisticsView(NotVisibleMixin):
         user = User.query.get(user_id)
         if not user:
             return USER_NOT_FOUND_MESSAGE, HTTP_NOT_FOUND
-        quiz_results = quiz_result_crud.get_results_by_user(user_id=user.id)
-        user_answers = user_answer_crud.get_results_by_user(user_id=user.id)
+        quiz_results = await quiz_result_crud.get_results_by_user(
+            user_id=user.id,
+        )
+        user_answers = await user_answer_crud.get_results_by_user(
+            user_id=user.id,
+        )
         total_questions_answered = len(user_answers)
         total_correct_answers = sum(
             1 for answer in user_answers if answer.is_right

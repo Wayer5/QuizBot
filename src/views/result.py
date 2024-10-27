@@ -22,13 +22,15 @@ from src.utils import Dotdict, obj_to_dict
 )
 @app.route('/results/<int:quiz_id>/<test>')
 @jwt_required()
-def results(quiz_id: int, test: str) -> str:
+async def results(quiz_id: int, test: str) -> str:
     """Результаты викторины."""
     user = current_user
 
     if not test:
         # Получаем результат викторины для конкретного пользователя и викторины
-        quiz_result = quiz_result_crud.get_by_user_and_quiz(user.id, quiz_id)
+        quiz_result = await quiz_result_crud.get_by_user_and_quiz(
+            user.id, quiz_id,
+        )
     else:
         test_answers = obj_to_dict(session.get('test_answers', []))
         session['test_answers'] = []
@@ -53,7 +55,7 @@ def results(quiz_id: int, test: str) -> str:
         return 'Результаты викторины не найдены', 404
 
     # Получаем название викторины
-    quiz = quiz_crud.get_by_id(quiz_id)
+    quiz = await quiz_crud.get_by_id(quiz_id)
     quiz_title = quiz.title if quiz else 'Неизвестная викторина'
 
     # Считаем общее количество вопросов и количество правильных ответов
@@ -63,12 +65,12 @@ def results(quiz_id: int, test: str) -> str:
     # Добавляем вопросы к результату
     quiz_result.questions = []
     if not test:
-        user_answers = user_answer_crud.get_results_by_user_and_quiz(
+        user_answers = await user_answer_crud.get_results_by_user_and_quiz(
             user.id,
             quiz_id,
         )
         # Получаем все вопросы по викторине
-        questions = question_crud.get_all_by_quiz_id(quiz_result.quiz_id)
+        questions = await question_crud.get_all_by_quiz_id(quiz_result.quiz_id)
     else:
         user_answers = quiz_result.get('user_answers')
         questions = quiz_result.get('all_questions')
@@ -92,11 +94,13 @@ def results(quiz_id: int, test: str) -> str:
             if test
             else next(
                 (
-                    v for v in question.variants
+                    v
+                    for v in question.variants
                     if v.id == user_answer.answer_id
                 ),
                 None,
-            ))
+            )
+        )
         # Собираем все возможные ответы
         possible_answers = [v.title for v in question.variants]
         image_url = url_for('get_question_image', question_id=question.id)

@@ -12,7 +12,7 @@ class CRUDUserAnswer(CRUDBase):
 
     """Круд класс для ответов."""
 
-    def get_results_by_user(self, user_id: int) -> List[UserAnswer]:
+    async def get_results_by_user(self, user_id: int) -> List[UserAnswer]:
         """Получить результаты квизов пользователя."""
         return (
             db.session.execute(
@@ -22,7 +22,7 @@ class CRUDUserAnswer(CRUDBase):
             .all()
         )
 
-    def get_results_by_user_and_quiz(
+    async def get_results_by_user_and_quiz(
         self,
         user_id: int,
         quiz_id: int,
