@@ -4,7 +4,7 @@ from flask import Response, render_template, request
 
 from . import app
 from .constants import HTTP_NOT_FOUND, UNAUTHORIZED
-from .jwt import jwt
+from .jwt_utils import jwt
 
 
 @app.errorhandler(404)
