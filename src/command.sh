@@ -7,4 +7,4 @@ else
   flask db migrate
 fi
 flask db upgrade
-python3 run_server.py
+python3 -m src.run_server

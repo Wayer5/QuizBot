@@ -53,7 +53,7 @@ class Config(object):
         response = SESSION_REDIS.ping()
         if response:
             logging.info('Подключение успешно!')
-            logging.inf0(response)
+            logging.info(response)
         else:
             logging.info('Не удалось подключиться к Redis.')
     except Exception as e:
