@@ -6,7 +6,7 @@ from flask_migrate import Migrate
 from flask_session import Session as RedisSession
 from flask_sqlalchemy import SQLAlchemy
 
-from src.settings import Config, LoggingSettings
+from .settings import Config, LoggingSettings
 
 logging.config.dictConfig(LoggingSettings.logging_config())
 

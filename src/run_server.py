@@ -3,9 +3,8 @@ import asyncio
 import uvicorn
 from asgiref.wsgi import WsgiToAsgi
 
-from settings import settings
-
 from . import app, bot
+from .settings import settings
 
 
 async def main() -> None:

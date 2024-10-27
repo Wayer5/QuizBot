@@ -4,7 +4,7 @@ from aiogram.types import Update
 from flask import Response, request
 
 from . import app, bot
-from src.settings import settings
+from .settings import settings
 
 
 @app.post(settings.WEBHOOK_PATH)
