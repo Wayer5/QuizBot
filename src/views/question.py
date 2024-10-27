@@ -1,5 +1,5 @@
-from typing import Optional, Union
 from datetime import datetime
+from typing import Optional, Union
 
 from flask import (
     redirect,
@@ -42,6 +42,7 @@ async def question(
         Если присутствует, результаты викторины не сохраняются.
 
     Returns:
+    -------
         str: HTML-код страницы с вопросом или результатами.
 
     """
@@ -67,6 +68,7 @@ async def handle_question_post(
         test (Optional[str], optional): Флаг тестового режима.
 
     Returns:
+    -------
         str: HTML-код страницы с результатами ответа.
 
     """
@@ -127,6 +129,7 @@ async def handle_question_get(
         test (Optional[str], optional): Флаг тестового режима.
 
     Returns:
+    -------
         Union[str, redirect]: HTML-код страницы с вопросом или перенаправление
             на страницу результатов, если все вопросы отвечены.
 
@@ -230,6 +233,7 @@ async def handle_quiz_end(
         test (Optional[str], optional): Флаг тестового режима.
 
     Returns:
+    -------
         redirect: Перенаправление на страницу с результатами.
 
     """
