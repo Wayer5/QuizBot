@@ -23,14 +23,13 @@ class QuizAdmin(IntegrityErrorMixin, CustomAdminView):
 
     delete_error_message = ERROR_FOR_QUIZ
     # Отображаемые поля в списке записей
-    column_list = ['title', 'category', 'is_active']
+    column_list = ['title', 'is_active']
     # Отображаемые поля в форме создания и редактирования
-    form_columns = ['title', 'category', 'is_active']
+    form_columns = ['title', 'is_active']
 
     column_labels = {
         'id': 'ID',
         'title': 'Название',
-        'category': 'Категория',
         'is_active': 'Активен',
     }
 
@@ -45,11 +44,9 @@ class QuizAdmin(IntegrityErrorMixin, CustomAdminView):
     @expose('/test_question/<int:quiz_id>/')
     def test_quiz_view(self, quiz_id: int) -> Response:
         """Перенаправление на страницу тестирования."""
-        quiz = quiz_crud.get(quiz_id)
         return redirect(
             url_for(
                 'question',
-                category_id=quiz.category_id,
                 quiz_id=quiz_id,
                 test=True,
             ),
@@ -61,6 +58,7 @@ class QuizListView(BaseView):
     """Создание списка викторин для статистики."""
 
     @expose('/')
+    @jwt_required()
     def index(self) -> Response:
         """Создание списка для статистики викторин."""
         page = request.args.get('page', DEFAULT_PAGE_NUMBER, type=int)

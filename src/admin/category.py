@@ -8,14 +8,14 @@ from src import app, cache
 from src.admin.base import (
     CustomAdminView,
     IntegrityErrorMixin,
-    NotVisibleMixin,
+    # NotVisibleMixin,
 )
 from src.constants import (
     DEFAULT_PAGE_NUMBER,
     ERROR_FOR_CATEGORY,
     ITEMS_PER_PAGE,
 )
-from src.crud.category import category_crud
+# from src.crud.category import category_crud
 from src.models.category import Category
 
 
@@ -26,7 +26,6 @@ class CategoryAdmin(IntegrityErrorMixin, CustomAdminView):
     delete_error_message = ERROR_FOR_CATEGORY
 
     column_labels = {
-        # 'id': 'ID',
         'name': 'Название',
         'is_active': 'Активен',
     }
@@ -51,6 +50,7 @@ class CategoryListView(BaseView):
     """Создание списка категорий для статистики."""
 
     @expose('/')
+    @jwt_required()
     def index(self) -> Response:
         """Создание списка для статистики категорий."""
         page = request.args.get('page', DEFAULT_PAGE_NUMBER, type=int)
@@ -85,29 +85,29 @@ class CategoryListView(BaseView):
         )
 
 
-class CategoryStatisticsView(NotVisibleMixin):
+# class CategoryStatisticsView(NotVisibleMixin):
 
-    """Представление для статистики конкретной категории."""
+#     """Представление для статистики конкретной категории."""
 
-    @expose('/')
-    @jwt_required()
-    def index(self) -> Response:
-        """Статистика по конкретной категории."""
-        category_id = request.args.get('category_id')
+#     @expose('/')
+#     @jwt_required()
+#     def index(self) -> Response:
+#         """Статистика по конкретной категории."""
+#         category_id = request.args.get('category_id')
 
-        statictic = category_crud.get_statistic(category_id)
+#         statictic = category_crud.get_statistic(category_id)
 
-        (
-            category_name,
-            total_answers,
-            correct_answers,
-            correct_percentage,
-        ) = statictic
+#         (
+#             category_name,
+#             total_answers,
+#             correct_answers,
+#             correct_percentage,
+#         ) = statictic
 
-        return self.render(
-            'admin/category_statistics.html',
-            category_name=category_name,
-            total_answers=total_answers,
-            correct_answers=correct_answers,
-            correct_percentage=correct_percentage,
-        )
+#         return self.render(
+#             'admin/category_statistics.html',
+#             category_name=category_name,
+#             total_answers=total_answers,
+#             correct_answers=correct_answers,
+#             correct_percentage=correct_percentage,
+#         )

@@ -14,6 +14,7 @@ class QuizResult(BaseModel):
     """
 
     __tablename__ = 'quiz_results'
+
     user_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id'),

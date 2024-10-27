@@ -7,6 +7,7 @@ class TelegramUser(BaseModel, TimestampMixin):
     """Модель для хранения информации о пользователях Telegram."""
 
     __tablename__ = 'telegram_users'
+
     telegram_id = db.Column(
         db.BigInteger,
         unique=True,

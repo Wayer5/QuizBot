@@ -13,6 +13,7 @@ class Question(BaseModel, IsActiveMixin):
     """
 
     __tablename__ = 'questions'
+
     title = db.Column(
         db.String(220),
         nullable=False,
@@ -22,8 +23,15 @@ class Question(BaseModel, IsActiveMixin):
     quiz_id = db.Column(
         db.Integer,
         db.ForeignKey('quizzes.id'),
-        nullable=False,
+        nullable=True,
         comment='Идентификатор викторины, к которой относится вопрос.',
+        index=True,
+    )
+    category_id = db.Column(
+        db.Integer,
+        db.ForeignKey('categories.id'),
+        nullable=False,
+        comment='Идентификатор категории, к которой относится вопрос.',
         index=True,
     )
     image = deferred(
@@ -35,6 +43,10 @@ class Question(BaseModel, IsActiveMixin):
     )
     quiz = db.relationship(
         'Quiz',
+        back_populates='questions',
+    )
+    category = db.relationship(
+        'Category',
         back_populates='questions',
     )
     # Связь с таблицей variants

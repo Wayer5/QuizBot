@@ -32,11 +32,11 @@ class QuestionAdmin(IntegrityErrorMixin, CustomAdminView):
 
     delete_error_message = ERROR_FOR_QUESTION
     # Отображаемые поля в списке записей
-    column_list = ['title', 'quiz', 'is_active']
+    column_list = ['title', 'category', 'is_active']
     column_labels = {
         'id': 'ID',
         'title': 'Текст вопроса',
-        'quiz': 'Викторина',
+        'category': 'Категория',
         'is_active': 'Активен',
     }
     form_extra_fields = {
@@ -155,8 +155,8 @@ class QuestionListView(BaseView):
 
     """Создание списка для статистики."""
 
-    @jwt_required()
     @expose('/')
+    @jwt_required()
     def index(self) -> Response:
         """Создание списка для статистики."""
         page = request.args.get('page', DEFAULT_PAGE_NUMBER, type=int)

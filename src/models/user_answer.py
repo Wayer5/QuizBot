@@ -13,6 +13,7 @@ class UserAnswer(BaseModel):
     """
 
     __tablename__ = 'user_answers'
+
     user_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id'),

@@ -13,6 +13,7 @@ class Variant(BaseModel):
     """
 
     __tablename__ = 'variants'
+
     question_id = db.Column(
         db.Integer,
         db.ForeignKey('questions.id'),

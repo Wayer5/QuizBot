@@ -19,13 +19,13 @@ from src.utils import Dotdict, obj_to_dict
 
 
 @app.route(
-    '/<int:category_id>/<int:quiz_id>/',
+    '/<int:quiz_id>/',
     methods=['GET', 'POST'],
     defaults={'test': None},
 )
-@app.route('/<int:category_id>/<int:quiz_id>/<test>', methods=['GET', 'POST'])
+@app.route('/<int:quiz_id>/<test>', methods=['GET', 'POST'])
 @jwt_required()
-def question(category_id: int, quiz_id: int, test: str) -> str:
+def question(quiz_id: int, test: str) -> str:
     """Переключаем вопросы после ответов на них."""
     if test and session.get('test_answers') is None:
         session['test_answers'] = []
@@ -84,7 +84,6 @@ def question(category_id: int, quiz_id: int, test: str) -> str:
         image_url = url_for('get_question_image', question_id=question_id)
         return render_template(
             'question_result.html',
-            category_id=category_id,
             quiz_id=quiz_id,
             answer=chosen_answer.title,
             description=chosen_answer.description,

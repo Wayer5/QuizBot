@@ -11,19 +11,20 @@ class Quiz(BaseModel, IsActiveMixin):
     """
 
     __tablename__ = 'quizzes'
+
     title = db.Column(
         db.String(30),
         nullable=False,
         comment='Название викторины.',
         unique=True,
     )
-    category_id = db.Column(
-        db.Integer,
-        db.ForeignKey('categories.id'),
-        nullable=False,
-        comment='Идентификатор категории, к которой относится викторина.',
-    )
-    category = db.relationship('Category', back_populates='quizzes')
+    # category_id = db.Column(
+    #     db.Integer,
+    #     db.ForeignKey('categories.id'),
+    #     nullable=False,
+    #     comment='Идентификатор категории, к которой относится викторина.',
+    # )
+    # category = db.relationship('Category', back_populates='quizzes')
 
     # Связь с таблицей questions
     questions = db.relationship(

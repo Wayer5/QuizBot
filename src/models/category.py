@@ -11,6 +11,7 @@ class Category(BaseModel, IsActiveMixin):
     """
 
     __tablename__ = 'categories'
+
     name = db.Column(
         db.String(30),
         nullable=False,
@@ -18,9 +19,16 @@ class Category(BaseModel, IsActiveMixin):
         comment='Название категории викторины.',
     )
 
-    # Связь с таблицей quizzes
-    quizzes = db.relationship(
-        'Quiz',
+    # # Связь с таблицей quizzes
+    # quizzes = db.relationship(
+    #     'Quiz',
+    #     back_populates='category',
+    #     cascade='all,delete',
+    #     lazy=True,
+    # )
+
+    questions = db.relationship(
+        'Question',
         back_populates='category',
         cascade='all,delete',
         lazy=True,
