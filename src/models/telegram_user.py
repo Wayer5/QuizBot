@@ -46,5 +46,10 @@ class TelegramUser(BaseModel, TimestampMixin):
         comment='Указывает, добавил ли пользователь бота в меню вложений.',
     )
 
+    @property
+    def name(self) -> str:
+        """Возвращает имя пользователя в формате "Фамилия Имя"."""
+        return f'{self.last_name} {self.first_name}'
+
     def __repr__(self) -> str:
         return f'<TelegramUser id={self.telegram_id}'

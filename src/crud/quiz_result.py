@@ -32,6 +32,7 @@ class CRUDQuizResult(CRUDBase):
     async def get_results_by_user(
         self,
         user_id: int,
+        tg_user: bool = False,
     ) -> Optional[QuizResult]:
         """Получить результаты квизов пользователя."""
         return (
@@ -39,7 +40,9 @@ class CRUDQuizResult(CRUDBase):
                 select(QuizResult)
                 # загрузка связанных Quiz
                 .options(joinedload(QuizResult.quiz)).where(
-                    QuizResult.user_id == user_id,
+                    QuizResult.user_id == user_id
+                    if not tg_user
+                    else QuizResult.tg_user_id == user_id,
                 ),
             )
             .scalars()
@@ -51,9 +54,15 @@ class CRUDQuizResult(CRUDBase):
         user_id: int,
         page: int,
         per_page: int,
+        tg_user: bool = False,
     ) -> Result:
         """Получить результаты квизов пользователя c пагинацией."""
-        return self.model.query.filter_by(user_id=user_id).paginate(
+        if not tg_user:
+            query = self.model.query.filter_by(user_id=user_id)
+        else:
+            query = self.model.query.filter_by(tg_user_id=user_id)
+
+        return query.paginate(
             page=page,
             per_page=per_page,
             error_out=False,

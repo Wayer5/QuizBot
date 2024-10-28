@@ -115,8 +115,7 @@ async def delete_profile() -> Response:
         answer.user_id = None
         await user_crud.update(answer, {'user_id': None})
 
-    if cache.has(f'user_{user.id}'):
-        cache.delete(f'user_{user.id}')
+    cache.delete(f'user_{user.id}')
     await user_crud.remove(current_user)
 
     return 'Профиль удален', 204

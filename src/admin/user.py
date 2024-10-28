@@ -14,6 +14,7 @@ from src.constants import (
 )
 from src.crud.quiz_result import quiz_result_crud
 from src.crud.user_answer import user_answer_crud
+from src.models.telegram_user import TelegramUser
 from src.models.user import User
 
 
@@ -76,7 +77,7 @@ class UserListView(BaseView):
         per_page = ITEMS_PER_PAGE
 
         search_query = request.args.get('search', '', type=str)
-        query = User.query
+        query = TelegramUser.query
         if search_query:
             query = query.filter(User.name.ilike(f'%{search_query}%'))
 
@@ -112,14 +113,14 @@ class UserStatisticsView(NotVisibleMixin):
         user_id = request.args.get('user_id')
         if not user_id:
             return USER_NOT_FOUND_MESSAGE, HTTP_NOT_FOUND
-        user = User.query.get(user_id)
+        user = TelegramUser.query.get(user_id)
         if not user:
             return USER_NOT_FOUND_MESSAGE, HTTP_NOT_FOUND
         quiz_results = await quiz_result_crud.get_results_by_user(
-            user_id=user.id,
+            user_id=user.id, tg_user=True,
         )
         user_answers = await user_answer_crud.get_results_by_user(
-            user_id=user.id,
+            user_id=user.id, tg_user=True,
         )
         total_questions_answered = len(user_answers)
         total_correct_answers = sum(
