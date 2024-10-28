@@ -22,6 +22,12 @@ class QuizResult(BaseModel, TimestampMixin):
         nullable=True,
         comment='Идентификатор пользователя, прошедшего викторину.',
     )
+    tg_user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('telegram_users.id'),
+        nullable=True,
+        comment='Идентификатор телеграм пользователя.',
+    )
     quiz_id = db.Column(
         db.Integer,
         db.ForeignKey('quizzes.id'),

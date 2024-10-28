@@ -54,7 +54,9 @@ class CRUDQuizResult(CRUDBase):
     ) -> Result:
         """Получить результаты квизов пользователя c пагинацией."""
         return self.model.query.filter_by(user_id=user_id).paginate(
-            page=page, per_page=per_page, error_out=False,
+            page=page,
+            per_page=per_page,
+            error_out=False,
         )
 
 

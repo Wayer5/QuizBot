@@ -20,6 +20,13 @@ class UserAnswer(BaseModel):
         comment='Идентификатор пользователя.',
         index=True,
     )
+    tg_user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('telegram_users.id'),
+        nullable=True,
+        comment='Идентификатор телеграм пользователя.',
+        index=True,
+    )
     question_id = db.Column(
         db.Integer,
         db.ForeignKey('questions.id'),

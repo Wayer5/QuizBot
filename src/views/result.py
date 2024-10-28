@@ -29,7 +29,8 @@ async def results(quiz_id: int, test: str) -> str:
     if not test:
         # Получаем результат викторины для конкретного пользователя и викторины
         quiz_result = await quiz_result_crud.get_by_user_and_quiz(
-            user.id, quiz_id,
+            user.id,
+            quiz_id,
         )
     else:
         test_answers = obj_to_dict(session.get('test_answers', []))

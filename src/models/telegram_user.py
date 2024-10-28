@@ -12,6 +12,7 @@ class TelegramUser(BaseModel, TimestampMixin):
         unique=True,
         nullable=False,
         comment='Уникальный идентификатор пользователя в Telegram.',
+        index=True,
     )
     first_name = db.Column(
         db.String(100),

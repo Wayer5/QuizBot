@@ -84,7 +84,8 @@ class CRUDQuestion(CRUDBase):
 
             if total_answers > 0:
                 correct_percentage = round(
-                    (correct_answers / total_answers) * 100.0, 2,
+                    (correct_answers / total_answers) * 100.0,
+                    2,
                 )
             else:
                 correct_percentage = 0

@@ -10,7 +10,8 @@ class CRUDTelegramUser(CRUDBase):
     """Класс для работы с моделью TelegramUser через CRUD."""
 
     async def get_by_telegram_id(
-        self, telegram_id: int,
+        self,
+        telegram_id: int,
     ) -> Optional[TelegramUser]:
         """Получение пользователя по telegram_id."""
         return (

@@ -16,6 +16,7 @@ from flask_jwt_extended import (
 from src import app
 from src.crud.question import question_crud
 from src.crud.quiz_result import quiz_result_crud
+from src.crud.telegram_user import telegram_user_crud
 from src.crud.user_answer import user_answer_crud
 from src.crud.variant import variant_crud
 from src.models.question import Question as QuestionModel
@@ -30,7 +31,9 @@ from src.utils import Dotdict, obj_to_dict
 @app.route('/<int:category_id>/<int:quiz_id>/<test>', methods=['GET', 'POST'])
 @jwt_required()
 async def question(
-    category_id: int, quiz_id: int, test: Optional[str] = None,
+    category_id: int,
+    quiz_id: int,
+    test: Optional[str] = None,
 ) -> str:
     """Обрабатывает запросы к странице с вопросами викторины.
 
@@ -54,7 +57,9 @@ async def question(
 
 
 async def handle_question_post(
-    category_id: int, quiz_id: int, test: Optional[str] = None,
+    category_id: int,
+    quiz_id: int,
+    test: Optional[str] = None,
 ) -> str:
     """Обрабатывает POST-запросы к странице с вопросами.
 
@@ -89,17 +94,24 @@ async def handle_question_post(
             ),
         ]
     else:
+        tg_user_id = (
+            await telegram_user_crud.get_by_telegram_id(
+                current_user.telegram_id,
+            )
+        ).id
         await update_quiz_results(
             current_user.id,
             quiz_id,
             question_id,
             chosen_answer.is_right_choice,
+            tg_user_id=tg_user_id,
         )
         await save_user_answer(
-            current_user.id,
-            current_question.id,
-            chosen_answer.id,
-            chosen_answer.is_right_choice,
+            user_id=current_user.id,
+            question_id=current_question.id,
+            answer_id=answer_id,
+            is_right=chosen_answer.is_right_choice,
+            tg_user_id=tg_user_id,
         )
 
     image_url = url_for('get_question_image', question_id=question_id)
@@ -116,7 +128,9 @@ async def handle_question_post(
 
 
 async def handle_question_get(
-    category_id: int, quiz_id: int, test: Optional[str] = None,
+    category_id: int,
+    quiz_id: int,
+    test: Optional[str] = None,
 ) -> Union[str, redirect]:
     """Обрабатывает GET-запросы к странице с вопросами.
 
@@ -149,7 +163,8 @@ async def handle_question_get(
         )
     else:
         question: Optional[QuestionModel] = await question_crud.get_new(
-            quiz_id=quiz_id, user_id=current_user.id,
+            quiz_id=quiz_id,
+            user_id=current_user.id,
         )
 
     if question is None:
@@ -165,7 +180,11 @@ async def handle_question_get(
 
 
 async def update_quiz_results(
-    user_id: int, quiz_id: int, question_id: int, is_correct_answer: bool,
+    user_id: int,
+    quiz_id: int,
+    question_id: int,
+    is_correct_answer: bool,
+    tg_user_id: int,
 ) -> None:
     """Обновляет результаты викторины для пользователя.
 
@@ -175,16 +194,19 @@ async def update_quiz_results(
         quiz_id (int): ID викторины.
         question_id (int): ID вопроса.
         is_correct_answer (bool): Флаг, указывающий, был ли ответ
-            на вопрос верным.
+        на вопрос верным.
+        tg_user_id (int): ID телеграм пользователя.
 
     """
     quiz_result = await quiz_result_crud.get_by_user_and_quiz(
-        user_id=user_id, quiz_id=quiz_id,
+        user_id=user_id,
+        quiz_id=quiz_id,
     )
     if quiz_result is None:
         quiz_result = await quiz_result_crud.create(
             {
                 'user_id': user_id,
+                'tg_user_id': tg_user_id,
                 'quiz_id': quiz_id,
                 'total_questions': 0,
                 'correct_answers_count': 0,
@@ -198,7 +220,11 @@ async def update_quiz_results(
 
 
 async def save_user_answer(
-    user_id: int, question_id: int, answer_id: int, is_right: bool,
+    user_id: int,
+    question_id: int,
+    answer_id: int,
+    is_right: bool,
+    tg_user_id: int,
 ) -> None:
     """Сохраняет ответ пользователя в базе данных.
 
@@ -208,11 +234,13 @@ async def save_user_answer(
         question_id (int): ID вопроса.
         answer_id (int): ID выбранного ответа.
         is_right (bool): Флаг, указывающий, был ли ответ верным.
+        tg_user_id (int): ID телеграм пользователя.
 
     """
     await user_answer_crud.create(
         {
             'user_id': user_id,
+            'tg_user_id': tg_user_id,
             'question_id': question_id,
             'answer_id': answer_id,
             'is_right': is_right,
@@ -221,7 +249,8 @@ async def save_user_answer(
 
 
 async def handle_quiz_end(
-    quiz_id: int, test: Optional[str] = None,
+    quiz_id: int,
+    test: Optional[str] = None,
 ) -> redirect:
     """Обрабатывает завершение викторины.
 
@@ -241,7 +270,8 @@ async def handle_quiz_end(
         return redirect(url_for('results', quiz_id=quiz_id, test=True))
 
     quiz_result = await quiz_result_crud.get_by_user_and_quiz(
-        user_id=current_user.id, quiz_id=quiz_id,
+        user_id=current_user.id,
+        quiz_id=quiz_id,
     )
     if quiz_result is not None and not quiz_result.is_complete:
         quiz_result.is_complete = True
