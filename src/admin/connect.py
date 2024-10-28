@@ -40,10 +40,10 @@ admin.add_view(
         endpoint='category_admin',
     ),
 )
+admin.add_view(QuestionAdmin(Question, db.session, name='Вопросы'))
 admin.add_view(
     QuizAdmin(Quiz, db.session, name='Викторины', endpoint='quiz_admin'),
 )
-admin.add_view(QuestionAdmin(Question, db.session, name='Вопросы'))
 
 # Добавляем представления для страниц статистик в админку
 admin.add_view(
@@ -62,12 +62,6 @@ admin.add_view(
 #     CategoryStatisticsView(endpoint='category_statistics'),
 # )
 admin.add_view(
-    QuizListView(name='Статистика по викторинам', endpoint='quiz_list'),
-)
-admin.add_view(
-    QuizStatisticsView(endpoint='quiz_statistics'),
-)
-admin.add_view(
     QuestionListView(name='Статистика по вопросам', endpoint='question_list'),
 )
 admin.add_view(
@@ -75,6 +69,12 @@ admin.add_view(
         name='Статистика вопросов',
         endpoint='question_statistics',
     ),
+)
+admin.add_view(
+    QuizListView(name='Статистика по викторинам', endpoint='quiz_list'),
+)
+admin.add_view(
+    QuizStatisticsView(endpoint='quiz_statistics'),
 )
 
 
