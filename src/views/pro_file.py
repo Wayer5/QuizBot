@@ -1,3 +1,4 @@
+
 from flask import (
     Response,
     render_template,
@@ -85,7 +86,6 @@ async def profile() -> Response:
                     else None,
                 },
             )
-
     return render_template(
         'user_profile.html',
         user=user,

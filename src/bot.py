@@ -82,7 +82,7 @@ async def cmd_start(message: Message) -> None:
         added_to_attachment_menu = tg_user.added_to_attachment_menu
         language_code = tg_user.language_code
 
-        telegram_user_crud.create(
+        await telegram_user_crud.create(
             {
                 'telegram_id': tg_user_id,
                 'first_name': first_name,

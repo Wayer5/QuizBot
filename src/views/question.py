@@ -276,6 +276,5 @@ async def handle_quiz_end(
     if quiz_result is not None and not quiz_result.is_complete:
         quiz_result.is_complete = True
         quiz_result.ended_on = datetime.utcnow()
-        print(quiz_result.ended_on)
         await quiz_result_crud.update_with_obj(quiz_result)
     return redirect(url_for('results', quiz_id=quiz_id))

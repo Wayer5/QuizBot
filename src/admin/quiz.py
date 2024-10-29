@@ -1,4 +1,4 @@
-from flask import Response, redirect, request, url_for
+from flask import Response, abort, redirect, request, url_for
 from flask_admin import BaseView, expose
 from flask_admin.model.template import LinkRowAction
 from flask_jwt_extended import jwt_required
@@ -43,9 +43,12 @@ class QuizAdmin(IntegrityErrorMixin, CustomAdminView):
     ]
 
     @expose('/test_question/<int:quiz_id>/')
-    async def test_quiz_view(self, quiz_id: int) -> Response:
+    def test_quiz_view(self, quiz_id: int) -> Response:
         """Перенаправление на страницу тестирования."""
-        quiz = await quiz_crud.get(quiz_id)
+        quiz = Quiz.query.get(quiz_id)
+        if not quiz:
+            abort('Викторина не найдена', 404)
+
         return redirect(
             url_for(
                 'question',

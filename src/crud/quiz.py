@@ -73,7 +73,6 @@ class CRUDQuiz(CRUDBase):
                 )
             else:
                 correct_percentage = 0
-
             return (
                 quiz.title,
                 total_answers,

@@ -13,7 +13,9 @@ class CRUDUserAnswer(CRUDBase):
     """Круд класс для ответов."""
 
     async def get_results_by_user(
-        self, user_id: int, tg_user: bool = False,
+        self,
+        user_id: int,
+        tg_user: bool = False,
     ) -> List[UserAnswer]:
         """Получить результаты квизов пользователя."""
         args = (

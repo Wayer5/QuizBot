@@ -117,10 +117,12 @@ class UserStatisticsView(NotVisibleMixin):
         if not user:
             return USER_NOT_FOUND_MESSAGE, HTTP_NOT_FOUND
         quiz_results = await quiz_result_crud.get_results_by_user(
-            user_id=user.id, tg_user=True,
+            user_id=user.id,
+            tg_user=True,
         )
         user_answers = await user_answer_crud.get_results_by_user(
-            user_id=user.id, tg_user=True,
+            user_id=user.id,
+            tg_user=True,
         )
         total_questions_answered = len(user_answers)
         total_correct_answers = sum(
