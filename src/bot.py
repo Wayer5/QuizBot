@@ -61,8 +61,8 @@ async def cmd_start(message: Message) -> None:
         name = tg_user.full_name
         username = tg_user.username
         tg_user_id = tg_user.id
-        is_admin = user_crud.get_multi() == []
-        user_crud.create(
+        is_admin = (await user_crud.get_multi()) == []
+        await user_crud.create(
             {
                 'name': name,
                 'username': username,
@@ -74,7 +74,7 @@ async def cmd_start(message: Message) -> None:
             f'Пользователь {name} ({username}) зарегистрирован в боте.',
         )
 
-    if not telegram_user_crud.exists_by_telegram_id(tg_user.id):
+    if not (await telegram_user_crud.exists_by_telegram_id(tg_user.id)):
         username = tg_user.username
         first_name = tg_user.first_name
         last_name = tg_user.last_name
@@ -82,7 +82,7 @@ async def cmd_start(message: Message) -> None:
         added_to_attachment_menu = tg_user.added_to_attachment_menu
         language_code = tg_user.language_code
 
-        telegram_user_crud.create(
+        await telegram_user_crud.create(
             {
                 'telegram_id': tg_user_id,
                 'first_name': first_name,

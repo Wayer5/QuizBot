@@ -42,7 +42,7 @@ async def login() -> Response:
 
 
 @app.route('/logout', methods=['POST'])
-def logout() -> Response:
+async def logout() -> Response:
     """Удаляет токен пользователя.
 
     Keyword Arguments:

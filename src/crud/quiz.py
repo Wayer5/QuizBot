@@ -14,7 +14,7 @@ class CRUDQuiz(CRUDBase):
 
     """Круд класс викторин."""
 
-    def get_by_category_id(
+    async def get_by_category_id(
         self,
         category_id: int,
         is_active: bool = true(),
@@ -26,7 +26,7 @@ class CRUDQuiz(CRUDBase):
             Quiz.questions.any(Question.is_active == is_active),
         )
 
-    def get_by_id(self, quiz_id: int) -> Optional[Quiz]:
+    async def get_by_id(self, quiz_id: int) -> Optional[Quiz]:
         """Получить викторину по ID."""
         return (
             db.session.execute(
@@ -36,7 +36,7 @@ class CRUDQuiz(CRUDBase):
             .first()
         )
 
-    def get_statistic(self, quiz_id: int) -> Tuple:
+    async def get_statistic(self, quiz_id: int) -> Tuple:
         """Получить статистику по викторине."""
         try:
             quiz = db.session.query(Quiz).filter(Quiz.id == quiz_id).first()
@@ -68,12 +68,16 @@ class CRUDQuiz(CRUDBase):
 
             if total_answers > 0:
                 correct_percentage = round(
-                    (correct_answers / total_answers) * 100.0, 2)
+                    (correct_answers / total_answers) * 100.0,
+                    2,
+                )
             else:
                 correct_percentage = 0
-
             return (
-                quiz.title, total_answers, correct_answers, correct_percentage,
+                quiz.title,
+                total_answers,
+                correct_answers,
+                correct_percentage,
             )
         except Exception:
             db.session.rollback()

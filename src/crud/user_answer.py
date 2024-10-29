@@ -12,17 +12,26 @@ class CRUDUserAnswer(CRUDBase):
 
     """Круд класс для ответов."""
 
-    def get_results_by_user(self, user_id: int) -> List[UserAnswer]:
+    async def get_results_by_user(
+        self,
+        user_id: int,
+        tg_user: bool = False,
+    ) -> List[UserAnswer]:
         """Получить результаты квизов пользователя."""
+        args = (
+            UserAnswer.user_id == user_id
+            if not tg_user
+            else UserAnswer.tg_user_id == user_id
+        )
         return (
             db.session.execute(
-                select(UserAnswer).where(UserAnswer.user_id == user_id),
+                select(UserAnswer).where(args),
             )
             .scalars()
             .all()
         )
 
-    def get_results_by_user_and_quiz(
+    async def get_results_by_user_and_quiz(
         self,
         user_id: int,
         quiz_id: int,

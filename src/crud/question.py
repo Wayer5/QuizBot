@@ -13,7 +13,7 @@ class CRUDQuestion(CRUDBase):
 
     """Круд класс для вопросов."""
 
-    def get_new(
+    async def get_new(
         self,
         user_id: int,
         quiz_id: int,
@@ -40,7 +40,7 @@ class CRUDQuestion(CRUDBase):
             .first()
         )
 
-    def get_all_by_quiz_id(
+    async def get_all_by_quiz_id(
         self,
         quiz_id: int,
         is_active: bool = true(),
@@ -60,25 +60,33 @@ class CRUDQuestion(CRUDBase):
             .all()
         )
 
-    def get_statistic(self, question_id: int) -> Tuple:
+    async def get_statistic(self, question_id: int) -> Tuple:
         """Получить статистику по вопросу."""
         try:
-            question = db.session.query(
-                Question).filter(Question.id == question_id).first()
+            question = (
+                db.session.query(Question)
+                .filter(Question.id == question_id)
+                .first()
+            )
             if not question:
                 return ('Нет данных', 0, 0, 0)
 
             question_text = question.title
 
-            user_answers = db.session.query(UserAnswer.is_right).filter(
-                UserAnswer.question_id == question_id).all()
+            user_answers = (
+                db.session.query(UserAnswer.is_right)
+                .filter(UserAnswer.question_id == question_id)
+                .all()
+            )
 
             total_answers = len(user_answers)
             correct_answers = sum(1 for ua in user_answers if ua.is_right)
 
             if total_answers > 0:
                 correct_percentage = round(
-                    (correct_answers / total_answers) * 100.0, 2)
+                    (correct_answers / total_answers) * 100.0,
+                    2,
+                )
             else:
                 correct_percentage = 0
 

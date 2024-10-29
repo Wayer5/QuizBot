@@ -15,7 +15,7 @@ class CRUDCategory(CRUDBase):
 
     """Круд класс для рубрик."""
 
-    def get_active(self, is_active: bool = true()) -> Query:
+    async def get_active(self, is_active: bool = true()) -> Query:
         """Получить все активные рубрики как запрос Query."""
         return db.session.query(Category).filter(
             Category.is_active == is_active,
@@ -27,11 +27,14 @@ class CRUDCategory(CRUDBase):
             ),
         )
 
-    def get_statistic(self, category_id: int) -> Tuple:
+    async def get_statistic(self, category_id: int) -> Tuple:
         """Получить статистику по категории."""
         try:
-            category = db.session.query(
-                Category.name).filter(Category.id == category_id).first()
+            category = (
+                db.session.query(Category.name)
+                .filter(Category.id == category_id)
+                .first()
+            )
             if not category:
                 return ('Нет данных', 0, 0, 0)
 
@@ -52,7 +55,9 @@ class CRUDCategory(CRUDBase):
 
             if total_answers > 0:
                 correct_percentage = round(
-                    (correct_answers / total_answers) * 100.0, 2)
+                    (correct_answers / total_answers) * 100.0,
+                    2,
+                )
             else:
                 correct_percentage = 0
 
