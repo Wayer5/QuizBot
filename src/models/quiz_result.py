@@ -1,10 +1,12 @@
+from datetime import datetime
+
 from sqlalchemy import UniqueConstraint
 
 from src import db
-from src.models.base import BaseModel
+from src.models.base import BaseModel, TimestampMixin
 
 
-class QuizResult(BaseModel):
+class QuizResult(BaseModel, TimestampMixin):
 
     """Модель результатов викторины.
 
@@ -20,6 +22,12 @@ class QuizResult(BaseModel):
         db.ForeignKey('users.id'),
         nullable=True,
         comment='Идентификатор пользователя, прошедшего викторину.',
+    )
+    tg_user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('telegram_users.id'),
+        nullable=True,
+        comment='Идентификатор телеграм пользователя.',
     )
     quiz_id = db.Column(
         db.Integer,
@@ -43,13 +51,8 @@ class QuizResult(BaseModel):
         comment='Флаг завершения викторины.',
     )
 
-    # Связь с таблицей questions
-    question_id = db.Column(
-        db.Integer,
-        db.ForeignKey('questions.id'),
-        nullable=False,
-        comment='Идентификатор последнего отвеченного вопроса.',
-    )
+    ended_on = db.Column(db.DateTime, default=datetime.utcnow)
+
     __table_args__ = (
         UniqueConstraint(
             'user_id',

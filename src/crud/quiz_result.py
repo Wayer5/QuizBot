@@ -12,7 +12,7 @@ class CRUDQuizResult(CRUDBase):
 
     """Круд класс для результатов квиза."""
 
-    def get_by_user_and_quiz(
+    async def get_by_user_and_quiz(
         self,
         user_id: int,
         quiz_id: int,
@@ -29,9 +29,10 @@ class CRUDQuizResult(CRUDBase):
             .first()
         )
 
-    def get_results_by_user(
+    async def get_results_by_user(
         self,
         user_id: int,
+        tg_user: bool = False,
     ) -> Optional[QuizResult]:
         """Получить результаты квизов пользователя."""
         return (
@@ -39,24 +40,32 @@ class CRUDQuizResult(CRUDBase):
                 select(QuizResult)
                 # загрузка связанных Quiz
                 .options(joinedload(QuizResult.quiz)).where(
-                    QuizResult.user_id == user_id,
+                    QuizResult.user_id == user_id
+                    if not tg_user
+                    else QuizResult.tg_user_id == user_id,
                 ),
             )
             .scalars()
             .all()
         )
 
-    def get_results_by_user_paginated(
+    async def get_results_by_user_paginated(
         self,
         user_id: int,
         page: int,
         per_page: int,
+        tg_user: bool = False,
     ) -> Result:
         """Получить результаты квизов пользователя c пагинацией."""
-        return (
-            self.model.query
-            .filter_by(user_id=user_id)
-            .paginate(page=page, per_page=per_page, error_out=False)
+        if not tg_user:
+            query = self.model.query.filter_by(user_id=user_id)
+        else:
+            query = self.model.query.filter_by(tg_user_id=user_id)
+
+        return query.paginate(
+            page=page,
+            per_page=per_page,
+            error_out=False,
         )
 
 

@@ -17,14 +17,16 @@
     overflow: auto;
 }
 body {
-    font-family: 'Poppins', sans-serif; /* Apply Poppins font to the body */
+    font-family: 'Roboto Slab', sans-serif; /* Apply Poppins font to the body */
     overflow: auto;
     position: relative;
+    font-weight: 200;
 }
 /* Стили заголовков */
-h1, h2, h3 {
+h1, h2, h3, h4, h5, h6 {
     color: #333; /* Цвет текста */
-    font-family: 'Poppins', sans-serif; /* Шрифт */
+    font-family: 'Roboto Slab', sans-serif; /* Шрифт */
+    font-weight: 400;
 }
 
 h1 {
@@ -221,4 +223,32 @@ h3 {
 
 img.error {
     display: none;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: #fff;
+}
+
+.pagination .page-link {
+    color: #007bff;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+}
+
+/* Hover effect for title */
+header .title:hover {
+    color: #5a6066; /* Change title color on hover */
+    font-weight: 400;
+    text-shadow: #333;
+/* Add other hover effects as needed, e.g., text-shadow */
+}
+
+/* Hover effect for author icon */
+header .author-icon:hover, i:hover {
+    transform: scale(1.5); /* Slightly enlarge the icon on hover */
+/* Add other hover effects as needed, e.g., filter: brightness(1.2) */
 }

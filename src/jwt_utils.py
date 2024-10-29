@@ -25,7 +25,9 @@ def user_identity_lookup(user: User) -> int:
     его в сериализуемый формат JSON.
 
     """
-    return user.id
+    if user:
+        return user.id
+    return None
 
 
 @jwt.user_lookup_loader
@@ -40,10 +42,18 @@ def user_lookup_callback(_jwt_header: Any, jwt_data: Any) -> Optional[User]:
 
     """
     identity = jwt_data['sub']
-    user = User.query.filter_by(id=identity).one_or_none()
-
+    # Проверяем, есть ли пользователь в кэше
+    user = cache.get(f'user_{identity}')
+    if not user:
+        # Если нет то ищем в бд
+        user = User.query.filter_by(id=identity).one_or_none()
+        # Кэшируем пользователя
+        if user:
+            cache.set(f'user_{identity}', user, timeout=60 * 60)
     # Проверка на активность пользователя
     if user and not user.is_active:
+        abort(401)
+    if not user:
         abort(401)
 
     return user

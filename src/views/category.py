@@ -14,7 +14,7 @@
 #     """Вывод страницы категорий."""
 #     page = request.args.get('page', DEFAULT_PAGE_NUMBER, type=int)
 #     per_page = PER_PAGE
-#     categories_paginated = category_crud.get_active().paginate(
+#     categories_paginated = (await category_crud.get_active()).paginate(
 #         page=page,
 #         per_page=per_page,
 #         error_out=False,

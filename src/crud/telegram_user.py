@@ -9,7 +9,10 @@ class CRUDTelegramUser(CRUDBase):
 
     """Класс для работы с моделью TelegramUser через CRUD."""
 
-    def get_by_telegram_id(self, telegram_id: int) -> Optional[TelegramUser]:
+    async def get_by_telegram_id(
+        self,
+        telegram_id: int,
+    ) -> Optional[TelegramUser]:
         """Получение пользователя по telegram_id."""
         return (
             db.session.execute(
@@ -21,7 +24,7 @@ class CRUDTelegramUser(CRUDBase):
             .first()
         )
 
-    def exists_by_telegram_id(self, telegram_id: int) -> bool:
+    async def exists_by_telegram_id(self, telegram_id: int) -> bool:
         """Проверка существования пользователя по telegram_id."""
         return db.session.query(
             db.exists().where(TelegramUser.telegram_id == telegram_id),
