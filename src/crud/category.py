@@ -1,13 +1,11 @@
 from typing import Tuple
 
-from sqlalchemy import true
 from sqlalchemy.orm import Query
 
 from src import db
 from src.crud.base import CRUDBase
 from src.models.category import Category
 from src.models.question import Question
-from src.models.quiz import Quiz
 from src.models.user_answer import UserAnswer
 
 
@@ -15,20 +13,12 @@ class CRUDCategory(CRUDBase):
 
     """Круд класс для рубрик."""
 
-    async def get_active(self, is_active: bool = true()) -> Query:
+    def get_query(self) -> Query:
         """Получить все активные рубрики как запрос Query."""
-        return db.session.query(Category).filter(
-            Category.is_active == is_active,
-            Category.quizzes.any(
-                Quiz.is_active == is_active,
-            ),
-            Category.quizzes.any(
-                Quiz.questions.any(Question.is_active == is_active),
-            ),
-        )
+        return db.session.query(Category)
 
     async def get_statistic(self, category_id: int) -> Tuple:
-        """Получить статистику по категории."""
+        """Получить статистику по рубрике."""
         try:
             category = (
                 db.session.query(Category.name)
@@ -40,13 +30,12 @@ class CRUDCategory(CRUDBase):
 
             category_name = category.name
 
-            # Выбираем все ответы, относящиеся к данной категории.
+            # Выбираем все ответы, относящиеся к данной рубрике.
             results = (
                 db.session.query(UserAnswer.is_right)
-                .join(Question, UserAnswer.question_id == Question.id)
-                .join(Quiz, Question.quiz_id == Quiz.id)
-                .join(Category, Quiz.category_id == Category.id)
-                .filter(Category.id == category_id)
+                .where(
+                    UserAnswer.question_id == Question.id,
+                    Question.category_id == category_id)
                 .all()
             )
 

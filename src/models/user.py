@@ -13,6 +13,7 @@ class User(BaseModel, TimestampMixin, IsActiveMixin):
     """
 
     __tablename__ = 'users'
+
     name = db.Column(db.String)
     username = db.Column(db.String, unique=True)
     telegram_id = db.Column(db.BigInteger)

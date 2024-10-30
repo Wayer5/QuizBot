@@ -8,6 +8,8 @@ from src.crud.base import CRUDBase
 from src.models.question import Question
 from src.models.user_answer import UserAnswer
 
+# from src.models.quiz import Quiz
+
 
 class CRUDQuestion(CRUDBase):
 
@@ -25,14 +27,15 @@ class CRUDQuestion(CRUDBase):
                 select(Question)
                 .options(defer(Question.image))
                 .where(
-                    Question.quiz_id == quiz_id,
+                    Question.quizzes.any(id=quiz_id),
                     Question.is_active == is_active,
                     UserAnswer.id == null(),
                 )
                 .outerjoin(
                     UserAnswer,
                     (Question.id == UserAnswer.question_id)
-                    & (UserAnswer.user_id == user_id),
+                    & (UserAnswer.user_id == user_id)
+                    & (UserAnswer.quiz_id == quiz_id),
                 )
                 .limit(1),
             )
@@ -51,7 +54,7 @@ class CRUDQuestion(CRUDBase):
                 select(Question)
                 .options(defer(Question.image))
                 .where(
-                    Question.quiz_id == quiz_id,
+                    Question.quizzes.any(id=quiz_id),
                     Question.is_active == is_active,
                 )
                 .order_by(Question.id),

@@ -1,6 +1,6 @@
 from typing import Optional, Tuple
 
-from sqlalchemy import select, true
+from sqlalchemy import select  # , true
 from sqlalchemy.orm import Query
 
 from src import db
@@ -14,17 +14,21 @@ class CRUDQuiz(CRUDBase):
 
     """Круд класс викторин."""
 
-    async def get_by_category_id(
-        self,
-        category_id: int,
-        is_active: bool = true(),
-    ) -> Query:
-        """Получение викторин по id категории как запрос Query."""
-        return db.session.query(Quiz).filter(
-            Quiz.category_id == category_id,
-            Quiz.is_active == is_active,
-            Quiz.questions.any(Question.is_active == is_active),
-        )
+    # async def get_by_category_id(
+    #     self,
+    #     category_id: int,
+    #     is_active: bool = true(),
+    # ) -> Query:
+    #     """Получение викторин по id рубрики как запрос Query."""
+    #     return db.session.query(Quiz).filter(
+    #         Quiz.category_id == category_id,
+    #         Quiz.is_active == is_active,
+    #         Quiz.questions.any(Question.is_active == is_active),
+    #     )
+
+    def get_multi_query(self) -> Query:
+        """Создать список объектов."""
+        return Quiz.query
 
     async def get_by_id(self, quiz_id: int) -> Optional[Quiz]:
         """Получить викторину по ID."""
@@ -47,13 +51,15 @@ class CRUDQuiz(CRUDBase):
             # Получаем все вопросы викторины
             questions_subquery = (
                 db.session.query(Question.id)
-                .filter(Question.quiz_id == quiz_id)
+                .filter(Question.quizzes.any(id=quiz_id))
                 .subquery()
             )
 
             total_answers = (
                 db.session.query(UserAnswer)
-                .filter(UserAnswer.question_id.in_(questions_subquery))
+                .filter(UserAnswer.question_id.in_(questions_subquery),
+                        UserAnswer.quiz_id == quiz_id,
+                        )
                 .count()
             )
 
@@ -61,6 +67,7 @@ class CRUDQuiz(CRUDBase):
                 db.session.query(UserAnswer)
                 .filter(
                     UserAnswer.question_id.in_(questions_subquery),
+                    UserAnswer.quiz_id == quiz_id,
                     UserAnswer.is_right,
                 )
                 .count()

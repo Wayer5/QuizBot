@@ -13,6 +13,7 @@ class UserAnswer(BaseModel):
     """
 
     __tablename__ = 'user_answers'
+
     user_id = db.Column(
         db.Integer,
         db.ForeignKey('users.id'),
@@ -25,6 +26,13 @@ class UserAnswer(BaseModel):
         db.ForeignKey('telegram_users.id'),
         nullable=True,
         comment='Идентификатор телеграм пользователя.',
+        index=True,
+    )
+    quiz_id = db.Column(
+        db.Integer,
+        db.ForeignKey('quizzes.id'),
+        nullable=False,
+        comment='Идентификатор викторины, в которой находится вопрос.',
         index=True,
     )
     question_id = db.Column(
@@ -48,6 +56,7 @@ class UserAnswer(BaseModel):
     __table_args__ = (
         UniqueConstraint(
             'user_id',
+            'quiz_id',
             'question_id',
             name='_person_question_uc',
         ),

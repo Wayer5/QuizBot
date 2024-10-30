@@ -21,25 +21,24 @@ from src.models.category import Category
 
 class CategoryAdmin(IntegrityErrorMixin, CustomAdminView):
 
-    """Добавление и перевод модели категорий в админ зону."""
+    """Добавление и перевод модели рубрик в админ зону."""
 
     delete_error_message = ERROR_FOR_CATEGORY
 
     column_labels = {
-        # 'id': 'ID',
         'name': 'Название',
         'is_active': 'Активен',
     }
 
     def after_model_create(self, model: Any) -> None:
-        """Удаляем кэш после создания категории."""
+        """Удаляем кэш после создания рубрики."""
         cache.delete('categories_view_cache')
         app.logger.info(
             f'Category {model.name} has been created and cache invalidated.',
         )
 
     def after_model_delete(self, model: Any) -> None:
-        """Удаляем кэш после удаления категории."""
+        """Удаляем кэш после удаления рубрики."""
         cache.delete('categories_view_cache')
         app.logger.info(
             f'Category {model.name} has been deleted and cache invalidated.',
@@ -48,16 +47,17 @@ class CategoryAdmin(IntegrityErrorMixin, CustomAdminView):
 
 class CategoryListView(BaseView):
 
-    """Создание списка категорий для статистики."""
+    """Создание списка рубрик для статистики."""
 
     @expose('/')
+    @jwt_required()
     def index(self) -> Response:
-        """Создание списка для статистики категорий."""
+        """Создание списка для статистики рубрик."""
         page = request.args.get('page', DEFAULT_PAGE_NUMBER, type=int)
         per_page = ITEMS_PER_PAGE
 
         search_query = request.args.get('search', '', type=str)
-        query = Category.query
+        query = category_crud.get_query()
         if search_query:
             query = query.filter(Category.name.ilike(f'%{search_query}%'))
 
@@ -87,12 +87,12 @@ class CategoryListView(BaseView):
 
 class CategoryStatisticsView(NotVisibleMixin):
 
-    """Представление для статистики конкретной категории."""
+    """Представление для статистики конкретной рубрики."""
 
     @expose('/')
     @jwt_required()
     async def index(self) -> Response:
-        """Статистика по конкретной категории."""
+        """Статистика по конкретной рубрике."""
         category_id = request.args.get('category_id')
 
         statictic = await category_crud.get_statistic(category_id)

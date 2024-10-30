@@ -4,23 +4,31 @@ from src.models.base import BaseModel, IsActiveMixin
 
 class Category(BaseModel, IsActiveMixin):
 
-    """Модель категории викторины.
+    """Модель рубрики викторины.
 
-    Хранит информацию о различных категориях викторин.
+    Хранит информацию о различных рубриках викторин.
 
     """
 
     __tablename__ = 'categories'
+
     name = db.Column(
         db.String(30),
         nullable=False,
         unique=True,
-        comment='Название категории викторины.',
+        comment='Название рубрики викторины.',
     )
 
-    # Связь с таблицей quizzes
-    quizzes = db.relationship(
-        'Quiz',
+    # # Связь с таблицей quizzes
+    # quizzes = db.relationship(
+    #     'Quiz',
+    #     back_populates='category',
+    #     cascade='all,delete',
+    #     lazy=True,
+    # )
+
+    questions = db.relationship(
+        'Question',
         back_populates='category',
         cascade='all,delete',
         lazy=True,

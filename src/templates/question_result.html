@@ -27,7 +27,7 @@ block content %}
         <div class="d-grid gap-2" style="margin-bottom: 5px">
           <button
             class="btn btn-primary mx-auto"
-            onclick="location.href='{{ url_for('question', category_id=category_id, quiz_id=quiz_id, test=test) }}'"
+            onclick="location.href='{{ url_for('question', quiz_id=quiz_id, test=test) }}'"
           >
             Далее
           </button>
