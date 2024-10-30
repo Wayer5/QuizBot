@@ -11,7 +11,7 @@
 # @app.route('/', methods=['GET'])
 # @cache.cached(timeout=30, key_prefix='categories_view_cache')
 # async def categories() -> str:
-#     """Вывод страницы категорий."""
+#     """Вывод страницы рубрик."""
 #     page = request.args.get('page', DEFAULT_PAGE_NUMBER, type=int)
 #     per_page = PER_PAGE
 #     categories_paginated = (await category_crud.get_active()).paginate(

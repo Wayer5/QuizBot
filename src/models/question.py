@@ -32,7 +32,7 @@ class Question(BaseModel, IsActiveMixin):
         db.Integer,
         db.ForeignKey('categories.id'),
         nullable=False,
-        comment='Идентификатор категории, к которой относится вопрос.',
+        comment='Идентификатор рубрики, к которой относится вопрос.',
         index=True,
     )
     image = deferred(

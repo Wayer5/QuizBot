@@ -27,7 +27,7 @@ from src.models.quiz import Quiz
 
 class GroupedListWidget(object):
 
-    """Кастомный виджет для отображения вопросов по категориям."""
+    """Кастомный виджет для отображения вопросов по рубрикам."""
 
     def __call__(self, field: Any, **kwargs: Any) -> Markup:
         """Срабатывает при вызове класса."""

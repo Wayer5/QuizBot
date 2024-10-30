@@ -7,7 +7,7 @@ class Quiz(BaseModel, IsActiveMixin):
 
     """Модель викторины.
 
-    Содержит основную информацию о викторине, такую как название и категория.
+    Содержит основную информацию о викторине, такую как название и рубрика.
 
     """
 
@@ -23,7 +23,7 @@ class Quiz(BaseModel, IsActiveMixin):
     #     db.Integer,
     #     db.ForeignKey('categories.id'),
     #     nullable=False,
-    #     comment='Идентификатор категории, к которой относится викторина.',
+    #     comment='Идентификатор рубрики, к которой относится викторина.',
     # )
     # category = db.relationship('Category', back_populates='quizzes')
 

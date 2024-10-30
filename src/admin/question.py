@@ -38,7 +38,7 @@ class QuestionAdmin(IntegrityErrorMixin, CustomAdminView):
     column_labels = {
         'id': 'ID',
         'title': 'Текст вопроса',
-        'category': 'Категория',
+        'category': 'Рубрика',
         'is_active': 'Активен',
     }
     form_extra_fields = {

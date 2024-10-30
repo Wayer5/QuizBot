@@ -18,7 +18,7 @@ class CRUDCategory(CRUDBase):
         return db.session.query(Category)
 
     async def get_statistic(self, category_id: int) -> Tuple:
-        """Получить статистику по категории."""
+        """Получить статистику по рубрике."""
         try:
             category = (
                 db.session.query(Category.name)
@@ -30,7 +30,7 @@ class CRUDCategory(CRUDBase):
 
             category_name = category.name
 
-            # Выбираем все ответы, относящиеся к данной категории.
+            # Выбираем все ответы, относящиеся к данной рубрике.
             results = (
                 db.session.query(UserAnswer.is_right)
                 .where(

@@ -36,7 +36,7 @@ admin.add_view(
     CategoryAdmin(
         Category,
         db.session,
-        name='Категории',
+        name='Рубрики',
         endpoint='category_admin',
     ),
 )
@@ -54,7 +54,7 @@ admin.add_view(
 )
 admin.add_view(
     CategoryListView(
-        name='Статистика по категориям',
+        name='Статистика по рубрикам',
         endpoint='category_list',
     ),
 )

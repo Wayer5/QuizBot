@@ -4,9 +4,9 @@ from src.models.base import BaseModel, IsActiveMixin
 
 class Category(BaseModel, IsActiveMixin):
 
-    """Модель категории викторины.
+    """Модель рубрики викторины.
 
-    Хранит информацию о различных категориях викторин.
+    Хранит информацию о различных рубриках викторин.
 
     """
 
@@ -16,7 +16,7 @@ class Category(BaseModel, IsActiveMixin):
         db.String(30),
         nullable=False,
         unique=True,
-        comment='Название категории викторины.',
+        comment='Название рубрики викторины.',
     )
 
     # # Связь с таблицей quizzes

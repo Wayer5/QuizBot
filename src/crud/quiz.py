@@ -19,7 +19,7 @@ class CRUDQuiz(CRUDBase):
     #     category_id: int,
     #     is_active: bool = true(),
     # ) -> Query:
-    #     """Получение викторин по id категории как запрос Query."""
+    #     """Получение викторин по id рубрики как запрос Query."""
     #     return db.session.query(Quiz).filter(
     #         Quiz.category_id == category_id,
     #         Quiz.is_active == is_active,
