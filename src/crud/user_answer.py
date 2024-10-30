@@ -45,6 +45,7 @@ class CRUDUserAnswer(CRUDBase):
                         select(Question.id)
                         .where(Question.quizzes.any(id=quiz_id)),
                     ),
+                    UserAnswer.quiz_id == quiz_id,
                 ),
             )
             .scalars()

@@ -8,6 +8,8 @@ from src.crud.base import CRUDBase
 from src.models.question import Question
 from src.models.user_answer import UserAnswer
 
+# from src.models.quiz import Quiz
+
 
 class CRUDQuestion(CRUDBase):
 
@@ -32,7 +34,8 @@ class CRUDQuestion(CRUDBase):
                 .outerjoin(
                     UserAnswer,
                     (Question.id == UserAnswer.question_id)
-                    & (UserAnswer.user_id == user_id),
+                    & (UserAnswer.user_id == user_id)
+                    & (UserAnswer.quiz_id == quiz_id),
                 )
                 .limit(1),
             )

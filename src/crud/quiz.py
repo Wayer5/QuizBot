@@ -51,13 +51,15 @@ class CRUDQuiz(CRUDBase):
             # Получаем все вопросы викторины
             questions_subquery = (
                 db.session.query(Question.id)
-                .filter(Question.quiz_id == quiz_id)
+                .filter(Question.quizzes.any(id=quiz_id))
                 .subquery()
             )
 
             total_answers = (
                 db.session.query(UserAnswer)
-                .filter(UserAnswer.question_id.in_(questions_subquery))
+                .filter(UserAnswer.question_id.in_(questions_subquery),
+                        UserAnswer.quiz_id == quiz_id,
+                        )
                 .count()
             )
 
@@ -65,6 +67,7 @@ class CRUDQuiz(CRUDBase):
                 db.session.query(UserAnswer)
                 .filter(
                     UserAnswer.question_id.in_(questions_subquery),
+                    UserAnswer.quiz_id == quiz_id,
                     UserAnswer.is_right,
                 )
                 .count()

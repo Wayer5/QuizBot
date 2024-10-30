@@ -7,12 +7,12 @@ quiz_questions = db.Table(
         'quiz_id',
         db.Integer,
         db.ForeignKey('quizzes.id'),
-        primary_key=True
+        primary_key=True,
     ),
     db.Column(
         'question_id',
         db.Integer,
         db.ForeignKey('questions.id'),
-        primary_key=True
+        primary_key=True,
     ),
 )

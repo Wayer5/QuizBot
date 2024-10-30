@@ -8,14 +8,14 @@ from src import app, cache
 from src.admin.base import (
     CustomAdminView,
     IntegrityErrorMixin,
-    # NotVisibleMixin,
+    NotVisibleMixin,
 )
 from src.constants import (
     DEFAULT_PAGE_NUMBER,
     ERROR_FOR_CATEGORY,
     ITEMS_PER_PAGE,
 )
-# from src.crud.category import category_crud
+from src.crud.category import category_crud
 from src.models.category import Category
 
 
@@ -57,7 +57,7 @@ class CategoryListView(BaseView):
         per_page = ITEMS_PER_PAGE
 
         search_query = request.args.get('search', '', type=str)
-        query = Category.query
+        query = category_crud.get_query()
         if search_query:
             query = query.filter(Category.name.ilike(f'%{search_query}%'))
 
@@ -85,29 +85,29 @@ class CategoryListView(BaseView):
         )
 
 
-# class CategoryStatisticsView(NotVisibleMixin):
+class CategoryStatisticsView(NotVisibleMixin):
 
-#     """Представление для статистики конкретной категории."""
+    """Представление для статистики конкретной категории."""
 
-    # @expose('/')
-    # @jwt_required()
-    # async def index(self) -> Response:
-    #     """Статистика по конкретной категории."""
-    #     category_id = request.args.get('category_id')
+    @expose('/')
+    @jwt_required()
+    async def index(self) -> Response:
+        """Статистика по конкретной категории."""
+        category_id = request.args.get('category_id')
 
-    #     statictic = await category_crud.get_statistic(category_id)
+        statictic = await category_crud.get_statistic(category_id)
 
-#         (
-#             category_name,
-#             total_answers,
-#             correct_answers,
-#             correct_percentage,
-#         ) = statictic
+        (
+            category_name,
+            total_answers,
+            correct_answers,
+            correct_percentage,
+        ) = statictic
 
-#         return self.render(
-#             'admin/category_statistics.html',
-#             category_name=category_name,
-#             total_answers=total_answers,
-#             correct_answers=correct_answers,
-#             correct_percentage=correct_percentage,
-#         )
+        return self.render(
+            'admin/category_statistics.html',
+            category_name=category_name,
+            total_answers=total_answers,
+            correct_answers=correct_answers,
+            correct_percentage=correct_percentage,
+        )

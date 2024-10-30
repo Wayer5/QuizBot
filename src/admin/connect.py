@@ -6,7 +6,7 @@ from src import app, db
 from src.admin.category import (
     CategoryAdmin,
     CategoryListView,
-    # CategoryStatisticsView,
+    CategoryStatisticsView,
 )
 from src.admin.index import MyAdminIndexView
 from src.admin.question import (
@@ -58,9 +58,9 @@ admin.add_view(
         endpoint='category_list',
     ),
 )
-# admin.add_view(
-#     CategoryStatisticsView(endpoint='category_statistics'),
-# )
+admin.add_view(
+    CategoryStatisticsView(endpoint='category_statistics'),
+)
 admin.add_view(
     QuestionListView(name='Статистика по вопросам', endpoint='question_list'),
 )

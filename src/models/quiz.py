@@ -39,7 +39,7 @@ class Quiz(BaseModel, IsActiveMixin):
         'Question',
         secondary=quiz_questions,
         back_populates='quizzes',
-        lazy='subquery'
+        lazy='subquery',
     )
 
     # Связь с таблицей результатов викторины

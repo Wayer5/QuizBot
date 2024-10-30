@@ -22,3 +22,4 @@ DELETE_ERROR_MESSAGE = (
 ERROR_FOR_CATEGORY = ' ни на один вопрос в этой категории.'
 ERROR_FOR_QUIZ = ' ни на один вопрос в этой викторине.'
 ERROR_FOR_QUESTION = ' на этот вопрос.'
+AT_LEAST_ONE_QUESTION = 'Викторина должна содержать хотя бы один вопрос.'

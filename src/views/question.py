@@ -31,7 +31,6 @@ from src.utils import Dotdict, obj_to_dict
 @app.route('/<int:quiz_id>/<test>', methods=['GET', 'POST'])
 @jwt_required()
 async def question(
-    category_id: int,
     quiz_id: int,
     test: Optional[str] = None,
 ) -> str:
@@ -39,7 +38,6 @@ async def question(
 
     Args:
     ----
-        category_id (int): ID категории викторины.
         quiz_id (int): ID викторины.
         test (Optional[str], optional): Флаг тестового режима.
         Если присутствует, результаты викторины не сохраняются.
@@ -50,14 +48,13 @@ async def question(
 
     """
     if request.method == 'POST':
-        return await handle_question_post(category_id, quiz_id, test)
+        return await handle_question_post(quiz_id, test)
 
     # GET request logic
-    return await handle_question_get(category_id, quiz_id, test)
+    return await handle_question_get(quiz_id, test)
 
 
 async def handle_question_post(
-    category_id: int,
     quiz_id: int,
     test: Optional[str] = None,
 ) -> str:
@@ -68,7 +65,6 @@ async def handle_question_post(
 
     Args:
     ----
-        category_id (int): ID категории викторины.
         quiz_id (int): ID викторины.
         test (Optional[str], optional): Флаг тестового режима.
 
@@ -108,16 +104,16 @@ async def handle_question_post(
         )
         await save_user_answer(
             user_id=current_user.id,
+            tg_user_id=tg_user_id,
+            quiz_id=quiz_id,
             question_id=current_question.id,
             answer_id=answer_id,
             is_right=chosen_answer.is_right_choice,
-            tg_user_id=tg_user_id,
         )
 
     image_url = url_for('get_question_image', question_id=question_id)
     return render_template(
         'question_result.html',
-        category_id=category_id,
         quiz_id=quiz_id,
         answer=chosen_answer.title,
         description=chosen_answer.description,
@@ -128,7 +124,6 @@ async def handle_question_post(
 
 
 async def handle_question_get(
-    category_id: int,
     quiz_id: int,
     test: Optional[str] = None,
 ) -> Union[str, redirect]:
@@ -138,7 +133,6 @@ async def handle_question_get(
 
     Args:
     ----
-        category_id (int): ID категории викторины.
         quiz_id (int): ID викторины.
         test (Optional[str], optional): Флаг тестового режима.
 
@@ -221,26 +215,29 @@ async def update_quiz_results(
 
 async def save_user_answer(
     user_id: int,
+    tg_user_id: int,
+    quiz_id: int,
     question_id: int,
     answer_id: int,
     is_right: bool,
-    tg_user_id: int,
 ) -> None:
     """Сохраняет ответ пользователя в базе данных.
 
     Args:
     ----
         user_id (int): ID пользователя.
+        tg_user_id (int): ID телеграм пользователя.
+        quiz_id (int): ID викторины.
         question_id (int): ID вопроса.
         answer_id (int): ID выбранного ответа.
         is_right (bool): Флаг, указывающий, был ли ответ верным.
-        tg_user_id (int): ID телеграм пользователя.
 
     """
     await user_answer_crud.create(
         {
             'user_id': user_id,
             'tg_user_id': tg_user_id,
+            'quiz_id': quiz_id,
             'question_id': question_id,
             'answer_id': answer_id,
             'is_right': is_right,

@@ -30,9 +30,9 @@ async def quizzes() -> str:
     )
 
 
-@app.route('/<int:category_id>/<int:quiz_id>/refresh')
+@app.route('/<int:quiz_id>/refresh')
 @jwt_required()
-async def quiz_reload(category_id: int, quiz_id: int) -> str:
+async def quiz_reload(quiz_id: int) -> str:
     """Перезагрузка викторины."""
     user_answers = await user_answer_crud.get_results_by_user_and_quiz(
         user_id=current_user.id,
@@ -49,5 +49,5 @@ async def quiz_reload(category_id: int, quiz_id: int) -> str:
         quiz_result.user_id = None
         await quiz_result_crud.update_with_obj(quiz_result)
     return redirect(
-        url_for('question', category_id=category_id, quiz_id=quiz_id),
+        url_for('question',  quiz_id=quiz_id),
     )

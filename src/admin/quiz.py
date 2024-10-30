@@ -1,7 +1,11 @@
+from typing import Any
+
 from flask import Response, abort, redirect, request, url_for
 from flask_admin import BaseView, expose
 from flask_admin.model.template import LinkRowAction
 from flask_jwt_extended import jwt_required
+from markupsafe import Markup
+from wtforms import ValidationError
 from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 
 from src.admin.base import (
@@ -10,13 +14,58 @@ from src.admin.base import (
     NotVisibleMixin,
 )
 from src.constants import (
+    AT_LEAST_ONE_QUESTION,
     DEFAULT_PAGE_NUMBER,
     ERROR_FOR_QUIZ,
     ITEMS_PER_PAGE,
 )
 from src.crud.quiz import quiz_crud
-from src.models.quiz import Quiz
+from src.models.category import Category
 from src.models.question import Question
+from src.models.quiz import Quiz
+
+
+class GroupedListWidget(object):
+
+    """Кастомный виджет для отображения вопросов по категориям."""
+
+    def __call__(self, field: Any, **kwargs: Any) -> Markup:
+        """Срабатывает при вызове класса."""
+        html = []
+        categories = Category.query.filter(Category.is_active).all()
+
+        for category in categories:
+            html.append(f'<div><strong>{category.name}</strong></div>')
+            html.append('<ul style="list-style-type:none;">')
+
+            for question in category.questions:
+                if question.is_active:
+                    checked = "checked" if question in field.data else ""
+                    html.append(
+                        '<li>'
+                        '<label>'
+                        f'<input type="checkbox" name="{field.name}" '
+                        f'value="{question.id}" {checked}> {question.title}'
+                        '</label>'
+                        '</li>',
+                    )
+
+            html.append('</ul>')
+
+        return Markup("".join(html))
+
+
+class GroupedQuerySelectMultipleField(QuerySelectMultipleField):
+
+    """Класс для создания формы выбора вопросов при создании викторины."""
+
+    def __init__(
+            self, label: Any = '', validators: Any = None, **kwargs: Any,
+    ) -> None:
+        """Пререопределяем инит класса для использования своего виджета."""
+        super().__init__(label, validators, **kwargs)
+        self.widget = GroupedListWidget()  # Используем наш кастомный виджет
+        self.query_factory = lambda: Question.query.all()
 
 
 class QuizAdmin(IntegrityErrorMixin, CustomAdminView):
@@ -37,11 +86,9 @@ class QuizAdmin(IntegrityErrorMixin, CustomAdminView):
     }
 
     form_extra_fields = {
-        'questions': QuerySelectMultipleField(
+        'questions': GroupedQuerySelectMultipleField(
             'Вопросы',
-            query_factory=lambda: Question.query.all(),
-            allow_blank=False,
-        )
+        ),
     }
 
     column_extra_row_actions = [
@@ -66,6 +113,11 @@ class QuizAdmin(IntegrityErrorMixin, CustomAdminView):
                 test=True,
             ),
         )
+
+    def on_model_change(self, form: Any, model: Any, is_created: bool) -> None:
+        """Проверка на выбор хотя бы одного вопроса для викторины."""
+        if not model.questions:
+            raise ValidationError(AT_LEAST_ONE_QUESTION)
 
 
 class QuizListView(BaseView):
